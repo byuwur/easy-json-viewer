@@ -1,0 +1,53 @@
+/* byuwur was here */
+body {
+	-webkit-transition: all 0.333s ease !important;
+	-o-transition: all 0.333s ease !important;
+	-ms-transition: all 0.333s ease !important;
+	-moz-transition: all 0.333s ease !important;
+	transition: all 0.333s ease !important;
+}
+pre {
+	margin: 0 0 8px;
+	padding: 0;
+	white-space: pre-wrap;
+}
+.byJSONdocument {
+	padding: 8px 8px 8px 24px;
+}
+.byJSONstring {
+	color: #fff;
+}
+.byJSONliteral {
+	font-weight: bold;
+}
+.byJSONdict,
+.byJSONarray {
+	list-style: none;
+	margin: 0;
+	padding-left: 2em;
+}
+.byJSONtoggle {
+	position: relative;
+	color: inherit;
+	text-decoration: none;
+}
+.byJSONtoggle:before {
+	content: "\25BC";
+	position: absolute;
+	left: -1.25em;
+	display: inline-block;
+	width: 1em;
+	line-height: 1.25em;
+	font-size: 1em;
+	text-align: center;
+	transition: transform 0.25s;
+}
+.byJSONtoggle:hover:before {
+	color: #fff;
+}
+.byJSONtoggle.collapsed:before {
+	transform: rotate(-90deg);
+}
+.byJSONplaceholder {
+	padding: 0 1em;
+}

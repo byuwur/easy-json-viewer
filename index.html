@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>easy JSON viewer</title>
+		<link href="json.css" rel="stylesheet" />
+		<link id="theme" href="json.dark.css" rel="stylesheet" />
+		<script src="json.js" defer></script>
+	</head>
+	<body>
+		<p>easy JSON viewer</p>
+		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a>
+		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
+		<br /><br />
+		<pre id="byJSONrenderer"></pre>
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+				const JSON = {
+					name: "John Doe",
+					age: 30,
+					isEmployee: true,
+					address: {
+						street: "123 Main St",
+						city: "Anytown"
+					},
+					projects: ["Project1", "Project2", "Project3"]
+				};
+				byJSONviewer(document.getElementById("byJSONrenderer"), JSON);
+			});
+		</script>
+	</body>
+</html>

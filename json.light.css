@@ -1,0 +1,27 @@
+/* byuwur was here */
+body {
+    background: #eee;
+    color: #111;
+}
+.byJSONdocument {
+	border: 1px solid #bcd;
+}
+.byJSONstring {
+	color: #070;
+}
+.byJSONliteral {
+	color: #11c;
+}
+.byJSONdict,
+.byJSONarray {
+	border-left: 1px dotted #bbb;
+}
+.byJSONtoggle:before {
+	color: #999;
+}
+.byJSONtoggle:hover:before {
+	color: #666;
+}
+.byJSONplaceholder {
+	color: #aaa;
+}

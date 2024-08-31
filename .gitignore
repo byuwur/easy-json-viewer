@@ -1,9 +1,26 @@
-# Dependencies
-.psci_modules
-.spago
-bower_components
-node_modules
-
-# Generated files
-.psci
-output
+# Environment
+.env
+*.env
+*.env*
+# Uploads
+assets/
+# Plugins
+vendor/
+plugin/
+plugins/
+node_modules/
+# Builds
+dist/
+build/
+bin/
+# OS
+.DS_Store
+Thumbs.db
+# Editors
+.vscode/
+.idea/
+*.sublime-workspace
+# Logs and Temps
+*.log
+*.tmp
+*.temp

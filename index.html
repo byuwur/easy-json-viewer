@@ -10,6 +10,7 @@
 	</head>
 	<body>
 		<p>easy JSON viewer</p>
+		<p>This is a demo of <a href="https://github.com/byuwur/easy-json-viewer">https://github.com/byuwur/easy-json-viewer</a></p>
 		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a>
 		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
 		<br /><br />
@@ -18,13 +19,15 @@
 			document.addEventListener("DOMContentLoaded", () => {
 				const JSON = {
 					name: "John Doe",
-					age: 30,
+					age: 69,
 					isEmployee: true,
 					address: {
 						street: "123 Main St",
 						city: "Anytown"
 					},
-					projects: ["Project1", "Project2", "Project3"]
+					projects: ["Hello, world", "Test", "easy"],
+					sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
+					spa: "https://github.com/byuwur/easy-spa-php"
 				};
 				byJSONviewer(document.getElementById("byJSONrenderer"), JSON);
 			});

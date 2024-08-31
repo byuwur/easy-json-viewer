@@ -5,6 +5,7 @@ body {
 	-ms-transition: all 0.333s ease !important;
 	-moz-transition: all 0.333s ease !important;
 	transition: all 0.333s ease !important;
+	font-family: monospace;
 }
 pre {
 	margin: 0 0 8px;

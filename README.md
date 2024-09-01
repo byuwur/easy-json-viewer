@@ -1,84 +1,117 @@
 # byuwur/easy-json-viewer
 
-Easy JSON Viewer is a lightweight JavaScript library that allows you to easily render JSON data into an HTML structure with collapsible nodes. It's perfect for displaying JSON data in a readable and interactive format on your web pages.
+**easy JSON Viewer** is a lightweight and easy-to-use JavaScript library for rendering JSON objects in an HTML document. It provides chunk rendering collapsible nodes, syntax highlighting, and customizable themes to make JSON data more readable and interactive.
+
+Test it out at: [codepen.io/byuwur/pen/ExBeOPR](https://codepen.io/byuwur/pen/ExBeOPR)
 
 ## Features
 
--   **Chunk Rendering**: Handles JSON of almost any size by dividing the load in configurable chunks.
--   **Collapsible Nodes**: Easily expand or collapse JSON objects and arrays to focus on the data you need.
--   **Syntax Highlighting**: Visual differentiation between strings, numbers, booleans, and other data types.
--   **Clickable URLs**: Automatically converts URLs in JSON strings into clickable links.
--   **Dark and Light Themes**: Supports both dark and light themes to match your website's design.
--   **Easy Integration**: Simple to use with minimal configuration required.
+-   **Chunk Rendering**: Handles a JSON of almost any size by dividing the load in configurable chunks.
+-   **Collapsible Nodes**: Collapse or expand JSON objects and arrays to focus on specific parts of the data.
+-   **Syntax Highlighting**: Distinct colors for strings, literals, and other data types for easy reading.
+-   **Customizable Themes**: Switch between light and dark themes with a single click.
+-   **Efficient Rendering**: Handles large JSON files by chunking the data to prevent freezing.
+-   **Link Handling**: Automatically converts URLs in strings to clickable links.
 
 ## Getting Started
 
 ### Installation
 
-To include Easy JSON Viewer in your project, download the necessary files and include them in your HTML:
+You can include the `easy JSON Viewer` in your project by downloading the required files or linking them directly in your HTML:
 
 ```html
-<link rel="stylesheet" href="json.css" />
-<link id="theme" rel="stylesheet" href="json.dark.css" />
+<link href="json.css" rel="stylesheet" />
+<link id="theme" href="json.dark.css" rel="stylesheet" />
 <script src="json.js" defer></script>
 ```
 
-### Usage
+### Basic Usage
 
-To use Easy JSON Viewer, create an HTML element where the JSON data will be rendered, and then call the `byJSONviewer` function with the element and JSON data:
+To use `easy JSON Viewer`, simply call the `byJSONviewer` function and pass the target element, the JSON data, and optional configuration options:
 
-```html
-<div id="json-render"></div>
+```javascript
+const jsonData = {
+	name: "John Dough",
+	age: 69,
+	isBased: true,
+	address: {
+		address1: "123 Main St",
+		city: "Anywhere, SA. PÄ"
+	},
+	projects: ["easy-spa-php", "easy-sidebar-bootstrap", "easy-http-error-page"]
+};
 
-<script>
-	document.addEventListener("DOMContentLoaded", () => {
-		const data = {
-			name: "John Doe",
-			age: 69,
-			isEmployee: true,
-			address: {
-				street: "123 Main St",
-				city: "Anytown"
-			},
-			projects: ["Hello, world", "Test", "easy"],
-			sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
-			spa: "https://github.com/byuwur/easy-spa-php"
-		};
-		byJSONviewer(document.getElementById("json-render"), data);
-	});
-</script>
+byJSONviewer(document.getElementById("byJSONrenderer"), jsonData);
 ```
+
+### Options
+
+The `byJSONviewer` function accepts an optional `options` object to customize its behavior:
+
+-   `collapsed` (default: `false`): If `true`, collapsible nodes will be collapsed by default.
+-   `rootCollapsable` (default: `true`): If `true`, the root JSON object will be collapsible.
+-   `withQuotes` (default: `true`): If `true`, object keys will be wrapped in double quotes.
+-   `withLinks` (default: `true`): If `true`, strings that look like URLs will be rendered as clickable links.
+-   `bigNumbers` (default: `false`): If `true`, large numbers will be handled with special care (e.g., for libraries that support big numbers).
+-   `chunkSize` (default: `999`): Number of elements to render per chunk to avoid freezing.
+-   `chunkLatency` (default: `33`): Number of milliseconds to wait between renders.
 
 ### Themes
 
-Easy JSON Viewer supports both dark and light themes. You can switch between them dynamically:
+You can easily switch between light and dark themes by updating the `href` attribute of the theme link:
 
 ```html
 <a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light Theme</a> <a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark Theme</a>
 ```
 
-### Options
+### Handling Large JSON Files
 
-You can customize the behavior of Easy JSON Viewer with the following options:
-
--   `collapsed` (default: `false`): If `true`, all collapsible nodes will be collapsed by default.
--   `rootCollapsable` (default: `true`): If `true`, the root JSON object will be collapsible.
--   `withQuotes` (default: `false`): If `true`, object keys will be wrapped in double quotes.
--   `withLinks` (default: `true`): If `true`, strings that look like URLs will be rendered as clickable links.
--   `bigNumbers` (default: `false`): If `true`, large numbers will be handled with special care.
--   `chunkSize` (default: `999`) numbers of elements to render per chunk to avoid freezing
--   `chunkLatency` (default; `33`) number of miliseconds to wait between renders
-
-Example usage with options:
+For large JSON files, you can adjust the rendering speed and initial collapsed state:
 
 ```javascript
-byJSONviewer(document.getElementById("json-container"), data, {
-	collapsed: true,
-	withQuotes: true,
-	withLinks: false
-});
+const renderFetched = (options = {}) => {
+	fetch(`https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`)
+		.then((response) => {
+			if (!response.ok) console.warn(`Something went wrong`, response.statusText);
+			return response.json();
+		})
+		.then((response) => {
+			byJSONviewer(document.getElementById("byJSONrenderer"), response, options);
+		})
+		.catch((e) => {
+			console.warn(`Something went wrong`, e);
+		});
+};
+
+const youDontWannaDoThis = () => renderFetched();
+const youDontWannaDoThisCollapsed = () => renderFetched({ collapsed: true });
+const youDontWannaDoThisFast = () => renderFetched({ chunkLatency: 1 });
+```
+
+## Demo
+
+You can view a live demo of `easy JSON Viewer` on this [codepen](https://codepen.io/byuwur/pen/ExBeOPR).
+
+### Example Code
+
+```html
+<pre id="byJSONrenderer"></pre>
+<script>
+	const jsonData = {
+		name: "John Dough",
+		age: 69,
+		isBased: true,
+		address: {
+			address1: "123 Main St",
+			city: "Anywhere, SA. PÄ"
+		},
+		projects: ["easy-spa-php", "easy-sidebar-bootstrap", "easy-http-error-page"]
+	};
+
+	byJSONviewer(document.getElementById("byJSONrenderer"), jsonData);
+</script>
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT (c) Andrés Trujillo [Mateus] byUwUr

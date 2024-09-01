@@ -52,5 +52,9 @@ pre {
 	transform: rotate(-90deg);
 }
 .byJSONplaceholder {
+	display: none;
 	padding: 0 1em;
+}
+.byJSONplaceholder.collapsed {
+	display: inline;
 }

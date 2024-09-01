@@ -11,29 +11,33 @@
 	<body>
 		<p>easy JSON viewer</p>
 		<p>This is a demo of <a href="https://github.com/byuwur/easy-json-viewer">https://github.com/byuwur/easy-json-viewer</a></p>
-		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a>
+		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a> |
 		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
 		<br /><br />
-		<a href="javascript:youDontWannaDoThis();">COMICALLY_LONG_JSON</a>
+		<a href="javascript:render();">COMICALLY SHORT JSON</a> | <a href="javascript:renderCollapsed();">COMICALLY SHORT JSON BUT COLLAPSED</a> |
+		<a href="javascript:renderFast();">COMICALLY SHORT JSON AS FAST AS POSSIBLE</a>
+		<br /><br />
+		<a href="javascript:youDontWannaDoThis();">COMICALLY LONG JSON</a> | <a href="javascript:youDontWannaDoThisCollapsed();">COMICALLY LONG JSON BUT COLLAPSED</a> |
+		<a href="javascript:youDontWannaDoThisFast();">COMICALLY LONG JSON AS FAST AS POSSIBLE</a>
 		<br /><br />
 		<pre id="byJSONrenderer"></pre>
 		<script>
-			document.addEventListener("DOMContentLoaded", async () => {
-				const JSON = {
-					name: "John Doe",
-					age: 69,
-					isEmployee: true,
-					address: {
-						street: "123 Main St",
-						city: "Anytown"
-					},
-					projects: ["easy-SPA", "easy-Sidebar", "easy-http-error-page"],
-					sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
-					spa: "https://github.com/byuwur/easy-spa-php"
-				};
-				byJSONviewer(document.getElementById("byJSONrenderer"), JSON);
-			});
-			const youDontWannaDoThis = () => {
+			const COMICALLY_SHORT_JSON = {
+				name: "John Dough",
+				age: 69,
+				isBased: true,
+				address: {
+					address1: "123 Main St",
+					city: "Anywhere, SA. PÄ"
+				},
+				projects: ["easy-spa-php", "easy-sdebar-bootstrap", "easy-http-error-page"],
+				sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
+				spa: "https://github.com/byuwur/easy-spa-php"
+			};
+			const render = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON);
+			const renderCollapsed = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON, { collapsed: true });
+			const renderFast = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON, { chunkLatency: 1 });
+			const renderFetched = (options = {}) => {
 				fetch(`https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`)
 					.then((response) => {
 						if (!response.ok) console.warn(`Something went wrong`, response.statusText);
@@ -41,12 +45,18 @@
 					})
 					.then((response) => {
 						console.log(response);
-						byJSONviewer(document.getElementById("byJSONrenderer"), response);
+						byJSONviewer(document.getElementById("byJSONrenderer"), response, options);
 					})
 					.catch((e) => {
 						console.warn(`Something went wrong`, e);
 					});
 			};
+			const youDontWannaDoThis = () => renderFetched();
+			const youDontWannaDoThisCollapsed = () => renderFetched({ collapsed: true });
+			const youDontWannaDoThisFast = () => renderFetched({ chunkLatency: 1 });
+			document.addEventListener("DOMContentLoaded", () => {
+				render();
+			});
 		</script>
 	</body>
 </html>

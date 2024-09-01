@@ -68,6 +68,31 @@ const chunkArr = (arr, size) => {
 	return chunks;
 };
 
+// Placeholder events
+const addPlaceholderListener = (element) => {
+	element.addEventListener("click", (event) => {
+		event.preventDefault();
+		const toggle = getSiblingByIdOrClass(event.target, `byJSONtoggle`);
+		if (toggle) toggle.click();
+	});
+};
+
+// Toggle event
+const addToggleListener = (element, collapsed) => {
+	element.addEventListener("click", (event) => {
+		console.log("test", event.target);
+		event.preventDefault();
+		event.target.classList.toggle(`collapsed`);
+		const nest = getSiblingByIdOrClass(event.target, `byJSONnest`);
+		if (!nest) return console.log(`byJSONnest sibling not found.`);
+		nest.classList.toggle(`collapsed`);
+		const placeholder = getSiblingByIdOrClass(event.target, `byJSONplaceholder`);
+		if (placeholder) placeholder.classList.toggle(`collapsed`);
+	});
+	// Collapse nodes if the collapsed option is set to true; use timeout to wait for the DOM to process
+	if (collapsed) setTimeout(() => element.click(), 0);
+};
+
 // Add common <a> elements
 const appendA = (parent, classname = `byJSONstring`, text = "", href = "javascript:;", hasTarget = false, isAfter = false) => {
 	const a = document.createElement("a");
@@ -90,48 +115,11 @@ const appendSPAN = (parent, text = "", classname = `byJSONliteral`) => {
 // Add common <li> elements
 const appendLI = (parent, item, options, isLast = false, isObj = false, key = "") => {
 	const li = document.createElement("li");
-	if (isCollapsable(item)) appendA(li, `byJSONtoggle`);
-	if (isObj) {
-		li.appendChild(document.createTextNode(key));
-		li.appendChild(document.createTextNode(": "));
-	}
+	if (isCollapsable(item)) addToggleListener(appendA(li, `byJSONtoggle`), options.collapsed);
+	if (isObj) li.appendChild(document.createTextNode(`${key}: `));
 	li.appendChild(json2html(li, item, options));
 	if (!isLast) li.appendChild(document.createTextNode(","));
 	parent.appendChild(li);
-};
-
-// Placeholder event
-const placeholderHandler = (event) => {
-	event.preventDefault();
-	const toggle = getSiblingByIdOrClass(event.target, `byJSONtoggle`);
-	if (toggle) toggle.click();
-};
-
-// Toggle event
-const toggleHandler = (event) => {
-	event.preventDefault();
-	event.target.classList.toggle(`collapsed`);
-	const nest = getSiblingByIdOrClass(event.target, `byJSONnest`);
-	if (!nest) return console.log(`byJSONnest sibling not found.`);
-	nest.classList.toggle(`collapsed`);
-	if (nest.classList.contains(`collapsed`)) {
-		const count = nest.children.length;
-		appendA(nest, `byJSONplaceholder`, `${count} item${count > 1 ? "s" : ""}`, "javascript:;", false, true);
-	} else {
-		const placeholder = getSiblingByIdOrClass(event.target, `byJSONplaceholder`);
-		if (placeholder) placeholder.remove();
-	}
-	// Handle clicks on placeholders to expand the node
-	document.querySelectorAll(`.byJSONplaceholder`).forEach((toggle) => {
-		toggle.addEventListener("click", placeholderHandler);
-	});
-};
-
-// Add common event listeners
-const createClickListeners = () => {
-	document.querySelectorAll(`.byJSONtoggle`).forEach((toggle) => {
-		toggle.addEventListener("click", toggleHandler);
-	});
 };
 
 /**
@@ -142,7 +130,6 @@ const createClickListeners = () => {
  * @return {string} The HTML representation of the JSON data.
  */
 const json2html = (element, json, options) => {
-	createClickListeners();
 	if (json === null) return appendSPAN(element, "null");
 	if (["number", "bigint", "boolean"].includes(typeof json)) return appendSPAN(element, json);
 	if (typeof json === "string") {
@@ -157,18 +144,23 @@ const json2html = (element, json, options) => {
 		const ol = document.createElement("ol");
 		ol.className = `byJSONnest`;
 		element.appendChild(ol);
+		let count = 0;
 		chunks.forEach((chunk, i) => {
-			if (Array.isArray(chunk))
+			if (Array.isArray(chunk)) {
 				chunk.forEach((item, j) => {
+					count += 1;
 					setTimeout(() => {
 						appendLI(ol, item, options, j >= chunk.length);
 					}, options.chunkLatency * (i + j));
 				});
-			else
+			} else {
+				count += 1;
 				setTimeout(() => {
 					appendLI(ol, chunk, options, i >= chunks.length);
 				}, options.chunkLatency * i);
+			}
 		});
+		if (isCollapsable(chunks)) addPlaceholderListener(appendA(element, `byJSONplaceholder`, `${count} item${count > 1 ? "s" : ""}`));
 		return element.appendChild(document.createTextNode("]"));
 	}
 	if (typeof json === "object") {
@@ -179,13 +171,16 @@ const json2html = (element, json, options) => {
 		const ul = document.createElement("ul");
 		ul.className = `byJSONnest`;
 		element.appendChild(ul);
+		let count = 0;
 		chunks.forEach((chunk) => {
 			chunk.forEach(([key, value], i) => {
+				count += 1;
 				setTimeout(() => {
 					appendLI(ul, value, options, i >= chunk.length, true, options.withQuotes ? `"${htmlEscape(key)}"` : htmlEscape(key));
 				}, options.chunkLatency * i);
 			});
 		});
+		if (isCollapsable(chunks)) addPlaceholderListener(appendA(element, `byJSONplaceholder`, `${count} item${count > 1 ? "s" : ""}`));
 		return element.appendChild(document.createTextNode("}"));
 	}
 };
@@ -204,13 +199,11 @@ const json2html = (element, json, options) => {
  * @param {number} [options.chunkLatency=33] - Numbers of miliseconds to wait between renders
  */
 function byJSONviewer(element, json, options = {}) {
-	element.textContent = "";
 	options = { collapsed: false, rootCollapsable: true, withQuotes: true, withLinks: true, bigNumbers: false, chunkSize: 999, chunkLatency: 33, ...options };
+	element.textContent = "";
+	element.classList.add(`byJSONdocument`);
 	// If the root object is collapsible, add a toggle button
-	if (options.rootCollapsable && isCollapsable(json)) appendA(element, `byJSONtoggle`);
+	if (options.rootCollapsable && isCollapsable(json)) addToggleListener(appendA(element, `byJSONtoggle`), options.collapsed);
 	// Convert the JSON object to an HTML string and insert the HTML into the target element and set its class
 	json2html(element, json, options);
-	element.classList.add(`byJSONdocument`);
-	// Collapse all nodes if the collapsed option is set to true
-	if (options.collapsed) element.querySelectorAll(`a.byJSONtoggle`).forEach((toggle) => toggle.click());
 }

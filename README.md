@@ -4,6 +4,7 @@ Easy JSON Viewer is a lightweight JavaScript library that allows you to easily r
 
 ## Features
 
+-   **Chunk Rendering**: Handles JSON of almost any size by dividing the load in configurable chunks.
 -   **Collapsible Nodes**: Easily expand or collapse JSON objects and arrays to focus on the data you need.
 -   **Syntax Highlighting**: Visual differentiation between strings, numbers, booleans, and other data types.
 -   **Clickable URLs**: Automatically converts URLs in JSON strings into clickable links.
@@ -53,8 +54,7 @@ To use Easy JSON Viewer, create an HTML element where the JSON data will be rend
 Easy JSON Viewer supports both dark and light themes. You can switch between them dynamically:
 
 ```html
-<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light Theme</a>
-<a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark Theme</a>
+<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light Theme</a> <a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark Theme</a>
 ```
 
 ### Options
@@ -66,6 +66,8 @@ You can customize the behavior of Easy JSON Viewer with the following options:
 -   `withQuotes` (default: `false`): If `true`, object keys will be wrapped in double quotes.
 -   `withLinks` (default: `true`): If `true`, strings that look like URLs will be rendered as clickable links.
 -   `bigNumbers` (default: `false`): If `true`, large numbers will be handled with special care.
+-   `chunkSize` (default: `999`) numbers of elements to render per chunk to avoid freezing
+-   `chunkLatency` (default; `33`) number of miliseconds to wait between renders
 
 Example usage with options:
 

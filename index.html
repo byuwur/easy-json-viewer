@@ -14,9 +14,11 @@
 		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a>
 		<a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
 		<br /><br />
+		<a href="javascript:youDontWannaDoThis();">COMICALLY_LONG_JSON</a>
+		<br /><br />
 		<pre id="byJSONrenderer"></pre>
 		<script>
-			document.addEventListener("DOMContentLoaded", () => {
+			document.addEventListener("DOMContentLoaded", async () => {
 				const JSON = {
 					name: "John Doe",
 					age: 69,
@@ -25,12 +27,26 @@
 						street: "123 Main St",
 						city: "Anytown"
 					},
-					projects: ["Hello, world", "Test", "easy"],
+					projects: ["easy-SPA", "easy-Sidebar", "easy-http-error-page"],
 					sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
 					spa: "https://github.com/byuwur/easy-spa-php"
 				};
 				byJSONviewer(document.getElementById("byJSONrenderer"), JSON);
 			});
+			const youDontWannaDoThis = () => {
+				fetch(`https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`)
+					.then((response) => {
+						if (!response.ok) console.warn(`Something went wrong`, response.statusText);
+						return response.json();
+					})
+					.then((response) => {
+						console.log(response);
+						byJSONviewer(document.getElementById("byJSONrenderer"), response);
+					})
+					.catch((e) => {
+						console.warn(`Something went wrong`, e);
+					});
+			};
 		</script>
 	</body>
 </html>

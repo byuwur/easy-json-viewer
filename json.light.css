@@ -1,7 +1,7 @@
 /* byuwur was here */
 body {
-    background: #eee;
-    color: #111;
+	background: #eee;
+	color: #111;
 }
 .byJSONdocument {
 	border: 1px solid #bcd;
@@ -12,8 +12,7 @@ body {
 .byJSONliteral {
 	color: #11c;
 }
-.byJSONdict,
-.byJSONarray {
+.byJSONnest {
 	border-left: 1px dotted #bbb;
 }
 .byJSONtoggle:before {

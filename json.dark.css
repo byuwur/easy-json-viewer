@@ -12,8 +12,7 @@ body {
 .byJSONliteral {
 	color: #69c;
 }
-.byJSONdict,
-.byJSONarray {
+.byJSONnest {
 	border-left: 1px dotted #666;
 }
 .byJSONtoggle:before {

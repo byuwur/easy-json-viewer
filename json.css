@@ -21,11 +21,13 @@ pre {
 .byJSONliteral {
 	font-weight: bold;
 }
-.byJSONdict,
-.byJSONarray {
+.byJSONnest {
 	list-style: none;
 	margin: 0;
 	padding-left: 2em;
+}
+.byJSONnest.collapsed {
+	display: none;
 }
 .byJSONtoggle {
 	position: relative;
@@ -41,7 +43,7 @@ pre {
 	line-height: 1.25em;
 	font-size: 1em;
 	text-align: center;
-	transition: transform 0.25s;
+	transition: transform 0.333s;
 }
 .byJSONtoggle:hover:before {
 	color: #fff;

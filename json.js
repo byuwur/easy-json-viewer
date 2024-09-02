@@ -239,14 +239,14 @@ const json2html = (element, json, options, token) => {
 /**
  * Initializes the global `byCommon` object and assigns its properties.
  * This IIFE (Immediately Invoked Function Expression) ensures the `byCommon` object exists globally
- * (typically on `window` in a browser) to avoid polution and conflicts in the global namespace.
+ * (typically on `window` in a browser) to avoid pollution and conflicts in the global namespace.
  * @param {Object} global - The global object, usually `window` in a browser.
  */
 (function (global) {
 	global.byCommon = global.byCommon || {};
 	const byCommon = global.byCommon;
 	// Declarations
-	byCommon.renderToken = null;
+	byCommon.renderTokens = new Map();
 })(typeof window !== "undefined" ? window : this);
 
 /**
@@ -263,13 +263,13 @@ const json2html = (element, json, options, token) => {
  * @param {number} [options.chunkLatency=33] - Numbers of miliseconds to wait between renders
  */
 function byJSONviewer(element, json, options = {}) {
-	if (byCommon.renderToken) byCommon.renderToken.cancel = true;
-	byCommon.renderToken = { cancel: false };
+	if (byCommon.renderTokens.has(element.id)) byCommon.renderTokens.get(element.id).cancel = true;
+	byCommon.renderTokens.set(element.id, { cancel: false });
 	element.textContent = "";
 	element.classList.add(`byJSONdocument`);
 	options = { collapsed: false, rootCollapsable: true, withQuotes: true, withLinks: true, bigNumbers: false, chunkSize: 999, chunkLatency: 33, ...options };
 	// If the root object is collapsible, add a toggle button
 	if (options.rootCollapsable && isCollapsible(json)) addToggleListener(appendA(element, `byJSONtoggle`), options.collapsed);
 	// Convert the JSON object to an HTML string and insert the HTML into the target element and set its class
-	json2html(element, json, options, byCommon.renderToken);
+	json2html(element, json, options, byCommon.renderTokens.get(element.id));
 }

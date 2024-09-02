@@ -4,6 +4,7 @@
  * Desc: Contains the heart of easy JSON viewer.
  * Deps: none
  * Copyright (c) 2024 Andrés Trujillo [Mateus] byUwUr
+ * https://github.com/byuwur/easy-json-viewer
  */
 
 /**
@@ -161,7 +162,8 @@ const appendLI = (parent, item, options, isLast = false, isObj = false, key = ""
  * @param {Object} options - The configuration options.
  * @return {string} The HTML representation of the JSON data.
  */
-const json2html = (element, json, options) => {
+const json2html = (element, json, options, token) => {
+	if (token?.cancel) return;
 	if (json === null) return appendSPAN(element, "null");
 	if (["number", "bigint", "boolean"].includes(typeof json)) return appendSPAN(element, json);
 	if (typeof json === "string") {
@@ -189,12 +191,14 @@ const json2html = (element, json, options) => {
 				chunk.forEach((item, j) => {
 					count += 1;
 					setTimeout(() => {
+						if (token?.cancel) return;
 						appendLI(ol, item, options, j >= chunk.length);
 					}, options.chunkLatency * (i + j)); // Delay so the DOM can rest and don't freeze.
 				});
 			} else {
 				count += 1;
 				setTimeout(() => {
+					if (token?.cancel) return;
 					appendLI(ol, chunk, options, i >= chunks.length);
 				}, options.chunkLatency * i);
 			}
@@ -221,6 +225,7 @@ const json2html = (element, json, options) => {
 			chunk.forEach(([key, value], i) => {
 				count += 1;
 				setTimeout(() => {
+					if (token?.cancel) return;
 					appendLI(ul, value, options, i >= chunk.length, true, options.withQuotes ? `"${htmlEscape(key)}"` : htmlEscape(key));
 				}, options.chunkLatency * i); // Delay so the DOM can rest and don't freeze.
 			});
@@ -230,6 +235,19 @@ const json2html = (element, json, options) => {
 		return element.appendChild(document.createTextNode("}"));
 	}
 };
+
+/**
+ * Initializes the global `byCommon` object and assigns its properties.
+ * This IIFE (Immediately Invoked Function Expression) ensures the `byCommon` object exists globally
+ * (typically on `window` in a browser) to avoid polution and conflicts in the global namespace.
+ * @param {Object} global - The global object, usually `window` in a browser.
+ */
+(function (global) {
+	global.byCommon = global.byCommon || {};
+	const byCommon = global.byCommon;
+	// Declarations
+	byCommon.renderToken = null;
+})(typeof window !== "undefined" ? window : this);
 
 /**
  * Renders a JSON object into an HTML element with collapsible nodes.
@@ -245,11 +263,13 @@ const json2html = (element, json, options) => {
  * @param {number} [options.chunkLatency=33] - Numbers of miliseconds to wait between renders
  */
 function byJSONviewer(element, json, options = {}) {
-	options = { collapsed: false, rootCollapsable: true, withQuotes: true, withLinks: true, bigNumbers: false, chunkSize: 999, chunkLatency: 33, ...options };
+	if (byCommon.renderToken) byCommon.renderToken.cancel = true;
+	byCommon.renderToken = { cancel: false };
 	element.textContent = "";
 	element.classList.add(`byJSONdocument`);
+	options = { collapsed: false, rootCollapsable: true, withQuotes: true, withLinks: true, bigNumbers: false, chunkSize: 999, chunkLatency: 33, ...options };
 	// If the root object is collapsible, add a toggle button
 	if (options.rootCollapsable && isCollapsible(json)) addToggleListener(appendA(element, `byJSONtoggle`), options.collapsed);
 	// Convert the JSON object to an HTML string and insert the HTML into the target element and set its class
-	json2html(element, json, options);
+	json2html(element, json, options, byCommon.renderToken);
 }

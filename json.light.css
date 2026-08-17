@@ -1,26 +1,26 @@
 /* byuwur was here */
 body {
-	background: #eee;
-	color: #111;
+  background: #eee;
+  color: #111;
 }
 .byJSONdocument {
-	border: 1px solid #bcd;
+  border: 1px solid #bcd;
 }
 .byJSONstring {
-	color: #070;
+  color: #070;
 }
 .byJSONliteral {
-	color: #11c;
+  color: #11c;
 }
 .byJSONnest {
-	border-left: 1px dotted #bbb;
+  border-left: 1px dotted #bbb;
 }
 .byJSONtoggle:before {
-	color: #999;
+  color: #999;
 }
 .byJSONtoggle:hover:before {
-	color: #666;
+  color: #666;
 }
 .byJSONplaceholder {
-	color: #aaa;
+  color: #aaa;
 }

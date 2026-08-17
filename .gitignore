@@ -1,26 +1,49 @@
-# Environment
-.env
-*.env
+# === ENVIRONMENT ===
 *.env*
-# Uploads
+.env/
+.env.*
+!.env.example
+# === UPLOADS ===
 assets/
-# Plugins
+uploads/
+# === DEPENDENCIES ===
+*.lock
+!composer.lock
+*.phar
 vendor/
+node_modules/
+modules/
+module/
 plugin/
 plugins/
-node_modules/
-# Builds
+# === BUILD ===
 dist/
 build/
 bin/
-# OS
+.cache/
+cache/
+*.cache
+*.tsbuildinfo
+# === OS ===
 .DS_Store
 Thumbs.db
-# Editors
+ehthumbs.db
+desktop.ini
+Icon?
+# === IDE ===
 .vscode/
 .idea/
 *.sublime-workspace
-# Logs and Temps
+*.sublime-project
+# === LOGS & TEMP ===
 *.log
 *.tmp
 *.temp
+*.bak
+*.backup
+*.old
+# === MULTIMEDIA ===
+*.mp4
+*.mkv
+*.mov
+*.avi

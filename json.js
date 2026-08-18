@@ -69,15 +69,52 @@
   };
 
   /**
-   * Divides the array into smaller chunks for easier handling
-   * @param {Array} arr Array to divide
-   * @param {number} size Size of each chunk
-   * @return {Array} Result Array divides by chunks
+   * Divides an array into smaller chunks.
+   * @param {Array} arr - Array to divide.
+   * @param {number} size - Size of each chunk.
+   * @return {Array<Array>} The divided array.
    */
   const chunkArr = (arr, size) => {
     const chunks = [];
     for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
     return chunks;
+  };
+
+  /**
+   * Applies defaults and validates renderer options.
+   * @param {Object} options - User options.
+   * @return {Object} Normalized options.
+   */
+  const normalizeOptions = (options) => {
+    const source = options && typeof options === "object" ? options : {};
+    const normalized = {
+      collapsed: false,
+      rootCollapsible: true,
+      withQuotes: true,
+      withLinks: true,
+      bigNumbers: false,
+      chunkSize: 1000,
+      chunkLatency: 25,
+      ...source
+    };
+    // Keep chunk values valid before scheduling renders
+    normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize > 0 ? Math.floor(normalized.chunkSize) : 1000;
+    normalized.chunkLatency = Number.isFinite(normalized.chunkLatency) && normalized.chunkLatency >= 0 ? normalized.chunkLatency : 25;
+
+    return normalized;
+  };
+
+  /**
+   * Cancels an unfinished render on the given element.
+   * @param {HTMLElement} element - Renderer element.
+   */
+  const cancelExistingRender = (element) => {
+    const token = renderTokens.get(element);
+    if (!token) return;
+
+    token.cancel = true;
+    token.timers.forEach((timer) => clearTimeout(timer));
+    token.timers.clear();
   };
 
   /**
@@ -264,15 +301,17 @@
    * @param {number} [options.chunkLatency=33] - Numbers of miliseconds to wait between renders
    */
   function byJSONviewer(element, json, options = {}) {
-    if (renderTokens.has(element)) renderTokens.get(element).cancel = true;
-    renderTokens.set(element, { cancel: false });
+    // Cancel unfinished work before rendering again on the same element
+    cancelExistingRender(element);
+    const token = { cancel: false, timers: new Set() };
+    renderTokens.set(element, token);
+    const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add(`byJSONdocument`);
-    options = { collapsed: false, rootCollapsable: true, withQuotes: true, withLinks: true, bigNumbers: false, chunkSize: 999, chunkLatency: 33, ...options };
     // If the root object is collapsible, add a toggle button
-    if (options.rootCollapsable && isCollapsible(json)) addToggleListener(appendA(element, `byJSONtoggle`), options.collapsed);
+    if (normalizedOptions.rootCollapsable && isCollapsible(json)) addToggleListener(appendA(element, `byJSONtoggle`), normalizedOptions.collapsed);
     // Convert the JSON object to an HTML string and insert the HTML into the target element and set its class
-    json2html(element, json, options, renderTokens.get(element));
+    json2html(element, json, normalizedOptions, token);
   }
 
   global.byJSONviewer = byJSONviewer;

@@ -3,7 +3,7 @@
  * File: json.js
  * Desc: Contains the heart of easy JSON viewer.
  * Deps: none
- * Copyright (c) 2024 Andrés Trujillo [Mateus] byUwUr
+ * Copyright (c) 2026 Andrés Trujillo [Mateus] byUwUr
  * https://github.com/byuwur/easy-json-viewer
  */
 

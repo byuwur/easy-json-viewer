@@ -83,7 +83,7 @@
       ...source
     };
     // Keep chunk values valid before scheduling renders
-    normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize > 0 ? Math.floor(normalized.chunkSize) : 1000;
+    normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize >= 1 ? Math.floor(normalized.chunkSize) : 1000;
     normalized.chunkLatency = Number.isFinite(normalized.chunkLatency) && normalized.chunkLatency >= 0 ? normalized.chunkLatency : 25;
 
     return normalized;

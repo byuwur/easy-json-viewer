@@ -11,18 +11,26 @@
   const renderTokens = new WeakMap();
 
   /**
-   * Checks if the given argument is a collapsible structure (i.e., an object or array with at least one key or item).
-   * @param {Object|Array} arg - The object or array to check.
-   * @return {boolean} True if the argument is collapsible, otherwise false.
+   * Checks if a value is a non-empty collapsible object or array.
+   * @param {*} arg - The value to check.
+   * @return {boolean} True if the value is collapsible, otherwise false.
    */
-  const isCollapsible = (arg) => arg instanceof Object && Object.keys(arg).length > 0;
+  const isCollapsible = (arg) => arg !== null && typeof arg === "object" && Object.keys(arg).length > 0;
 
   /**
-   * Checks if the given string is a URL by checking its protocol.
+   * Checks if a string starts with a supported URL protocol.
    * @param {string} string - The string to check.
    * @return {boolean} True if the string looks like a URL, otherwise false.
    */
-  const isUrl = (string) => ["http", "https", "ftp", "ftps"].some((protocol) => string.startsWith(`${protocol}://`));
+  const isUrl = (string) => /^(https?|ftps?):\/\//i.test(string);
+
+  /**
+   * Checks if a value should render as a big-number scalar.
+   * @param {*} value - The value to check.
+   * @param {Object} options - Renderer options.
+   * @return {boolean} True if the value is a supported big number, otherwise false.
+   */
+  const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
 
   /**
    * Escapes special characters in a string for use in HTML.

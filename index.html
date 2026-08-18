@@ -26,14 +26,21 @@
   <a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a> |
   <a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
   <br /><br />
-  <a href="javascript:render();">COMICALLY SHORT JSON</a> | <a href="javascript:renderCollapsed();">COMICALLY SHORT JSON BUT COLLAPSED</a> |
+  <a href="javascript:render();">COMICALLY SHORT JSON</a> |
+  <a href="javascript:renderCollapsed();">COMICALLY SHORT JSON BUT COLLAPSED</a> |
   <a href="javascript:renderFast();">COMICALLY SHORT JSON AS FAST AS POSSIBLE</a>
   <br /><br />
-  <a href="javascript:youDontWannaDoThis();">COMICALLY LONG JSON</a> | <a href="javascript:youDontWannaDoThisCollapsed();">COMICALLY LONG JSON BUT COLLAPSED</a> |
+  <a href="javascript:torture();">JSON TORTURE TEST</a> |
+  <a href="javascript:tortureCollapsed();">JSON TORTURE TEST BUT COLLAPSED</a> |
+  <a href="javascript:tortureFast();">JSON TORTURE TEST AS FAST AS POSSIBLE</a>
+  <br /><br />
+  <a href="javascript:youDontWannaDoThis();">COMICALLY LONG JSON</a> |
+  <a href="javascript:youDontWannaDoThisCollapsed();">COMICALLY LONG JSON BUT COLLAPSED</a> |
   <a href="javascript:youDontWannaDoThisFast();">COMICALLY LONG JSON AS FAST AS POSSIBLE</a>
   <br /><br />
   <pre id="byJSONrenderer"></pre>
   <script>
+    const renderEl = document.getElementById("byJSONrenderer");
     const COMICALLY_SHORT_JSON = {
       name: "John Dough",
       age: 69,
@@ -46,26 +53,33 @@
       sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
       spa: "https://github.com/byuwur/easy-spa-php"
     };
-    const render = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON);
-    const renderCollapsed = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON, { collapsed: true });
-    const renderFast = () => byJSONviewer(document.getElementById("byJSONrenderer"), COMICALLY_SHORT_JSON, { chunkLatency: 1 });
-    const renderFetched = (options = {}) => {
-      fetch(`https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`)
+    const collapsedOpts = { collapsed: true };
+    const noLatencyOpts = { chunkLatency: 1 };
+    const render = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON);
+    const renderCollapsed = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON, collapsedOpts);
+    const renderFast = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON, noLatencyOpts);
+    const renderFetched = (url, options = {}) => {
+      fetch(url)
         .then((response) => {
           if (!response.ok) console.warn(`Something went wrong`, response.statusText);
           return response.json();
         })
         .then((response) => {
           console.log(response);
-          byJSONviewer(document.getElementById("byJSONrenderer"), response, options);
+          byJSONviewer(renderEl, response, options);
         })
         .catch((e) => {
           console.warn(`Something went wrong`, e);
         });
     };
-    const youDontWannaDoThis = () => renderFetched();
-    const youDontWannaDoThisCollapsed = () => renderFetched({ collapsed: true });
-    const youDontWannaDoThisFast = () => renderFetched({ chunkLatency: 1 });
+    const tortureJSON = `https://raw.githubusercontent.com/byuwur/easy-json-viewer/main/test.json`;
+    const torture = () => renderFetched(tortureJSON);
+    const tortureCollapsed = () => renderFetched(tortureJSON, collapsedOpts);
+    const tortureFast = () => renderFetched(tortureJSON, noLatencyOpts);
+    const youDontWannaDoThisJSON = `https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`;
+    const youDontWannaDoThis = () => renderFetched(youDontWannaDoThisJSON);
+    const youDontWannaDoThisCollapsed = () => renderFetched(youDontWannaDoThisJSON, collapsedOpts);
+    const youDontWannaDoThisFast = () => renderFetched(youDontWannaDoThisJSON, noLatencyOpts);
     document.addEventListener("DOMContentLoaded", () => {
       render();
     });

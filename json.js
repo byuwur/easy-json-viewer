@@ -33,39 +33,24 @@
   const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
 
   /**
-   * Escapes special characters in a string for use in HTML.
-   * @param {string} s - The string to escape.
-   * @return {string} The escaped string.
-   */
-  const htmlEscape = (s) => s.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/'/g, "&apos;").replace(/"/g, """);
-
-  /**
-   * Sees if any of the siblings contains the desired id or class
+   * Finds a sibling by id or class.
    * @param {HTMLElement} element - The element whose siblings are checked.
    * @param {string} match - The id or class to search for.
-   * @return {Element} The matched sibling.
+   * @return {Element|null} The matched sibling, if any.
    */
   const getSiblingByIdOrClass = (element, match) => {
-    let sibling,
-      found = null;
-    sibling = element.previousElementSibling;
+    let sibling = element.previousElementSibling;
     while (sibling) {
-      if (sibling.id === match || sibling.classList.contains(match)) {
-        found = sibling;
-        break;
-      }
+      if (sibling.id === match || sibling.classList.contains(match)) return sibling;
       sibling = sibling.previousElementSibling;
     }
-    if (found) return found;
     sibling = element.nextElementSibling;
     while (sibling) {
-      if (sibling.id === match || sibling.classList.contains(match)) {
-        found = sibling;
-        break;
-      }
+      if (sibling.id === match || sibling.classList.contains(match)) return sibling;
       sibling = sibling.nextElementSibling;
     }
-    return found;
+
+    return null;
   };
 
   /**
@@ -118,200 +103,249 @@
   };
 
   /**
-   * Adds an event listener to a placeholder element that triggers a toggle action when clicked.
-   * @param {HTMLElement} element - The placeholder element that will receive the event listener.
+   * Schedules work for the current render.
+   * @param {Object} token - Render token.
+   * @param {Function} callback - Work to execute.
+   * @param {number} delay - Delay in milliseconds.
+   */
+  const schedule = (token, callback, delay) => {
+    if (token.cancel) return;
+
+    const timer = setTimeout(() => {
+      token.timers.delete(timer);
+      if (!token.cancel) callback();
+    }, delay);
+    // Track timers so stale renders can be cleared
+    token.timers.add(timer);
+  };
+
+  /**
+   * Sets the collapsed state of a toggle and its related elements.
+   * @param {HTMLElement} toggle - Toggle element.
+   * @param {boolean} collapsed - Desired state.
+   */
+  const setToggleState = (toggle, collapsed) => {
+    toggle.classList.toggle("collapsed", collapsed);
+    toggle.setAttribute("aria-expanded", String(!collapsed));
+    // Keep the nest and its placeholder in sync
+    const nest = getSiblingByIdOrClass(toggle, "byJSONnest");
+    if (nest) nest.classList.toggle("collapsed", collapsed);
+    const placeholder = getSiblingByIdOrClass(toggle, "byJSONplaceholder");
+    if (placeholder) placeholder.classList.toggle("collapsed", collapsed);
+  };
+
+  /**
+   * Makes a placeholder trigger its sibling toggle.
+   * @param {HTMLElement} element - Placeholder element.
    */
   const addPlaceholderListener = (element) => {
     element.addEventListener("click", (event) => {
       event.preventDefault();
-      // Find the sibling and trigger its click
-      const toggle = getSiblingByIdOrClass(event.target, `byJSONtoggle`);
+      // Find the sibling toggle and trigger it
+      const toggle = getSiblingByIdOrClass(event.currentTarget, "byJSONtoggle");
       if (toggle) toggle.click();
     });
   };
 
   /**
-   * Adds a click event listener to an element to toggle the collapse/expand state of a JSON node.
-   * Optionally collapses the node initially if the `collapsed` parameter is true.
-   * @param {HTMLElement} element - The element that will receive the toggle event listener.
-   * @param {boolean} collapsed - Whether the node should be collapsed initially.
+   * Adds collapse/expand behavior to a toggle.
+   * @param {HTMLElement} element - Toggle element.
    */
-  const addToggleListener = (element, collapsed) => {
+  const addToggleListener = (element) => {
+    element.setAttribute("aria-expanded", "true");
     element.addEventListener("click", (event) => {
       event.preventDefault();
-      event.target.classList.toggle(`collapsed`);
-      // Find the sibling nest and placeholder and toggle them
-      const nest = getSiblingByIdOrClass(event.target, `byJSONnest`);
-      if (!nest) return console.log(`byJSONnest sibling not found.`);
-      nest.classList.toggle(`collapsed`);
-      const placeholder = getSiblingByIdOrClass(event.target, `byJSONplaceholder`);
-      if (placeholder) placeholder.classList.toggle(`collapsed`);
+      const toggle = event.currentTarget;
+      setToggleState(toggle, !toggle.classList.contains("collapsed"));
     });
-    // Collapse nodes if the collapsed option is set to true; use timeout to wait for the DOM to process
-    if (collapsed) setTimeout(() => element.click(), 0);
   };
 
   /**
-   * Creates and appends a common <a> (anchor) element to a parent element.
-   * @param {HTMLElement} parent - The parent element to which the <a> element will be appended.
-   * @param {string} [classname='byJSONstring'] - The class name to assign to the <a> element.
-   * @param {string} [text=""] - The text content of the <a> element.
-   * @param {string} [href="javascript:;"] - The href attribute for the <a> element.
-   * @param {boolean} [hasTarget=false] - Whether the link should open in a new tab (target="_blank").
-   * @param {boolean} [isAfter=false] - Whether to insert the <a> element after the parent element (instead of appending as a child).
-   * @return {HTMLElement} The created <a> element.
+   * Creates and appends an <a> element.
+   * @param {HTMLElement} parent - Parent element.
+   * @param {string} [classname='byJSONstring'] - Class name.
+   * @param {string} [text=''] - Text content.
+   * @param {string} [href='#'] - Link destination.
+   * @param {boolean} [hasTarget=false] - Whether the link opens in a new tab.
+   * @param {boolean} [isAfter=false] - Whether to insert after the parent.
+   * @return {HTMLElement} The created anchor.
    */
-  const appendA = (parent, classname = `byJSONstring`, text = "", href = "javascript:;", hasTarget = false, isAfter = false) => {
+  const appendA = (parent, classname = "byJSONstring", text = "", href = "#", hasTarget = false, isAfter = false) => {
     const a = document.createElement("a");
     a.className = classname;
     a.textContent = text;
     a.href = href;
-    if (hasTarget) a.target = "_blank";
-    if (isAfter) return parent.after(a);
+
+    if (hasTarget) {
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+    }
+
+    if (isAfter) {
+      parent.after(a);
+      return a;
+    }
+
     return parent.appendChild(a);
   };
 
   /**
-   * Creates and appends a common <span> element to a parent element.
-   * @param {HTMLElement} parent - The parent element to which the <span> element will be appended.
-   * @param {string} [text=""] - The text content of the <span> element.
-   * @param {string} [classname='byJSONliteral'] - The class name to assign to the <span> element.
-   * @return {HTMLElement} The created <span> element.
+   * Creates and appends a <span> element.
+   * @param {HTMLElement} parent - Parent element.
+   * @param {*} [text=''] - Text content.
+   * @param {string} [classname='byJSONliteral'] - Class name.
+   * @return {HTMLElement} The created span.
    */
-  const appendSPAN = (parent, text = "", classname = `byJSONliteral`) => {
+  const appendSPAN = (parent, text = "", classname = "byJSONliteral") => {
     const span = document.createElement("span");
     span.className = classname;
-    span.textContent = text;
+    span.textContent = String(text);
     return parent.appendChild(span);
   };
 
   /**
-   * Creates and appends a common <li> (list item) element to a parent element, with optional JSON key handling.
-   * @param {HTMLElement} parent - The parent element to which the <li> element will be appended.
-   * @param {Object|Array|string|number|boolean|null} item - The JSON data to be rendered within the <li> element.
-   * @param {Object} options - The configuration options for rendering.
-   * @param {boolean} [isLast=false] - Whether this is the last item in the list (no trailing comma).
-   * @param {boolean} [isObj=false] - Whether the item represents a key-value pair in an object.
-   * @param {string} [key=""] - The key associated with the value if `isObj` is true.
+   * Creates and appends a JSON list item.
+   * @param {HTMLElement} parent - Parent list.
+   * @param {*} item - JSON value.
+   * @param {Object} options - Renderer options.
+   * @param {Object} token - Render token.
+   * @param {boolean} [isLast=false] - Whether this is the final item.
+   * @param {boolean} [isObj=false] - Whether this is an object entry.
+   * @param {string} [key=''] - Object key text.
    */
-  const appendLI = (parent, item, options, isLast = false, isObj = false, key = "") => {
+  const appendLI = (parent, item, options, token, isLast = false, isObj = false, key = "") => {
+    if (token.cancel) return;
     const li = document.createElement("li");
-    if (isCollapsible(item)) addToggleListener(appendA(li, `byJSONtoggle`), options.collapsed);
+    let toggle = null;
+    // Only non-empty structures need a toggle
+    if (isCollapsible(item) && !isBigNumber(item, options)) {
+      toggle = appendA(li, "byJSONtoggle");
+      addToggleListener(toggle);
+    }
     if (isObj) li.appendChild(document.createTextNode(`${key}: `));
-    li.appendChild(json2html(li, item, options));
+    json2html(li, item, options, token);
+    // Don't leave a trailing comma on the whole collection
     if (!isLast) li.appendChild(document.createTextNode(","));
     parent.appendChild(li);
+
+    if (toggle && options.collapsed) setToggleState(toggle, true);
   };
 
   /**
-   * Converts a JSON object into an HTML representation.
-   * @param {HTMLElement} element - The DOM element where the JSON will be rendered.
-   * @param {Object|Array|string|number|boolean|null} json - The JSON data to convert.
-   * @param {Object} options - The configuration options.
-   * @return {string} The HTML representation of the JSON data.
+   * Converts JSON-compatible data into its DOM representation.
+   * @param {HTMLElement} element - Parent element.
+   * @param {*} json - JSON-compatible value.
+   * @param {Object} options - Renderer options.
+   * @param {Object} token - Render token.
+   * @return {Node|undefined} The last created node when applicable.
    */
   const json2html = (element, json, options, token) => {
-    if (token?.cancel) return;
+    if (token.cancel) return;
+    // Render primitive values
     if (json === null) return appendSPAN(element, "null");
-    if (["number", "bigint", "boolean"].includes(typeof json)) return appendSPAN(element, json);
+    if (typeof json === "number") return appendSPAN(element, Number.isFinite(json) ? json : "null");
+    if (typeof json === "bigint" || typeof json === "boolean") return appendSPAN(element, json);
     if (typeof json === "string") {
-      // Escape the string for safe HTML display.
-      const escapedJSON = htmlEscape(json);
-      // Make the string clickable if it's a URL and the option's on
-      if (options.withLinks && isUrl(escapedJSON)) return appendA(element, `byJSONstring`, `"${escapedJSON}"`, escapedJSON, true);
-      return appendSPAN(element, `"${escapedJSON}"`, `byJSONstring`);
+      // JSON.stringify handles JSON escaping; textContent handles HTML safely
+      const serialized = JSON.stringify(json);
+      if (options.withLinks && isUrl(json)) return appendA(element, "byJSONstring", serialized, json, true);
+      return appendSPAN(element, serialized, "byJSONstring");
     }
-    // Check Array
+    // Render arrays
     if (Array.isArray(json)) {
-      // Break the array into smaller chunks based on `chunkSize` option.
-      const chunks = chunkArr(json, options.chunkSize);
-      // Early return "[]" if it's empty
-      if (!chunks.length) return element.appendChild(document.createTextNode("[]"));
+      if (!json.length) return element.appendChild(document.createTextNode("[]"));
       element.appendChild(document.createTextNode("["));
       const ol = document.createElement("ol");
-      ol.className = `byJSONnest`;
+      ol.className = "byJSONnest";
       element.appendChild(ol);
-      // Length counter
-      let count = 0;
-      chunks.forEach((chunk, i) => {
-        // If the chunk itself is an array, loop inside the chunk first
-        if (Array.isArray(chunk)) {
-          chunk.forEach((item, j) => {
-            count += 1;
-            setTimeout(
-              () => {
-                if (token?.cancel) return;
-                appendLI(ol, item, options, j >= chunk.length);
-              },
-              options.chunkLatency * (i + j)
-            ); // Delay so the DOM can rest and don't freeze.
-          });
-        } else {
-          count += 1;
-          setTimeout(() => {
-            if (token?.cancel) return;
-            appendLI(ol, chunk, options, i >= chunks.length);
-          }, options.chunkLatency * i);
-        }
+      // Render in chunks so large arrays don't block the DOM
+      const chunks = chunkArr(json, options.chunkSize);
+      chunks.forEach((chunk, chunkIndex) => {
+        schedule(
+          token,
+          () => {
+            const offset = chunkIndex * options.chunkSize;
+            chunk.forEach((item, itemIndex) => {
+              const index = offset + itemIndex;
+              appendLI(ol, item, options, token, index === json.length - 1);
+            });
+          },
+          options.chunkLatency * (chunkIndex + 1)
+        );
       });
-      // Add a placeholder element with the item count if collapsible.
-      if (isCollapsible(chunks)) addPlaceholderListener(appendA(element, `byJSONplaceholder`, `${count} item${count > 1 ? "s" : ""}`));
+      // Show item count while collapsed
+      const placeholder = appendA(element, "byJSONplaceholder", `${json.length} item${json.length === 1 ? "" : "s"}`);
+      addPlaceholderListener(placeholder);
+
       return element.appendChild(document.createTextNode("]"));
     }
-    // If the JSON is an object (but not an array):
+    // Render objects
     if (typeof json === "object") {
-      // Make the bigNumber if it's a bigNumber and the option's on
-      if (options.bigNumbers && (typeof json.toExponential === "function" || json.isLosslessNumber)) return appendSPAN(element, json.toString());
-      // Break the object's entries into smaller chunks based on `chunkSize` option.
-      const chunks = chunkArr(Object.entries(json), options.chunkSize);
-      // Early return "{}" if it's empty
-      if (!chunks.length) return element.appendChild(document.createTextNode("{}"));
+      // Treat supported big-number objects as scalar values
+      if (isBigNumber(json, options)) return appendSPAN(element, json.toString());
+      const entries = Object.entries(json);
+      if (!entries.length) return element.appendChild(document.createTextNode("{}"));
       element.appendChild(document.createTextNode("{"));
       const ul = document.createElement("ul");
-      ul.className = `byJSONnest`;
+      ul.className = "byJSONnest";
       element.appendChild(ul);
-      // Length counter
-      let count = 0;
-      chunks.forEach((chunk) => {
-        chunk.forEach(([key, value], i) => {
-          count += 1;
-          setTimeout(() => {
-            if (token?.cancel) return;
-            appendLI(ul, value, options, i >= chunk.length, true, options.withQuotes ? `"${htmlEscape(key)}"` : htmlEscape(key));
-          }, options.chunkLatency * i); // Delay so the DOM can rest and don't freeze.
-        });
+      // Render entries in chunks while keeping their original order
+      const chunks = chunkArr(entries, options.chunkSize);
+      chunks.forEach((chunk, chunkIndex) => {
+        schedule(
+          token,
+          () => {
+            const offset = chunkIndex * options.chunkSize;
+            chunk.forEach(([key, value], itemIndex) => {
+              const index = offset + itemIndex;
+              const renderedKey = options.withQuotes ? JSON.stringify(key) : key;
+              appendLI(ul, value, options, token, index === entries.length - 1, true, renderedKey);
+            });
+          },
+          options.chunkLatency * (chunkIndex + 1)
+        );
       });
-      // Add a placeholder element with the item count if collapsible.
-      if (isCollapsible(chunks)) addPlaceholderListener(appendA(element, `byJSONplaceholder`, `${count} item${count > 1 ? "s" : ""}`));
+      // Show item count while collapsed
+      const placeholder = appendA(element, "byJSONplaceholder", `${entries.length} item${entries.length === 1 ? "" : "s"}`);
+      addPlaceholderListener(placeholder);
+
       return element.appendChild(document.createTextNode("}"));
     }
+    // Parsed JSON shouldn't reach this, but fail safely if it does
+    return appendSPAN(element, "null");
   };
 
   /**
-   * Renders a JSON object into an HTML element with collapsible nodes.
-   * @param {HTMLElement} element - The DOM element where the JSON will be rendered.
-   * @param {Object|Array|string|number|boolean|null} json - The JSON data to render.
-   * @param {Object} [options] - Configuration options for rendering.
-   * @param {boolean} [options.collapsed=false] - If true, collapsible nodes will be collapsed by default.
-   * @param {boolean} [options.rootCollapsable=true] - If true, the root JSON object will be collapsible.
-   * @param {boolean} [options.withQuotes=false] - If true, object keys will be wrapped in double quotes.
-   * @param {boolean} [options.withLinks=true] - If true, strings that look like URLs will be rendered as clickable links.
-   * @param {boolean} [options.bigNumbers=false] - If true, large numbers will be handled with special care (e.g., for libraries that support big numbers).
-   * @param {number} [options.chunkSize=999] - Numbers of elements to render per chunk to avoid freezing
-   * @param {number} [options.chunkLatency=33] - Numbers of miliseconds to wait between renders
+   * Renders JSON-compatible data into an HTML element with collapsible nodes.
+   * @param {HTMLElement} element - DOM element where the JSON will be rendered.
+   * @param {*} json - JSON-compatible data to render.
+   * @param {Object} [options] - Configuration options.
+   * @param {boolean} [options.collapsed=false] - Collapse nested arrays/objects by default.
+   * @param {boolean} [options.rootCollapsible=true] - Make the root array/object collapsible.
+   * @param {boolean} [options.withQuotes=true] - Wrap object keys in double quotes.
+   * @param {boolean} [options.withLinks=true] - Render URL strings as clickable links.
+   * @param {boolean} [options.bigNumbers=false] - Support compatible big-number objects.
+   * @param {number} [options.chunkSize=1000] - Number of elements rendered per chunk.
+   * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
    */
   function byJSONviewer(element, json, options = {}) {
+    if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
     // Cancel unfinished work before rendering again on the same element
     cancelExistingRender(element);
     const token = { cancel: false, timers: new Set() };
     renderTokens.set(element, token);
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
-    element.classList.add(`byJSONdocument`);
-    // If the root object is collapsible, add a toggle button
-    if (normalizedOptions.rootCollapsable && isCollapsible(json)) addToggleListener(appendA(element, `byJSONtoggle`), normalizedOptions.collapsed);
-    // Convert the JSON object to an HTML string and insert the HTML into the target element and set its class
+    element.classList.add("byJSONdocument");
+    // Add the root toggle when applicable
+    let rootToggle = null;
+    if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
+      rootToggle = appendA(element, "byJSONtoggle");
+      addToggleListener(rootToggle);
+    }
+    // Render JSON and apply the initial root state
     json2html(element, json, normalizedOptions, token);
+    if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
   }
 
   global.byJSONviewer = byJSONviewer;

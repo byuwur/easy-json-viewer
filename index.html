@@ -20,23 +20,28 @@
     a {
       color: #56f;
     }
+
+    a.listed-link {
+      display: inline-block;
+      width: 20rem;
+    }
   </style>
   <p>easy JSON viewer</p>
   <p>This is a demo of <a href="https://github.com/byuwur/easy-json-viewer">https://github.com/byuwur/easy-json-viewer</a></p>
   <a href="javascript:document.querySelector('#theme').setAttribute('href','json.light.css');">Light/Claro</a> |
   <a href="javascript:document.querySelector('#theme').setAttribute('href','json.dark.css');">Dark/Oscuro</a>
   <br /><br />
-  <a href="javascript:render();">COMICALLY SHORT JSON</a> |
-  <a href="javascript:renderCollapsed();">COMICALLY SHORT JSON BUT COLLAPSED</a> |
-  <a href="javascript:renderFast();">COMICALLY SHORT JSON AS FAST AS POSSIBLE</a>
+  <a class="listed-link" href="javascript:render();">PROGRESSIVE JSON</a>
+  <a class="listed-link" href="javascript:renderCollapsed();">COLLAPSED JSON</a>
+  <a class="listed-link" href="javascript:renderFast();">AS FAST AS POSSIBLE JSON</a>
   <br /><br />
-  <a href="javascript:torture();">JSON TORTURE TEST</a> |
-  <a href="javascript:tortureCollapsed();">JSON TORTURE TEST BUT COLLAPSED</a> |
-  <a href="javascript:tortureFast();">JSON TORTURE TEST AS FAST AS POSSIBLE</a>
+  <a class="listed-link" href="javascript:torture();">PROGRESSIVE JSON BENCHMARK</a>
+  <a class="listed-link" href="javascript:tortureCollapsed();">COLLAPSED JSON BENCHMARK</a>
+  <a class="listed-link" href="javascript:tortureFast();">AS FAST AS POSSIBLE JSON BENCHMARK</a>
   <br /><br />
-  <a href="javascript:youDontWannaDoThis();">COMICALLY LONG JSON</a> |
-  <a href="javascript:youDontWannaDoThisCollapsed();">COMICALLY LONG JSON BUT COLLAPSED</a> |
-  <a href="javascript:youDontWannaDoThisFast();">COMICALLY LONG JSON AS FAST AS POSSIBLE</a>
+  <a class="listed-link" href="javascript:youDontWannaDoThis();">PROGRESSIVE JSON TORTURE</a>
+  <a class="listed-link" href="javascript:youDontWannaDoThisCollapsed();">COLLAPSED JSON TORTURE</a>
+  <a class="listed-link" href="javascript:youDontWannaDoThisFast();">AS FAST AS POSSIBLE JSON TORTURE</a>
   <br /><br />
   <pre id="byJSONrenderer"></pre>
   <script>
@@ -53,9 +58,10 @@
       sidebar: "https://github.com/byuwur/easy-sidebar-bootstrap",
       spa: "https://github.com/byuwur/easy-spa-php"
     };
+    const progressiveOpts = { chunkSize: 1, chunkLatency: 50 };
     const collapsedOpts = { collapsed: true };
     const noLatencyOpts = { chunkLatency: 1 };
-    const render = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON);
+    const render = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON, progressiveOpts);
     const renderCollapsed = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON, collapsedOpts);
     const renderFast = () => byJSONviewer(renderEl, COMICALLY_SHORT_JSON, noLatencyOpts);
     const renderFetched = (url, options = {}) => {
@@ -73,11 +79,11 @@
         });
     };
     const tortureJSON = `https://raw.githubusercontent.com/byuwur/easy-json-viewer/main/test.json`;
-    const torture = () => renderFetched(tortureJSON);
+    const torture = () => renderFetched(tortureJSON, progressiveOpts);
     const tortureCollapsed = () => renderFetched(tortureJSON, collapsedOpts);
     const tortureFast = () => renderFetched(tortureJSON, noLatencyOpts);
     const youDontWannaDoThisJSON = `https://raw.githubusercontent.com/json-iterator/test-data/master/large-file.json`;
-    const youDontWannaDoThis = () => renderFetched(youDontWannaDoThisJSON);
+    const youDontWannaDoThis = () => renderFetched(youDontWannaDoThisJSON, progressiveOpts);
     const youDontWannaDoThisCollapsed = () => renderFetched(youDontWannaDoThisJSON, collapsedOpts);
     const youDontWannaDoThisFast = () => renderFetched(youDontWannaDoThisJSON, noLatencyOpts);
     document.addEventListener("DOMContentLoaded", () => {

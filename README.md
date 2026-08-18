@@ -55,8 +55,8 @@ The `byJSONviewer` function accepts an optional `options` object:
 - `withQuotes` (default: `true`): If `true`, object keys are rendered as JSON strings with double quotes.
 - `withLinks` (default: `true`): If `true`, supported URL strings are rendered as clickable links.
 - `bigNumbers` (default: `false`): If `true`, compatible big-number objects are rendered using their own string representation.
-- `chunkSize` (default: `999`): Number of elements rendered per chunk. Invalid, zero, or negative values fall back to the default.
-- `chunkLatency` (default: `33`): Number of milliseconds between chunks. Invalid or negative values fall back to the default.
+- `chunkSize` (default: `1000`): Number of elements rendered per chunk. Invalid, zero, or negative values fall back to the default.
+- `chunkLatency` (default: `25`): Number of milliseconds between chunks. Invalid or negative values fall back to the default.
 
 ### Themes
 

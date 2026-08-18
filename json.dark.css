@@ -1,9 +1,7 @@
 /* byuwur was here */
-body {
+.byJSONdocument {
   background: #222;
   color: #eee;
-}
-.byJSONdocument {
   border: 1px solid #444;
 }
 .byJSONstring {

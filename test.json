@@ -1,0 +1,330 @@
+{
+  "basicTypes": {
+    "string": "Hello, world!",
+    "integer": 123,
+    "negativeInteger": -123,
+    "decimal": 123.456,
+    "negativeDecimal": -123.456,
+    "zero": 0,
+    "negativeZero": -0,
+    "booleanTrue": true,
+    "booleanFalse": false,
+    "null": null
+  },
+  "strings": {
+    "empty": "",
+    "spaces": "     ",
+    "quotes": "He said \"Hello\".",
+    "singleQuotes": "It's working.",
+    "backslash": "C:\\Users\\Mateus\\Documents\\test.json",
+    "doubleBackslash": "\\\\server\\folder\\file",
+    "forwardSlash": "https://example.com/path/to/file",
+    "newline": "Line 1\nLine 2\nLine 3",
+    "carriageReturn": "First\rSecond",
+    "tab": "Column 1\tColumn 2\tColumn 3",
+    "backspace": "Before\bAfter",
+    "formFeed": "Before\fAfter",
+    "html": "<div class=\"test\">Hello & goodbye</div>",
+    "htmlEntities": "& < > \" '",
+    "scriptLooking": "<script>alert(\"test\")</script>",
+    "cssLooking": "<style>body { color: red; }</style>",
+    "jsonLooking": "{\"nested\":true,\"value\":123}",
+    "brackets": "{} [] () <>",
+    "punctuation": "!@#$%^&*()_+-=[]{}|;:',.<>/?`~"
+  },
+  "unicode": {
+    "accented": "áéíóú ñ ü ç",
+    "spanish": "¡Hola! ¿Cómo estás?",
+    "emoji": "😀 😎 ❤️ 🦋 🚀",
+    "symbols": "© ® ™ € £ ¥ § ± × ÷",
+    "greek": "α β γ δ Ω",
+    "cyrillic": "Привет мир",
+    "japanese": "こんにちは世界",
+    "chinese": "你好世界",
+    "arabic": "مرحبا بالعالم",
+    "mixed": "Hello 世界 🌎 — café"
+  },
+  "specialKeys": {
+    "": "empty key",
+    "normal": "normal key",
+    "key with spaces": "spaces",
+    "key-with-dashes": "dashes",
+    "key_with_underscores": "underscores",
+    "key.with.dots": "dots",
+    "key/slash": "slash",
+    "key\\backslash": "backslash",
+    "key\"quote": "quote",
+    "<html>": "HTML-looking key",
+    "😀": "emoji key",
+    "null": "string key named null",
+    "true": "string key named true",
+    "123": "numeric-looking key"
+  },
+  "numbers": {
+    "small": 0.000001,
+    "verySmall": 1e-20,
+    "large": 1000000000000000,
+    "veryLarge": 1e20,
+    "positiveExponent": 1.23e10,
+    "negativeExponent": 1.23e-10,
+    "negativeExponentNumber": -9.876e-12,
+    "fraction": 0.1234567890123456
+  },
+  "emptyStructures": {
+    "emptyObject": {},
+    "emptyArray": [],
+    "arrayWithEmptyObjects": [
+      {},
+      {},
+      {}
+    ],
+    "arrayWithEmptyArrays": [
+      [],
+      [],
+      []
+    ],
+    "objectWithEmptyString": {
+      "value": ""
+    }
+  },
+  "arrays": {
+    "numbers": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "strings": [
+      "one",
+      "two",
+      "three"
+    ],
+    "booleans": [
+      true,
+      false,
+      true
+    ],
+    "nulls": [
+      null,
+      null,
+      null
+    ],
+    "mixed": [
+      null,
+      true,
+      false,
+      0,
+      123.45,
+      "hello",
+      [],
+      {},
+      [
+        1,
+        2,
+        3
+      ],
+      {
+        "nested": true
+      }
+    ]
+  },
+  "nested": {
+    "level1": {
+      "level2": {
+        "level3": {
+          "level4": {
+            "level5": {
+              "value": "Deep value",
+              "array": [
+                {
+                  "insideArray": {
+                    "anotherObject": [
+                      1,
+                      2,
+                      {
+                        "final": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "urls": {
+    "http": "http://example.com",
+    "https": "https://example.com",
+    "path": "https://example.com/path/to/page",
+    "query": "https://example.com/search?q=hello&lang=en",
+    "fragment": "https://example.com/page#section",
+    "encoded": "https://example.com/a%20folder/file.json",
+    "notUrl": "example.com",
+    "urlInsideText": "Visit https://example.com for more information."
+  },
+  "escapingRegression": {
+    "lessThan": "<",
+    "greaterThan": ">",
+    "ampersand": "&",
+    "doubleQuote": "\"",
+    "combined": "<>&\"",
+    "expectedLiteralHTML": "<strong>Hello</strong>",
+    "expectedLiteralEntity": "&lt;strong&gt;Hello&lt;/strong&gt;"
+  },
+  "commaTests": {
+    "singlePropertyObject": {
+      "only": 1
+    },
+    "twoPropertyObject": {
+      "first": 1,
+      "second": 2
+    },
+    "singleItemArray": [
+      1
+    ],
+    "twoItemArray": [
+      1,
+      2
+    ],
+    "nestedFinalElements": [
+      {
+        "a": 1,
+        "b": 2
+      },
+      {
+        "c": [
+          1,
+          2,
+          3
+        ]
+      }
+    ]
+  },
+  "orderingTest": [
+    "000",
+    "001",
+    "002",
+    "003",
+    "004",
+    "005",
+    "006",
+    "007",
+    "008",
+    "009",
+    "010",
+    "011",
+    "012",
+    "013",
+    "014",
+    "015",
+    "016",
+    "017",
+    "018",
+    "019",
+    "020",
+    "021",
+    "022",
+    "023",
+    "024",
+    "025",
+    "026",
+    "027",
+    "028",
+    "029",
+    "030",
+    "031",
+    "032",
+    "033",
+    "034",
+    "035",
+    "036",
+    "037",
+    "038",
+    "039",
+    "040",
+    "041",
+    "042",
+    "043",
+    "044",
+    "045",
+    "046",
+    "047",
+    "048",
+    "049",
+    "050",
+    "051",
+    "052",
+    "053",
+    "054",
+    "055",
+    "056",
+    "057",
+    "058",
+    "059",
+    "060",
+    "061",
+    "062",
+    "063",
+    "064",
+    "065",
+    "066",
+    "067",
+    "068",
+    "069",
+    "070",
+    "071",
+    "072",
+    "073",
+    "074",
+    "075",
+    "076",
+    "077",
+    "078",
+    "079",
+    "080",
+    "081",
+    "082",
+    "083",
+    "084",
+    "085",
+    "086",
+    "087",
+    "088",
+    "089",
+    "090",
+    "091",
+    "092",
+    "093",
+    "094",
+    "095",
+    "096",
+    "097",
+    "098",
+    "099"
+  ],
+  "objectOrderingTest": {
+    "item000": 0,
+    "item001": 1,
+    "item002": 2,
+    "item003": 3,
+    "item004": 4,
+    "item005": 5,
+    "item006": 6,
+    "item007": 7,
+    "item008": 8,
+    "item009": 9,
+    "item010": 10,
+    "item011": 11,
+    "item012": 12,
+    "item013": 13,
+    "item014": 14,
+    "item015": 15,
+    "item016": 16,
+    "item017": 17,
+    "item018": 18,
+    "item019": 19
+  }
+}

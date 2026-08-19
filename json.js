@@ -80,6 +80,7 @@
       bigNumbers: false,
       chunkSize: 1000,
       chunkLatency: 25,
+      themeToggle: true,
       ...source
     };
     // Keep chunk values valid before scheduling renders
@@ -316,6 +317,50 @@
   };
 
   /**
+   * Adds a light/dark theme toggle to a JSON renderer.
+   * Expected theme filenames:
+   * - json.light.css
+   * - json.dark.css
+   * @param {HTMLElement} element - JSON renderer that receives the toggle.
+   * @return {HTMLButtonElement|null} The toggle button, or null when no valid theme stylesheet is loaded.
+   */
+  const appendThemeToggle = (element) => {
+    // Prefer the documented #byJSONtheme link, but also support automatic detection
+    const stylesheet = document.getElementById("byJSONtheme") || [...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => /json\.(light|dark)\.css(?:[?#].*)?$/i.test(link.getAttribute("href") || ""));
+    if (!stylesheet) return null;
+    // Read the active theme from the stylesheet filename
+    const getTheme = () => {
+      const match = (stylesheet.getAttribute("href") || "").match(/json\.(light|dark)\.css/i);
+      return match ? match[1].toLowerCase() : null;
+    };
+    if (!getTheme()) return null;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "byJSONthemeToggle";
+    button.textContent = "☾ ☀";
+    // Keep accessibility text consistent with the theme actually loaded
+    const sync = () => {
+      const next = getTheme() === "dark" ? "light" : "dark";
+      button.title = `Switch to ${next} theme`;
+      button.setAttribute("aria-label", button.title);
+    };
+
+    button.addEventListener("click", () => {
+      const current = getTheme();
+      const next = current === "dark" ? "light" : "dark";
+      const href = stylesheet.getAttribute("href") || "";
+      // Replace only the theme portion, preserving paths and query strings
+      stylesheet.setAttribute("href", href.replace(/json\.(light|dark)\.css/i, `json.${next}.css`));
+      sync();
+    });
+
+    sync();
+
+    return element.appendChild(button);
+  };
+
+  /**
    * Renders JSON-compatible data into an HTML element with collapsible nodes.
    * @param {HTMLElement} element - DOM element where the JSON will be rendered.
    * @param {*} json - JSON-compatible data to render.
@@ -327,6 +372,7 @@
    * @param {boolean} [options.bigNumbers=false] - Support compatible big-number objects.
    * @param {number} [options.chunkSize=1000] - Number of elements rendered per chunk.
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
+   * @param {boolean} [options.themeToggle=true] - Appends a theme toggle at the top-right of the element.
    */
   function byJSONviewer(element, json, options = {}) {
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
@@ -337,6 +383,7 @@
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add("byJSONdocument");
+    if (normalizedOptions.themeToggle) appendThemeToggle(element);
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {

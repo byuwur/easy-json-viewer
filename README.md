@@ -21,7 +21,7 @@ Include the required files in your HTML:
 
 ```html
 <link href="json.css" rel="stylesheet" />
-<link id="theme" href="json.dark.css" rel="stylesheet" />
+<link id="byJSONtheme" href="json.dark.css" rel="stylesheet" />
 <script src="json.js" defer></script>
 ```
 
@@ -57,17 +57,18 @@ The `byJSONviewer` function accepts an optional `options` object:
 - `bigNumbers` (default: `false`): If `true`, compatible big-number objects are rendered using their own string representation.
 - `chunkSize` (default: `1000`): Number of elements rendered per chunk. Invalid, zero, or negative values fall back to the default.
 - `chunkLatency` (default: `25`): Number of milliseconds between chunks. Invalid or negative values fall back to the default.
+- `themeToggle` (default: `true`): Appends a theme toggle at the top-right of the element.
 
 ### Themes
 
 Switch themes by updating the `href` of the theme stylesheet:
 
 ```javascript
-document.querySelector("#theme").setAttribute("href", "json.light.css");
+document.querySelector("#byJSONtheme").setAttribute("href", "json.light.css");
 ```
 
 ```javascript
-document.querySelector("#theme").setAttribute("href", "json.dark.css");
+document.querySelector("#byJSONtheme").setAttribute("href", "json.dark.css");
 ```
 
 ### Handling Large JSON

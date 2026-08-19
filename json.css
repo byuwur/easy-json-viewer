@@ -1,5 +1,6 @@
 /* byuwur was here */
 .byJSONdocument {
+  position: relative;
   padding: 8px 8px 8px 24px;
 }
 .byJSONstring {
@@ -44,4 +45,33 @@
 }
 .byJSONplaceholder.collapsed {
   display: inline;
+}
+.byJSONthemeToggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 3rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+  margin: 0;
+  border: 1px solid currentColor;
+  border-radius: 1rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1rem;
+  letter-spacing: 0rem;
+  text-align: justify;
+  cursor: pointer;
+}
+.byJSONthemeToggle::after {
+  content: "";
+  position: absolute;
+  top: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: currentColor;
+  transition: left 0.3s;
 }

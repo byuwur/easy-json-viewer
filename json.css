@@ -46,7 +46,10 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
-.byJSONthemeToggle {
+.byVIEWthemeToggle {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-variant-emoji: text !important;
+  white-space: nowrap !important;
   position: absolute;
   top: 1rem;
   right: 1rem;
@@ -65,7 +68,7 @@
   text-align: justify;
   cursor: pointer;
 }
-.byJSONthemeToggle::after {
+.byVIEWthemeToggle::after {
   content: "";
   position: absolute;
   top: 0.2rem;

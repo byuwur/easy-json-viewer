@@ -317,29 +317,36 @@
   };
 
   /**
-   * Adds a light/dark theme toggle to a JSON renderer.
+   * Adds a light/dark theme toggle to a renderer.
    * Expected theme filenames:
-   * - json.light.css
-   * - json.dark.css
-   * @param {HTMLElement} element - JSON renderer that receives the toggle.
+   * - {filename}.light.css
+   * - {filename}.dark.css
+   * @param {HTMLElement} element - Renderer that receives the toggle.
+   * @param {string} filename - Theme stylesheet base filename.
    * @return {HTMLButtonElement|null} The toggle button, or null when no valid theme stylesheet is loaded.
    */
-  const appendThemeToggle = (element) => {
-    // Prefer the documented #byJSONtheme link, but also support automatic detection
-    const stylesheet = document.getElementById("byJSONtheme") || [...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => /json\.(light|dark)\.css(?:[?#].*)?$/i.test(link.getAttribute("href") || ""));
+  const appendThemeToggle = (element, filename) => {
+    const escapedFilename = filename.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const themePattern = new RegExp(`${escapedFilename}\\.(light|dark)\\.css(?:[?#].*)?$`, "i");
+    const themeReplacePattern = new RegExp(`${escapedFilename}\\.(light|dark)\\.css`, "i");
+
+    // Prefer the documented #byVIEWtheme link, but also support automatic detection.
+    const stylesheet = document.getElementById("byVIEWtheme") || [...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => themePattern.test(link.getAttribute("href") || ""));
     if (!stylesheet) return null;
-    // Read the active theme from the stylesheet filename
+
+    // Read the active theme from the stylesheet filename.
     const getTheme = () => {
-      const match = (stylesheet.getAttribute("href") || "").match(/json\.(light|dark)\.css/i);
+      const match = (stylesheet.getAttribute("href") || "").match(themeReplacePattern);
       return match ? match[1].toLowerCase() : null;
     };
     if (!getTheme()) return null;
 
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "byJSONthemeToggle";
-    button.textContent = "☾ ☀";
-    // Keep accessibility text consistent with the theme actually loaded
+    button.className = "byVIEWthemeToggle";
+    button.textContent = "\u263E\uFE0E \u2600\uFE0E"; // ☾︎ ☀︎
+
+    // Keep accessibility text consistent with the theme actually loaded.
     const sync = () => {
       const next = getTheme() === "dark" ? "light" : "dark";
       button.title = `Switch to ${next} theme`;
@@ -350,8 +357,9 @@
       const current = getTheme();
       const next = current === "dark" ? "light" : "dark";
       const href = stylesheet.getAttribute("href") || "";
-      // Replace only the theme portion, preserving paths and query strings
-      stylesheet.setAttribute("href", href.replace(/json\.(light|dark)\.css/i, `json.${next}.css`));
+
+      // Replace only the theme filename while preserving paths and query strings.
+      stylesheet.setAttribute("href", href.replace(themeReplacePattern, `${filename}.${next}.css`));
       sync();
     });
 
@@ -383,7 +391,7 @@
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add("byJSONdocument");
-    if (normalizedOptions.themeToggle) appendThemeToggle(element);
+    if (normalizedOptions.themeToggle) appendThemeToggle(element, "json");
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {

@@ -21,7 +21,7 @@ Include the required files in your HTML:
 
 ```html
 <link href="json.css" rel="stylesheet" />
-<link id="byJSONtheme" href="json.dark.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="json.dark.css" rel="stylesheet" />
 <script src="json.js" defer></script>
 ```
 
@@ -64,11 +64,11 @@ The `byJSONviewer` function accepts an optional `options` object:
 Switch themes by updating the `href` of the theme stylesheet:
 
 ```javascript
-document.querySelector("#byJSONtheme").setAttribute("href", "json.light.css");
+document.querySelector("#byVIEWtheme").setAttribute("href", "json.light.css");
 ```
 
 ```javascript
-document.querySelector("#byJSONtheme").setAttribute("href", "json.dark.css");
+document.querySelector("#byVIEWtheme").setAttribute("href", "json.dark.css");
 ```
 
 ### Handling Large JSON

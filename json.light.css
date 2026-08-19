@@ -22,9 +22,9 @@
 .byJSONplaceholder {
   color: #aaa;
 }
-.byJSONthemeToggle {
+.byVIEWthemeToggle {
   color: #111;
 }
-.byJSONthemeToggle::after {
+.byVIEWthemeToggle::after {
   left: 0.2rem;
 }

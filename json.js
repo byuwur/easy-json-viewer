@@ -49,7 +49,6 @@
       if (sibling.id === match || sibling.classList.contains(match)) return sibling;
       sibling = sibling.nextElementSibling;
     }
-
     return null;
   };
 
@@ -86,7 +85,6 @@
     // Keep chunk values valid before scheduling renders
     normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize >= 1 ? Math.floor(normalized.chunkSize) : 1000;
     normalized.chunkLatency = Number.isFinite(normalized.chunkLatency) && normalized.chunkLatency >= 0 ? normalized.chunkLatency : 25;
-
     return normalized;
   };
 
@@ -97,7 +95,6 @@
   const cancelExistingRender = (element) => {
     const token = renderTokens.get(element);
     if (!token) return;
-
     token.cancel = true;
     token.timers.forEach((timer) => clearTimeout(timer));
     token.timers.clear();
@@ -111,7 +108,6 @@
    */
   const schedule = (token, callback, delay) => {
     if (token.cancel) return;
-
     const timer = setTimeout(() => {
       token.timers.delete(timer);
       if (!token.cancel) callback();
@@ -176,17 +172,14 @@
     a.className = classname;
     a.textContent = text;
     a.href = href;
-
     if (hasTarget) {
       a.target = "_blank";
       a.rel = "noopener noreferrer";
     }
-
     if (isAfter) {
       parent.after(a);
       return a;
     }
-
     return parent.appendChild(a);
   };
 
@@ -228,7 +221,6 @@
     // Don't leave a trailing comma on the whole collection
     if (!isLast) li.appendChild(document.createTextNode(","));
     parent.appendChild(li);
-
     if (toggle && options.collapsed) setToggleState(toggle, true);
   };
 
@@ -277,7 +269,6 @@
       // Show item count while collapsed
       const placeholder = appendA(element, "byJSONplaceholder", `${json.length} item${json.length === 1 ? "" : "s"}`);
       addPlaceholderListener(placeholder);
-
       return element.appendChild(document.createTextNode("]"));
     }
     // Render objects
@@ -309,7 +300,6 @@
       // Show item count while collapsed
       const placeholder = appendA(element, "byJSONplaceholder", `${entries.length} item${entries.length === 1 ? "" : "s"}`);
       addPlaceholderListener(placeholder);
-
       return element.appendChild(document.createTextNode("}"));
     }
     // Parsed JSON shouldn't reach this, but fail safely if it does
@@ -329,42 +319,34 @@
     const escapedFilename = filename.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const themePattern = new RegExp(`${escapedFilename}\\.(light|dark)\\.css(?:[?#].*)?$`, "i");
     const themeReplacePattern = new RegExp(`${escapedFilename}\\.(light|dark)\\.css`, "i");
-
     // Prefer the documented #byVIEWtheme link, but also support automatic detection.
     const stylesheet = document.getElementById("byVIEWtheme") || [...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => themePattern.test(link.getAttribute("href") || ""));
     if (!stylesheet) return null;
-
     // Read the active theme from the stylesheet filename.
     const getTheme = () => {
       const match = (stylesheet.getAttribute("href") || "").match(themeReplacePattern);
       return match ? match[1].toLowerCase() : null;
     };
     if (!getTheme()) return null;
-
     const button = document.createElement("button");
     button.type = "button";
     button.className = "byVIEWthemeToggle";
     button.textContent = "\u263E\uFE0E \u2600\uFE0E"; // ☾︎ ☀︎
-
     // Keep accessibility text consistent with the theme actually loaded.
     const sync = () => {
       const next = getTheme() === "dark" ? "light" : "dark";
       button.title = `Switch to ${next} theme`;
       button.setAttribute("aria-label", button.title);
     };
-
     button.addEventListener("click", () => {
       const current = getTheme();
       const next = current === "dark" ? "light" : "dark";
       const href = stylesheet.getAttribute("href") || "";
-
       // Replace only the theme filename while preserving paths and query strings.
       stylesheet.setAttribute("href", href.replace(themeReplacePattern, `${filename}.${next}.css`));
       sync();
     });
-
     sync();
-
     return element.appendChild(button);
   };
 
@@ -402,6 +384,5 @@
     json2html(element, json, normalizedOptions, token);
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
   }
-
   global.byJSONviewer = byJSONviewer;
 })(typeof window !== "undefined" ? window : this);

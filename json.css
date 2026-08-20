@@ -46,6 +46,9 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
+.byVIEWthemeToggle + * {
+  margin-top: 0 !important;
+}
 .byVIEWthemeToggle {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-variant-emoji: text !important;

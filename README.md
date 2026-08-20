@@ -17,12 +17,28 @@ Test it out at: [codepen.io/byuwur/pen/ExBeOPR](https://codepen.io/byuwur/pen/Ex
 
 ### Installation
 
-Include the required files in your HTML:
+Use the CDN:
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.4.final/json.min.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.4.final/json.light.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.4.final/json.min.js" defer></script>
+```
+
+Or use the local files:
 
 ```html
 <link href="json.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="json.dark.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="json.light.css" rel="stylesheet" />
 <script src="json.js" defer></script>
+```
+
+For testing or development, the version can be omitted to get the latest changes:
+
+```html
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.min.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.light.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.min.js" defer></script>
 ```
 
 ### Basic Usage

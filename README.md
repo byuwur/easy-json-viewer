@@ -118,6 +118,10 @@ document.querySelector("#byVIEWtheme").href = "json.dark.css";
 // Use json.light.css for the light theme.
 ```
 
+## Checks
+
+GitHub Actions runs `tests/rendering.cjs` on pushes and pull requests. It tests local `json.js` in Chromium: values, escaping, links, collapse controls, chunk ordering and cancellation, and the `test.json` benchmark.
+
 ## License
 
 MIT (c) Andres Trujillo [Mateus] byUwUr

@@ -1,28 +1,25 @@
 # byuwur/easy-json-viewer
 
-**easy JSON Viewer** is a lightweight and easy-to-use JavaScript library for rendering JSON-compatible data in an HTML document. It provides chunk rendering, collapsible nodes, syntax highlighting, customizable themes, and optional clickable links to make JSON data more readable and interactive.
+Render JSON in an HTML page. Collapse nodes, read large objects in chunks, and switch between light and dark themes. No dependencies or build step.
 
-Test it out at: [codepen.io/byuwur/pen/ExBeOPR](https://codepen.io/byuwur/pen/ExBeOPR)
+Try it on [byuwur.github.io/easy-json-viewer](https://byuwur.github.io/easy-json-viewer/) or [codepen.io/byuwur/pen/ExBeOPR](https://codepen.io/byuwur/pen/ExBeOPR).
 
 ## Features
 
-- **Chunk Rendering**: Divides large arrays and objects into configurable chunks so the browser can render them progressively.
-- **Collapsible Nodes**: Collapse or expand JSON objects and arrays to focus on specific parts of the data.
-- **Syntax Highlighting**: Distinct colors for strings, literals, and other data types for easy reading.
-- **Customizable Themes**: Switch between light and dark themes with a single stylesheet change.
-- **Link Handling**: Automatically converts supported URL strings (`http`, `https`, `ftp`, and `ftps`) to clickable links.
-- **Dependency-Free**: Uses plain JavaScript and DOM APIs.
+- Collapsible objects and arrays with syntax highlighting.
+- Chunked rendering for large documents.
+- Light and dark themes with an optional toggle.
+- Clickable URLs and optional big-number support.
+- Plain JavaScript, with no dependencies or build step.
 
-## Getting Started
-
-### Installation
+## Installation
 
 Use the CDN:
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.5.final/json.min.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.5.final/json.light.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.5.final/json.min.js" defer></script>
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.min.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.light.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.min.js" defer></script>
 ```
 
 Or use the local files:
@@ -33,95 +30,89 @@ Or use the local files:
 <script src="json.js" defer></script>
 ```
 
-For testing or development, the version can be omitted to get the latest changes:
+For development, omit `@v2.6.final` from the CDN URLs to load the latest changes.
+
+## Usage
+
+Save this as an HTML file beside `json.js`, `json.css`, and `json.light.css`, then open it in a browser. It shows nested objects, an array, a clickable URL, and different value types:
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.min.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.light.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer/json.min.js" defer></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>JSON viewer example</title>
+  <link href="json.css" rel="stylesheet" />
+  <link id="byVIEWtheme" href="json.light.css" rel="stylesheet" />
+</head>
+<body>
+  <pre id="byJSONrenderer"></pre>
+
+  <script src="json.js"></script>
+  <script>
+    const data = {
+      name: "John Dough",
+      age: 69,
+      isBased: true,
+      website: "https://github.com/byuwur",
+      address: {
+        address1: "123 Main St",
+        city: "Anywhere, SA. PÄ"
+      },
+      projects: ["easy-json-viewer", "easy-md-viewer", "easy-http-error"],
+      lastLogin: null
+    };
+
+    const target = document.getElementById("byJSONrenderer");
+    byJSONviewer(target, data);
+  </script>
+</body>
+</html>
 ```
 
-### Basic Usage
+The target and library are loaded before the viewer call. Use the CDN URLs from Installation instead of the local paths if preferred. If you load the script with `defer` in the head, run the viewer call after `DOMContentLoaded` or from a later deferred script.
 
-Call `byJSONviewer` with the target element, the JSON-compatible data, and optional configuration options:
+Pass a JavaScript value, not raw JSON text. For a JSON string, parse it first:
 
 ```javascript
-const jsonData = {
-  name: "John Dough",
-  age: 69,
-  isBased: true,
-  address: {
-    address1: "123 Main St",
-    city: "Anywhere, SA. PÄ"
-  },
-  projects: ["easy-spa-php", "easy-sidebar-bootstrap", "easy-http-error-page"]
-};
-
-byJSONviewer(document.getElementById("byJSONrenderer"), jsonData);
+const jsonText = '{"name":"John Dough","projects":["easy-json-viewer"]}';
+byJSONviewer(document.getElementById("byJSONrenderer"), JSON.parse(jsonText));
 ```
 
-The intended input is data that can exist in JSON: objects, arrays, strings, numbers, booleans, and `null`. JavaScript `bigint` values and compatible big-number objects are also supported as extensions.
+Input can be an object, array, string, number, boolean, or `null`. JavaScript `bigint` values and compatible big-number objects are supported too.
 
-### Options
+## Options
 
-The `byJSONviewer` function accepts an optional `options` object:
-
-- `collapsed` (default: `false`): If `true`, collapsible nodes are collapsed by default.
-- `rootCollapsible`: (default: `true`): If `true`, the root object or array is collapsible.
-- `withQuotes` (default: `true`): If `true`, object keys are rendered as JSON strings with double quotes.
-- `withLinks` (default: `true`): If `true`, supported URL strings are rendered as clickable links.
-- `bigNumbers` (default: `false`): If `true`, compatible big-number objects are rendered using their own string representation.
-- `chunkSize` (default: `1000`): Number of elements rendered per chunk. Invalid, zero, or negative values fall back to the default.
-- `chunkLatency` (default: `25`): Number of milliseconds between chunks. Invalid or negative values fall back to the default.
-- `themeToggle` (default: `true`): Appends a theme toggle at the top-right of the element.
-
-### Themes
-
-Switch themes by updating the `href` of the theme stylesheet:
+Pass options as the third argument:
 
 ```javascript
-document.querySelector("#byVIEWtheme").setAttribute("href", "json.light.css");
-```
-
-```javascript
-document.querySelector("#byVIEWtheme").setAttribute("href", "json.dark.css");
-```
-
-### Handling Large JSON
-
-For large arrays or objects, reduce `chunkSize` to yield to the browser more frequently or reduce `chunkLatency` to render subsequent chunks sooner:
-
-```javascript
-byJSONviewer(document.getElementById("byJSONrenderer"), jsonData, {
+byJSONviewer(document.getElementById("byJSONrenderer"), data, {
+  collapsed: true,
   chunkSize: 100,
   chunkLatency: 16
 });
 ```
 
-Each chunk is appended in order. Rendering the same element again cancels pending chunks from its previous render.
+| Option            | Default | Meaning                                                                  |
+| ----------------- | ------- | ------------------------------------------------------------------------ |
+| `collapsed`       | `false` | Collapse nodes initially.                                                |
+| `rootCollapsible` | `true`  | Allow the root object or array to collapse.                              |
+| `withQuotes`      | `true`  | Show object keys with double quotes.                                     |
+| `withLinks`       | `true`  | Make `http`, `https`, `ftp`, and `ftps` URLs clickable.                  |
+| `bigNumbers`      | `false` | Use compatible big-number objects' own string representation.            |
+| `chunkSize`       | `1000`  | Elements per chunk; invalid, zero, or negative values use the default.   |
+| `chunkLatency`    | `25`    | Milliseconds between chunks; invalid or negative values use the default. |
+| `themeToggle`     | `true`  | Add a theme toggle at the target's top-right.                            |
 
-### Collapsed Rendering
+Smaller chunks give the browser more chances to respond. Lower latency renders subsequent chunks sooner. Chunks stay in order; rendering the same target again cancels its pending chunks.
+
+## Themes
+
+Switch the theme stylesheet:
 
 ```javascript
-byJSONviewer(document.getElementById("byJSONrenderer"), jsonData, {
-  collapsed: true
-});
-```
-
-### Example Markup
-
-```html
-<pre id="byJSONrenderer"></pre>
-<script>
-  const jsonData = {
-    name: "John Dough",
-    age: 69,
-    isBased: true,
-    projects: ["easy-spa-php", "easy-sidebar-bootstrap", "easy-http-error-page"]
-  };
-
-  byJSONviewer(document.getElementById("byJSONrenderer"), jsonData);
-</script>
+document.querySelector("#byVIEWtheme").href = "json.dark.css";
+// Use json.light.css for the light theme.
 ```
 
 ## License

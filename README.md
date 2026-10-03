@@ -8,7 +8,7 @@ Try it on [byuwur.github.io/easy-json-viewer](https://byuwur.github.io/easy-json
 
 - Collapsible objects and arrays with syntax highlighting.
 - Chunked rendering for large documents.
-- Light and dark themes with an optional toggle.
+- Light/dark theme toggle and A-/A+ text size controls.
 - Clickable URLs and optional big-number support.
 - Plain JavaScript, with no dependencies or build step.
 
@@ -39,34 +39,34 @@ Save this as an HTML file beside `json.js`, `json.css`, and `json.light.css`, th
 ```html
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>JSON viewer example</title>
-  <link href="json.css" rel="stylesheet" />
-  <link id="byVIEWtheme" href="json.light.css" rel="stylesheet" />
-</head>
-<body>
-  <pre id="byJSONrenderer"></pre>
+  <head>
+    <meta charset="utf-8" />
+    <title>JSON viewer example</title>
+    <link href="json.css" rel="stylesheet" />
+    <link id="byVIEWtheme" href="json.light.css" rel="stylesheet" />
+  </head>
+  <body>
+    <pre id="byJSONrenderer"></pre>
 
-  <script src="json.js"></script>
-  <script>
-    const data = {
-      name: "John Dough",
-      age: 69,
-      isBased: true,
-      website: "https://github.com/byuwur",
-      address: {
-        address1: "123 Main St",
-        city: "Anywhere, SA. PÄ"
-      },
-      projects: ["easy-json-viewer", "easy-md-viewer", "easy-http-error"],
-      lastLogin: null
-    };
+    <script src="json.js"></script>
+    <script>
+      const data = {
+        name: "John Dough",
+        age: 69,
+        isBased: true,
+        website: "https://github.com/byuwur",
+        address: {
+          address1: "123 Main St",
+          city: "Anywhere, SA. PÄ"
+        },
+        projects: ["easy-json-viewer", "easy-md-viewer", "easy-http-error"],
+        lastLogin: null
+      };
 
-    const target = document.getElementById("byJSONrenderer");
-    byJSONviewer(target, data);
-  </script>
-</body>
+      const target = document.getElementById("byJSONrenderer");
+      byJSONviewer(target, data);
+    </script>
+  </body>
 </html>
 ```
 
@@ -93,20 +93,23 @@ byJSONviewer(document.getElementById("byJSONrenderer"), data, {
 });
 ```
 
-| Option            | Default | Meaning                                                                  |
-| ----------------- | ------- | ------------------------------------------------------------------------ |
-| `collapsed`       | `false` | Collapse nodes initially.                                                |
-| `rootCollapsible` | `true`  | Allow the root object or array to collapse.                              |
-| `withQuotes`      | `true`  | Show object keys with double quotes.                                     |
-| `withLinks`       | `true`  | Make `http`, `https`, `ftp`, and `ftps` URLs clickable.                  |
-| `bigNumbers`      | `false` | Use compatible big-number objects' own string representation.            |
-| `chunkSize`       | `1000`  | Elements per chunk; invalid, zero, or negative values use the default.   |
-| `chunkLatency`    | `25`    | Milliseconds between chunks; invalid or negative values use the default. |
-| `themeToggle`     | `true`  | Add a theme toggle at the target's top-right.                            |
+| Option             | Default | Meaning                                                                  |
+| ------------------ | ------- | ------------------------------------------------------------------------ |
+| `collapsed`        | `false` | Collapse nodes initially.                                                |
+| `rootCollapsible`  | `true`  | Allow the root object or array to collapse.                              |
+| `withQuotes`       | `true`  | Show object keys with double quotes.                                     |
+| `withLinks`        | `true`  | Make `http`, `https`, `ftp`, and `ftps` URLs clickable.                  |
+| `bigNumbers`       | `false` | Use compatible big-number objects' own string representation.            |
+| `chunkSize`        | `1000`  | Elements per chunk; invalid, zero, or negative values use the default.   |
+| `chunkLatency`     | `25`    | Milliseconds between chunks; invalid or negative values use the default. |
+| `themeToggle`      | `true`  | Add a theme toggle at the target's top-right.                            |
+| `fontSizeControls` | `true`  | Add A-/A+ buttons to resize this viewer's text.                          |
 
 Smaller chunks give the browser more chances to respond. Lower latency renders subsequent chunks sooner. Chunks stay in order; rendering the same target again cancels its pending chunks.
 
 ## Themes
+
+A- and A+ change the viewer's font size by `0.125rem`, between `0.5rem` and `3rem`. They work without a theme stylesheet, preserve the size when the target is rendered again, and do not change the rest of the page. Set `fontSizeControls: false` to hide them.
 
 Switch the theme stylesheet:
 
@@ -117,4 +120,4 @@ document.querySelector("#byVIEWtheme").href = "json.dark.css";
 
 ## License
 
-MIT (c) Andrés Trujillo [Mateus] byUwUr
+MIT (c) Andres Trujillo [Mateus] byUwUr

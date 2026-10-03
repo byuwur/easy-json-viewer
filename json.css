@@ -1,7 +1,7 @@
 /* byuwur was here */
 .byJSONdocument {
   position: relative;
-  padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+  padding: 1rem 1.5rem 1rem 2rem;
   min-height: 4rem;
 }
 .byJSONstring {
@@ -47,16 +47,50 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
-.byVIEWthemeToggle + * {
+.byVIEWcontrols {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  white-space: normal;
+}
+.byVIEWfontSizes {
+  display: flex;
+  gap: 0.25rem;
+}
+.byVIEWfontSize {
+  width: 2rem;
+  height: 1.75rem;
+  padding: 0.25rem;
+  border: 0.0625rem solid currentColor;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.byVIEWfontSize:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.byVIEWcontrols button:focus-visible {
+  outline: 0.125rem solid currentColor;
+  outline-offset: 0.125rem;
+}
+.byVIEWcontrols + * {
   margin-top: 0 !important;
 }
 .byVIEWthemeToggle {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-variant-emoji: text !important;
   white-space: nowrap !important;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  position: relative;
+  flex-shrink: 0;
   width: 3rem;
   height: 1.5rem;
   padding: 0.25rem;

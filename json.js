@@ -3,7 +3,7 @@
  * File: json.js
  * Desc: Contains the heart of easy JSON viewer.
  * Deps: none
- * Copyright (c) 2026 Andrés Trujillo [Mateus] byUwUr
+ * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
  * https://github.com/byuwur/easy-json-viewer
  */
 (function (global) {
@@ -80,6 +80,7 @@
       chunkSize: 1000,
       chunkLatency: 25,
       themeToggle: true,
+      fontSizeControls: true,
       ...source
     };
     // Keep chunk values valid before scheduling renders
@@ -351,6 +352,69 @@
   };
 
   /**
+   * Adds text size controls for a renderer.
+   * @param {HTMLElement} element - Renderer whose font size is changed.
+   * @param {HTMLElement} controls - Toolbar that receives the controls.
+   * @return {HTMLElement} The text size button group.
+   */
+  const appendFontSizeControls = (element, controls) => {
+    element.dataset.byViewDefaultFontSize ??= element.style.fontSize;
+    const sizes = document.createElement("div");
+    sizes.className = "byVIEWfontSizes";
+    controls.appendChild(sizes);
+    const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    let size = (parseFloat(getComputedStyle(element).fontSize) || rootSize) / rootSize;
+    const decrease = document.createElement("button");
+    const increase = document.createElement("button");
+    const reset = document.createElement("button");
+    reset.textContent = "A";
+    decrease.textContent = "A-";
+    increase.textContent = "A+";
+    for (const [button, title] of [
+      [decrease, "Decrease text size"],
+      [reset, "Reset text size"],
+      [increase, "Increase text size"]
+    ]) {
+      button.type = "button";
+      button.className = "byVIEWfontSize";
+      button.title = title;
+      button.setAttribute("aria-label", title);
+      sizes.appendChild(button);
+    }
+    const sync = () => {
+      decrease.disabled = size <= 0.5;
+      increase.disabled = size >= 3;
+    };
+    for (const [button, step] of [
+      [decrease, -0.125],
+      [increase, 0.125]
+    ]) {
+      button.addEventListener("click", () => {
+        size = Math.max(0.5, Math.min(3, size + step));
+        element.style.fontSize = `${size}rem`;
+        sync();
+      });
+    }
+    reset.addEventListener("click", () => {
+      element.style.fontSize = element.dataset.byViewDefaultFontSize;
+      size = (parseFloat(getComputedStyle(element).fontSize) || rootSize) / rootSize;
+      sync();
+    });
+    sync();
+    return sizes;
+  };
+
+  const appendViewerControls = (element, options, filename) => {
+    const controls = document.createElement("div");
+    controls.className = "byVIEWcontrols";
+    controls.setAttribute("role", "group");
+    controls.setAttribute("aria-label", "Viewer controls");
+    if (options.themeToggle) appendThemeToggle(controls, filename);
+    if (options.fontSizeControls) appendFontSizeControls(element, controls);
+    if (controls.childNodes.length) element.appendChild(controls);
+  };
+
+  /**
    * Renders JSON-compatible data into an HTML element with collapsible nodes.
    * @param {HTMLElement} element - DOM element where the JSON will be rendered.
    * @param {*} json - JSON-compatible data to render.
@@ -362,7 +426,8 @@
    * @param {boolean} [options.bigNumbers=false] - Support compatible big-number objects.
    * @param {number} [options.chunkSize=1000] - Number of elements rendered per chunk.
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
-   * @param {boolean} [options.themeToggle=true] - Appends a theme toggle at the top-right of the element.
+   * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
+   * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    */
   function byJSONviewer(element, json, options = {}) {
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
@@ -373,7 +438,7 @@
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add("byJSONdocument");
-    if (normalizedOptions.themeToggle) appendThemeToggle(element, "json");
+    appendViewerControls(element, normalizedOptions, "json");
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {

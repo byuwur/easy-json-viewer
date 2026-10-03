@@ -2,7 +2,7 @@
 .byJSONdocument {
   background: #eee;
   color: #222;
-  border: 1px solid #bcd;
+  border: 0.0625rem solid #bcd;
 }
 .byJSONstring {
   color: #070;
@@ -11,7 +11,7 @@
   color: #11c;
 }
 .byJSONnest {
-  border-left: 1px dotted #bbb;
+  border-left: 0.0625rem dotted #bbb;
 }
 .byJSONtoggle:before {
   color: #999;

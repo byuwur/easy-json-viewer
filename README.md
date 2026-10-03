@@ -17,9 +17,9 @@ Try it on [byuwur.github.io/easy-json-viewer](https://byuwur.github.io/easy-json
 Use the CDN:
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.min.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.light.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.6.final/json.min.js" defer></script>
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.light.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.js" defer></script>
 ```
 
 Or use the local files:
@@ -30,7 +30,7 @@ Or use the local files:
 <script src="json.js" defer></script>
 ```
 
-For development, omit `@v2.6.final` from the CDN URLs to load the latest changes.
+For development, omit `@v2.7.final` from the CDN URLs to load the latest changes.
 
 ## Usage
 

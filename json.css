@@ -2,7 +2,7 @@
 .byJSONdocument {
   position: relative;
   padding: 1rem 1.5rem 1rem 2rem;
-  min-height: 4rem;
+  min-height: 6rem;
 }
 .byJSONstring {
   color: #fff;

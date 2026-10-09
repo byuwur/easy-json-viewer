@@ -1,5 +1,7 @@
 # byuwur/easy-json-viewer
 
+![easy-json-viewer preview](prev.jpg)
+
 Render JSON in an HTML page. Collapse nodes, read large objects in chunks, and switch between light and dark themes. No dependencies or build step.
 
 Try it on [byuwur.github.io/easy-json-viewer](https://byuwur.github.io/easy-json-viewer/) or [codepen.io/byuwur/pen/ExBeOPR](https://codepen.io/byuwur/pen/ExBeOPR).

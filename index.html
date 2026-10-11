@@ -244,7 +244,7 @@
 
   <footer class="site-footer border-top py-4 small">
     <div class="site-width d-flex flex-wrap justify-content-between align-items-center gap-3">
-      <p class="m-0">&copy; <span id="year-txt">2026</span>, Made with <i class="fa-solid fa-heart" role="img" aria-label="love"></i> by <a class="site-link" href="https://byuwur.co" target="_blank" rel="noopener">BONYUR @byUwUr</a></p>
+      <p class="m-0">&copy; <span id="year-txt"></span>, Made with <i class="fa-solid fa-heart" role="img" aria-label="love"></i> by <a class="site-link" href="https://byuwur.co" target="_blank" rel="noopener">BONYUR @byUwUr</a></p>
       <div class="d-flex flex-wrap gap-3">
         <a class="site-link" href="https://github.com/byuwur/easy-json-viewer/blob/main/LICENSE">MIT license</a>
         <a class="site-link" href="https://github.com/byuwur/easy-json-viewer">Source &amp; contributions <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
@@ -712,8 +712,8 @@
           quotation: 'He said "simple is complicated enough."',
           path: "C:\\projects\\easy-json-viewer",
           whitespace: "First line\nSecond line\tTabbed",
-          html: '<img src="missing" onerror="alert(1)">',
-          script: "<script>alert('Still just a string.')<\/script>",
+          html: /*HTML */ `<img src="missing" onerror="alert(1)">`,
+          script: `<script>alert('Still just a string.')<\/script>`,
           link: "https://github.com/byuwur/easy-json-viewer",
           nested: { symbols: "< > & \" '", escaped: "\\u0041 is a literal escape here." }
         },
@@ -865,17 +865,18 @@
           setTheme(state.theme);
           renderSource();
         }, { once: true });
-        frame.srcdoc = `<!doctype html>
-<html lang="en"><head><base href="${base}">
-<link rel="stylesheet" href="json.css">
-<link id="byVIEWtheme" rel="stylesheet" href="json.dark.css">
-<style>
-  html { color-scheme: dark; } body { margin: 0; background: #222; }
-  .byJSONdocument { margin: 0; box-sizing: border-box; min-height: 100vh; }
-  .byJSONdocument:has(.byVIEWcontrols) { padding-top: 5.75rem; }
-</style>
-<script src="json.js"><\/script></head>
-<body><pre id="byJSONrenderer" aria-label="Rendered JSON"></pre></body></html>`;
+        // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
+        frame.srcdoc = /* HTML */ `<!doctype html>
+          <html lang="en"><head><base href="${base}">
+          <link rel="stylesheet" href="json.css">
+          <link id="byVIEWtheme" rel="stylesheet" href="json.dark.css">
+          <style>
+            html { color-scheme: dark; } body { margin: 0; background: #222; }
+            .byJSONdocument { margin: 0; box-sizing: border-box; min-height: 100vh; }
+            .byJSONdocument:has(.byVIEWcontrols) { padding-top: 5.75rem; }
+          </style>
+          ${'<script src="json.js"><\/script>'}</head>
+          <body><pre id="byJSONrenderer" aria-label="Rendered JSON"></pre></body></html>`;
       }
 
       function renderSource(explicit = false) {
@@ -993,7 +994,12 @@
         const dataText = state.source === "bigNumbers"
           ? 'const data = {\n  balance: {\n    isLosslessNumber: true,\n    toString: () => "900719925474099312345"\n  },\n  unit: "tiny units"\n};'
           : 'const data = {\n  project: "easy-json-viewer",\n  items: [1, true, null],\n  source: "https://github.com/byuwur/easy-json-viewer"\n};';
-        document.getElementById("integration-code").value = `<!doctype html>
+        const scripts = `<script src="${base}json.${state.install === "cdn" ? "min." : ""}js"><\/script>
+          <script>
+            ${dataText.split("\n").map(line => `    ${line}`).join("\n")}
+            byJSONviewer(document.getElementById("viewer"), data${optionText.split("\n").join("\n    ")});
+          <\/script>`;
+        document.getElementById("integration-code").value = /* HTML */ `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -1004,12 +1010,7 @@
 </head>
 <body>
   <pre id="viewer"></pre>
-  <script src="${base}json.${state.install === "cdn" ? "min." : ""}js"><\/script>
-  <script>
-${dataText.split("\n").map(line => "    " + line).join("\n")}
-
-    byJSONviewer(document.getElementById("viewer"), data${optionText.split("\n").join("\n    ")});
-  <\/script>
+  ${scripts}
 </body>
 </html>`;
         document.getElementById("install-note").textContent = state.install === "cdn"

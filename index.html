@@ -680,6 +680,12 @@
     "use strict";
 
     document.addEventListener("DOMContentLoaded", () => {
+
+      // Keep templates aligned while preserving their content indentation.
+      function dedent(text) {
+          const indentation = text.match(/\n([ \t]*)/)[1];
+          return text.replace(new RegExp(`^${indentation}`, "gm"), "").trim();
+        }
       // =============
       // === STATE & SAMPLES ===
       // =============
@@ -866,31 +872,43 @@
       // === PREVIEW ===
       // =============
       function initializePreview() {
-        // Keep the real viewer and its theme outside the landing page's CSS.
-        const base = new URL("./", location.href).href.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-        frame.addEventListener("load", () => {
-          renderer = frame.contentDocument.getElementById("byJSONrenderer");
-          themeLink = frame.contentDocument.getElementById("byVIEWtheme");
-          new MutationObserver(() => {
-            const theme = themeLink.getAttribute("href").includes(".light.css") ? "light" : "dark";
-            if (theme !== state.theme) setTheme(theme);
-          }).observe(themeLink, { attributes: true, attributeFilter: ["href"] });
-          setTheme(state.theme);
-          renderSource();
-        }, { once: true });
-        // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
-        frame.srcdoc = /* HTML */ `<!doctype html>
-          <html lang="en"><head><base href="${base}">
-          <link rel="stylesheet" href="json.css">
-          <link id="byVIEWtheme" rel="stylesheet" href="json.dark.css">
-          <style>
-            html { color-scheme: dark; } body { margin: 0; background: #222; }
-            .byJSONdocument { margin: 0; box-sizing: border-box; min-height: 100vh; }
-            .byJSONdocument:has(.byVIEWcontrols) { padding-top: 5.75rem; }
-          </style>
-          ${'<script src="json.js"><\/script>'}</head>
-          <body><pre id="byJSONrenderer" aria-label="Rendered JSON"></pre></body></html>`;
-      }
+          // Keep the real viewer and its theme outside the landing page's CSS.
+          const base = new URL("./", location.href).href.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+          frame.addEventListener(
+            "load",
+            () => {
+              renderer = frame.contentDocument.getElementById("byJSONrenderer");
+              themeLink = frame.contentDocument.getElementById("byVIEWtheme");
+              new MutationObserver(() => {
+                const theme = themeLink.getAttribute("href").includes(".light.css") ? "light" : "dark";
+                if (theme !== state.theme) setTheme(theme);
+              }).observe(themeLink, { attributes: true, attributeFilter: ["href"] });
+              setTheme(state.theme);
+              renderSource();
+            },
+            { once: true }
+          );
+          // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
+          frame.srcdoc = dedent(/* HTML */ `
+            <!doctype html>
+            <html lang="en">
+              <head>
+                <base href="${base}">
+                <link rel="stylesheet" href="json.css">
+                <link id="byVIEWtheme" rel="stylesheet" href="json.dark.css">
+                <style>
+                  html { color-scheme: dark; } body { margin: 0; background: #222; }
+                  .byJSONdocument { margin: 0; box-sizing: border-box; min-height: 100vh; }
+                  .byJSONdocument:has(.byVIEWcontrols) { padding-top: 5.75rem; }
+                </style>
+                ${'<script src="json.js"><\/script>'}
+              </head>
+              <body>
+                <pre id="byJSONrenderer" aria-label="Rendered JSON"></pre>
+              </body>
+            </html>
+          `);
+        }
 
       function renderSource(explicit = false) {
         clearTimeout(state.editTimer);

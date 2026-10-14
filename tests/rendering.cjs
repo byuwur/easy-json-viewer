@@ -1,7 +1,9 @@
 const assert = require("node:assert/strict");
 const path = require("node:path");
+const os = require("node:os");
 const fs = require("node:fs/promises");
 const test = require("node:test");
+const { pathToFileURL } = require("node:url");
 const { chromium } = require("playwright");
 
 test("JSON rendering", async (t) => {
@@ -201,7 +203,7 @@ test("JSON rendering", async (t) => {
     for (const { name, passed, error } of results) {
       await t.test(name, () => assert.ok(passed, error));
     }
-    await t.test("integration examples preserve JSON and selected options", async () => {
+    await t.test("compact downloads use default samples and deferred head assets", async () => {
       const playground = await browser.newPage();
       const errors = [];
       playground.on("pageerror", error => errors.push(error.message));
@@ -222,19 +224,55 @@ test("JSON rendering", async (t) => {
       assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
       assert.ok(code.includes('"withLinks": false'));
       assert.ok(code.includes('src="./json.js" defer'));
-      const generated = await playground.evaluate(html => {
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        let rendered;
-        const initialization = doc.querySelector("script:not([src]):not([type])").textContent;
-        new Function("document", "byJSONviewer", initialization)(doc, (_, data, options) => { rendered = { source: JSON.stringify(data), options }; });
-        doc.dispatchEvent(new Event("DOMContentLoaded"));
-        return rendered;
-      }, code);
-      assert.equal(generated.source, source);
-      assert.equal(generated.options.withLinks, false);
+      for (const name of ["themeToggle", "fontSizeControls"]) {
+        await playground.locator(`#${name}`).evaluate(element => {
+          element.checked = false;
+          element.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      }
+      const directory = await fs.mkdtemp(path.join(os.tmpdir(), "viewer-starter-"));
+      const exported = await browser.newPage();
+      exported.on("pageerror", error => errors.push(error.message));
+      await exported.route("https://cdn.jsdelivr.net/**", async route => {
+        const file = path.basename(new URL(route.request().url()).pathname).replace(".min.", ".");
+        const body = await fs.readFile(path.join(__dirname, "..", file));
+        if (file.endsWith(".js")) await new Promise(resolve => setTimeout(resolve, 75));
+        await route.fulfill({ body, contentType: file.endsWith(".js") ? "text/javascript" : "text/css" });
+      });
+      try {
+        for (const editedPreset of [false, true]) {
+          if (editedPreset) {
+            await playground.locator("#source-preset").selectOption("bigNumbers");
+            await playground.locator("#json-source").fill('{"balance":"-900719925474099312349","unit":"edited","extra":42}');
+          }
+          const [download] = await Promise.all([playground.waitForEvent("download"), playground.locator("#download-html").click()]);
+          assert.equal(download.suggestedFilename(), "my-json-viewer.html");
+          const file = path.join(directory, download.suggestedFilename());
+          await download.saveAs(file);
+          const html = await fs.readFile(file, "utf8");
+          assert.ok(Buffer.byteLength(html) < 2048, "Starter should stay small");
+          await exported.goto(pathToFileURL(file).href);
+          await exported.waitForFunction(() => document.getElementById("viewer").children.length > 0);
+          assert.equal(await exported.evaluate(() => window.injected), undefined);
+          assert.deepEqual(await exported.evaluate(() => data), { project: "easy-json-viewer", description: "A little less noise. A lot more JSON.", openSource: true, dependencies: 0 });
+          assert.equal(await exported.locator("head script[src][defer]").count(), 1);
+          assert.equal(await exported.locator("body script[src], body link[rel='stylesheet']").count(), 0);
+          assert.equal(await exported.locator("#byVIEWtheme").getAttribute("href").then(href => href.endsWith("json.light.css")), true);
+          const background = await exported.locator("#viewer").evaluate(element => getComputedStyle(element).backgroundColor);
+          await exported.locator(".byVIEWthemeToggle").click();
+          await exported.waitForFunction(before => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
+          const fontSize = await exported.locator("#viewer").evaluate(element => parseFloat(getComputedStyle(element).fontSize));
+          await exported.locator(".byVIEWfontSize").nth(2).click();
+          assert.ok(await exported.locator("#viewer").evaluate((element, before) => parseFloat(getComputedStyle(element).fontSize) > before, fontSize));
+        }
+      } finally {
+        await exported.close();
+        await fs.rm(directory, { recursive: true, force: true });
+      }
       await playground.locator("#json-source").fill("{");
       await playground.waitForFunction(() => document.getElementById("json-source").getAttribute("aria-invalid") === "true");
       assert.equal(await playground.locator("#copy-code").isDisabled(), true);
+      assert.equal(await playground.locator("#download-html").isDisabled(), false);
       assert.deepEqual(errors, []);
       await playground.close();
     });

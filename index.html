@@ -221,8 +221,8 @@
     <section class="get-started py-5 row gy-4 gx-lg-5" id="get-started" aria-labelledby="get-started-title">
       <div class="col-xl-4">
         <h2 id="get-started-title" class="h2 mb-3">Get started</h2>
-        <p class="text-body-secondary">Copy a working HTML example with your settings.</p>
-        <p class="text-body-secondary small">Playground powered by <a class="site-link" href="https://github.com/byuwur/spa.js" target="_blank" rel="noopener">SPA.js</a>.</p>
+        <p class="text-body-secondary">Copy your integration or download a short JSON sample with default settings.</p>
+        <p class="text-body-secondary small">Downloads are compact starters with default settings and CDN links. Open the saved file offline.</p>
         <a class="site-link small" href="https://github.com/byuwur/easy-json-viewer#options">Read the full API <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
       </div>
       <div class="col-lg-8">
@@ -232,7 +232,9 @@
               <button class="btn btn-quiet" type="button" data-install="cdn" aria-pressed="true">CDN</button>
               <button class="btn btn-quiet" type="button" data-install="local" aria-pressed="false">Local files</button>
             </div>
-            <button class="btn btn-accent" id="copy-code" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span>Copy HTML</span></button>
+            <div class="d-flex flex-wrap gap-2"><button class="btn btn-quiet btn-sm px-3" id="copy-code" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span>Copy HTML</span></button>
+              <button id="download-html" class="btn btn-accent btn-sm px-3" type="button"><i class="fa-solid fa-download me-1" aria-hidden="true"></i> Download HTML</button>
+            </div>
           </div>
           <textarea id="integration-code" class="integration-code" readonly spellcheck="false" wrap="soft" aria-label="Complete HTML integration"></textarea>
         </div>
@@ -1077,6 +1079,48 @@
       // =============
       // === CLIPBOARD ===
       // =============
+      function downloadHTML() {
+        const base = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/";
+        const sample = {
+              project: "easy-json-viewer",
+              description: "A little less noise. A lot more JSON.",
+              openSource: true,
+              dependencies: 0
+            };
+        const source = JSON.stringify(sample, null, 2).replaceAll("\n", "\n              ");
+        const html = dedent(/* HTML */ `
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>My JSON viewer</title>
+              <link rel="stylesheet" href="${base}json.min.css" />
+              <link id="byVIEWtheme" rel="stylesheet" href="${base}json.light.css" />
+              ${`<script src="${base}json.min.js" defer><\/script>`}
+            </head>
+            <body>
+              <pre id="viewer"></pre>
+              ${"<script>"}
+                const data = ${source};
+                document.addEventListener("DOMContentLoaded", () => {
+                  byJSONviewer(document.getElementById("viewer"), data);
+                });
+              ${"<\/script>"}
+            </body>
+          </html>
+        `);
+        const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "my-json-viewer.html";
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings and CDN files.";
+      }
+
       async function copyText(text, selectable, status = document.getElementById("copy-status")) {
         try {
           await navigator.clipboard.writeText(text);
@@ -1200,6 +1244,7 @@
           const code = document.getElementById("integration-code");
           copyText(code.value, code);
         });
+      document.getElementById("download-html").addEventListener("click", downloadHTML);
       // =============
       // === LIFECYCLE ===
       // =============

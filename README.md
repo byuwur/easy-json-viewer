@@ -74,6 +74,8 @@ Save this as an HTML file beside `json.js`, `json.css`, and `json.light.css`, th
 
 The target and library are loaded before the viewer call. Use the CDN URLs from Installation instead of the local paths if preferred. If you load the script with `defer` in the head, run the viewer call after `DOMContentLoaded` or from a later deferred script.
 
+The landing page copies your current JSON and settings into an integration example. **Download HTML** creates a compact starter with a short sample and default viewer settings. It loads the pinned viewer release and themes from the CDN, so viewing it requires an internet connection. CDN/local tabs apply to the copied example.
+
 Pass a JavaScript value, not raw JSON text. For a JSON string, parse it first:
 
 ```javascript
@@ -122,7 +124,7 @@ document.querySelector("#byVIEWtheme").href = "json.dark.css";
 
 ## Checks
 
-GitHub Actions runs `tests/rendering.cjs` on pushes and pull requests. It tests local `json.js` in Chromium: values, escaping, links, collapse controls, chunk ordering and cancellation, and the `test.json` benchmark.
+GitHub Actions runs `tests/rendering.cjs` on pushes and pull requests. It tests local `json.js` in Chromium: values, escaping, links, collapse controls, chunk ordering and cancellation, the `test.json` benchmark, and compact playground downloads using default settings.
 
 ## License
 

@@ -201,6 +201,40 @@ test("JSON rendering", async (t) => {
     for (const { name, passed, error } of results) {
       await t.test(name, () => assert.ok(passed, error));
     }
+    await t.test("integration examples preserve JSON and selected options", async () => {
+      const playground = await browser.newPage();
+      const errors = [];
+      playground.on("pageerror", error => errors.push(error.message));
+      await playground.route("**/*", async route => {
+        const url = new URL(route.request().url());
+        if (url.origin !== "https://viewer.test") return route.abort();
+        const file = path.basename(url.pathname);
+        const body = await fs.readFile(path.join(__dirname, "..", file));
+        await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
+      });
+      await playground.goto("https://viewer.test/index.html");
+      const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
+      await playground.locator("#json-source").fill(source);
+      await playground.locator("#withLinks").uncheck();
+      await playground.locator("#theme-light").check();
+      await playground.locator('[data-install="local"]').click();
+      const code = await playground.locator("#integration-code").inputValue();
+      assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
+      assert.ok(code.includes('"withLinks": false'));
+      assert.ok(code.includes('src="./json.js" defer'));
+      const generated = await playground.evaluate(html => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        let rendered;
+        const initialization = doc.querySelector("script:not([src]):not([type])").textContent;
+        new Function("document", "byJSONviewer", initialization)(doc, (_, data, options) => { rendered = { source: JSON.stringify(data), options }; });
+        doc.dispatchEvent(new Event("DOMContentLoaded"));
+        return rendered;
+      }, code);
+      assert.equal(generated.source, source);
+      assert.equal(generated.options.withLinks, false);
+      assert.deepEqual(errors, []);
+      await playground.close();
+    });
   } finally {
     await browser.close();
   }

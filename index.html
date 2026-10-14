@@ -1017,37 +1017,54 @@
       }
 
       function updateCode() {
-        // Themes belong to the stylesheet; this is the complete viewer API configuration.
-        document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
-        const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
-        const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
-        const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
-        const dataText = state.source === "bigNumbers"
-          ? 'const data = {\n  balance: {\n    isLosslessNumber: true,\n    toString: () => "900719925474099312345"\n  },\n  unit: "tiny units"\n};'
-          : 'const data = {\n  project: "easy-json-viewer",\n  items: [1, true, null],\n  source: "https://github.com/byuwur/easy-json-viewer"\n};';
-        const scripts = `<script src="${base}json.${state.install === "cdn" ? "min." : ""}js"><\/script>
-          <script>
-            ${dataText.split("\n").map(line => `    ${line}`).join("\n")}
-            byJSONviewer(document.getElementById("viewer"), data${optionText.split("\n").join("\n    ")});
-          <\/script>`;
-        document.getElementById("integration-code").value = /* HTML */ `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>My JSON viewer</title>
-  <link rel="stylesheet" href="${base}json.${state.install === "cdn" ? "min." : ""}css" />
-  <link id="byVIEWtheme" rel="stylesheet" href="${base}json.${state.theme}.css" />
-</head>
-<body>
-  <pre id="viewer"></pre>
-  ${scripts}
-</body>
-</html>`;
-        document.getElementById("install-note").textContent = state.install === "cdn"
-          ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
-          : `Save this HTML beside json.js, json.css, and json.${state.theme}.css. Keep both theme files if the theme switch is enabled.`;
-      }
+          // Themes belong to the stylesheet; this is the complete viewer API configuration.
+          document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
+          const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
+          const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
+          const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
+          const source = state.text.replace(/</g, "\\u003c");
+          let dataText = 'const data = JSON.parse(document.getElementById("viewer-data").textContent);';
+          if (state.source === "bigNumbers") {
+            dataText += "\n";
+            dataText += dedent(/* JavaScript */ `
+              const balance = data.balance;
+              data.balance = { isLosslessNumber: true, toString: () => balance };
+            `);
+          }
+          const initialization = [dataText, `byJSONviewer(document.getElementById("viewer"), data${optionText});`].join("\n");
+          // Interpolate script tags so escaped closing tags do not trap HTML highlighting.
+          const scripts = dedent(/* HTML */ `
+            ${'<script id="viewer-data" type="application/json">'}
+              ${source.replaceAll("\n", "\n              ")}
+            ${"<\/script>"}
+            ${"<script>"}
+              document.addEventListener("DOMContentLoaded", () => {
+                ${initialization.replaceAll("\n", "\n                ")}
+              });
+            ${"<\/script>"}
+          `);
+          document.getElementById("integration-code").value = dedent(/* HTML */ `
+            <!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>My JSON viewer</title>
+                <link rel="stylesheet" href="${base}json.${state.install === "cdn" ? "min." : ""}css" />
+                <link id="byVIEWtheme" rel="stylesheet" href="${base}json.${state.theme}.css" />
+                ${`<script src="${base}json.${state.install === "cdn" ? "min." : ""}js" defer><\/script>`}
+              </head>
+              <body>
+                <pre id="viewer"></pre>
+                ${scripts.replaceAll("\n", "\n                ")}
+              </body>
+            </html>
+          `);
+          document.getElementById("install-note").textContent =
+            state.install === "cdn"
+              ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
+              : `Save this HTML beside json.js, json.css, and json.${state.theme}.css. Keep both theme files if the theme switch is enabled.`;
+        }
 
       // =============
       // === CLIPBOARD ===

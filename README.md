@@ -74,7 +74,7 @@ Save this as an HTML file beside `json.js`, `json.css`, and `json.light.css`, th
 
 The target and library are loaded before the viewer call. Use the CDN URLs from Installation instead of the local paths if preferred. If you load the script with `defer` in the head, run the viewer call after `DOMContentLoaded` or from a later deferred script.
 
-The landing page copies your current JSON and settings into an integration example. **Download HTML** creates a compact starter with a short sample and default viewer settings. It loads the pinned viewer release and themes from the CDN, so viewing it requires an internet connection. CDN/local tabs apply to the copied example.
+The landing page displays a compact starter with a fixed JSON sample and default viewer settings. **Copy HTML** and **Download HTML** use exactly the displayed HTML, independently of the playground editor and settings. CDN/local tabs apply to all three: CDN files require an internet connection; local files belong beside the saved HTML.
 
 Pass a JavaScript value, not raw JSON text. For a JSON string, parse it first:
 

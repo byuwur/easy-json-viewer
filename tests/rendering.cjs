@@ -203,11 +203,20 @@ test("JSON rendering", async (t) => {
     for (const { name, passed, error } of results) {
       await t.test(name, () => assert.ok(passed, error));
     }
-    await t.test("compact downloads use default samples and deferred head assets", async () => {
+    await t.test("displayed, copied, and downloaded starters match with CDN or local assets", async () => {
       const playground = await browser.newPage();
       const errors = [];
-      playground.on("pageerror", error => errors.push(error.message));
-      await playground.route("**/*", async route => {
+      playground.on("pageerror", (error) => errors.push(error.message));
+      await playground.addInitScript(() => {
+        Object.defineProperty(navigator, "clipboard", {
+          value: {
+            writeText: async (text) => {
+              window.copiedHTML = text;
+            }
+          }
+        });
+      });
+      await playground.route("**/*", async (route) => {
         const url = new URL(route.request().url());
         if (url.origin !== "https://viewer.test") return route.abort();
         const file = path.basename(url.pathname);
@@ -215,53 +224,73 @@ test("JSON rendering", async (t) => {
         await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
       });
       await playground.goto("https://viewer.test/index.html");
+      const cdnCode = await playground.locator("#integration-code").inputValue();
       const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
       await playground.locator("#json-source").fill(source);
       await playground.locator("#withLinks").uncheck();
       await playground.locator("#theme-light").check();
+      assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
       await playground.locator('[data-install="local"]').click();
       const code = await playground.locator("#integration-code").inputValue();
       assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
-      assert.ok(code.includes('"withLinks": false'));
+      assert.ok(!code.includes('"withLinks": false'));
       assert.ok(code.includes('src="./json.js" defer'));
       for (const name of ["themeToggle", "fontSizeControls"]) {
-        await playground.locator(`#${name}`).evaluate(element => {
+        await playground.locator(`#${name}`).evaluate((element) => {
           element.checked = false;
           element.dispatchEvent(new Event("change", { bubbles: true }));
         });
       }
       const directory = await fs.mkdtemp(path.join(os.tmpdir(), "viewer-starter-"));
+      await Promise.all(["json.js", "json.css", "json.light.css", "json.dark.css"].map((file) => fs.copyFile(path.join(__dirname, "..", file), path.join(directory, file))));
       const exported = await browser.newPage();
-      exported.on("pageerror", error => errors.push(error.message));
-      await exported.route("https://cdn.jsdelivr.net/**", async route => {
+      exported.on("pageerror", (error) => errors.push(error.message));
+      await exported.route("https://cdn.jsdelivr.net/**", async (route) => {
         const file = path.basename(new URL(route.request().url()).pathname).replace(".min.", ".");
         const body = await fs.readFile(path.join(__dirname, "..", file));
-        if (file.endsWith(".js")) await new Promise(resolve => setTimeout(resolve, 75));
+        if (file.endsWith(".js")) await new Promise((resolve) => setTimeout(resolve, 75));
         await route.fulfill({ body, contentType: file.endsWith(".js") ? "text/javascript" : "text/css" });
       });
       try {
-        for (const editedPreset of [false, true]) {
-          if (editedPreset) {
+        for (const mode of ["cdn", "local"]) {
+          if (mode === "local") {
             await playground.locator("#source-preset").selectOption("bigNumbers");
             await playground.locator("#json-source").fill('{"balance":"-900719925474099312349","unit":"edited","extra":42}');
           }
+          await playground.locator(`[data-install="${mode}"]`).click();
+          const displayed = await playground.locator("#integration-code").inputValue();
+          assert.equal(displayed, mode === "cdn" ? cdnCode : code);
+          await playground.locator("#copy-code").click();
+          assert.equal(await playground.evaluate(() => window.copiedHTML), displayed);
           const [download] = await Promise.all([playground.waitForEvent("download"), playground.locator("#download-html").click()]);
           assert.equal(download.suggestedFilename(), "my-json-viewer.html");
           const file = path.join(directory, download.suggestedFilename());
           await download.saveAs(file);
           const html = await fs.readFile(file, "utf8");
+          assert.equal(html, displayed);
           assert.ok(Buffer.byteLength(html) < 2048, "Starter should stay small");
           await exported.goto(pathToFileURL(file).href);
           await exported.waitForFunction(() => document.getElementById("viewer").children.length > 0);
           assert.equal(await exported.evaluate(() => window.injected), undefined);
-          assert.deepEqual(await exported.locator("#viewer-data").evaluate(element => JSON.parse(element.textContent)), { project: "easy-json-viewer", description: "A little less noise. A lot more JSON.", openSource: true, dependencies: 0 });
+          assert.deepEqual(await exported.locator("#viewer-data").evaluate((element) => JSON.parse(element.textContent)), {
+            project: "easy-json-viewer",
+            description: "A little less noise. A lot more JSON.",
+            openSource: true,
+            dependencies: 0
+          });
           assert.equal(await exported.locator("head script[src][defer]").count(), 1);
           assert.equal(await exported.locator("body script[src], body link[rel='stylesheet']").count(), 0);
-          assert.equal(await exported.locator("#byVIEWtheme").getAttribute("href").then(href => href.endsWith("json.dark.css")), true);
-          const background = await exported.locator("#viewer").evaluate(element => getComputedStyle(element).backgroundColor);
+          assert.equal(
+            await exported
+              .locator("#byVIEWtheme")
+              .getAttribute("href")
+              .then((href) => href.endsWith("json.dark.css")),
+            true
+          );
+          const background = await exported.locator("#viewer").evaluate((element) => getComputedStyle(element).backgroundColor);
           await exported.locator(".byVIEWthemeToggle").click();
-          await exported.waitForFunction(before => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
-          const fontSize = await exported.locator("#viewer").evaluate(element => parseFloat(getComputedStyle(element).fontSize));
+          await exported.waitForFunction((before) => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
+          const fontSize = await exported.locator("#viewer").evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
           await exported.locator(".byVIEWfontSize").nth(2).click();
           assert.ok(await exported.locator("#viewer").evaluate((element, before) => parseFloat(getComputedStyle(element).fontSize) > before, fontSize));
         }
@@ -271,14 +300,22 @@ test("JSON rendering", async (t) => {
       }
       await playground.locator("#json-source").fill("{");
       await playground.waitForFunction(() => document.getElementById("json-source").getAttribute("aria-invalid") === "true");
-      assert.equal(await playground.locator("#copy-code").isDisabled(), true);
+      assert.equal(await playground.locator("#copy-code").isDisabled(), false);
       assert.equal(await playground.locator("#download-html").isDisabled(), false);
+      await playground.locator("#chunkSize").evaluate((element) => {
+        element.value = "0";
+        element.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      assert.equal(await playground.locator("#configuration").evaluate((element) => element.checkValidity()), false);
+      assert.equal(await playground.locator("#integration-code").inputValue(), code);
+      await playground.locator("#copy-code").click();
+      assert.equal(await playground.evaluate(() => window.copiedHTML), code);
       assert.deepEqual(errors, []);
       await playground.close();
     });
     await t.test("legacy demo loads styles and deferred scripts from the head", async () => {
       const html = await fs.readFile(path.join(__dirname, "..", "index.old.html"), "utf8");
-      const structure = await page.evaluate(html => {
+      const structure = await page.evaluate((html) => {
         const doc = new DOMParser().parseFromString(html, "text/html");
         return { themes: doc.querySelectorAll("head #byVIEWtheme").length, libraries: doc.querySelectorAll("head script[src][defer]").length, bodyAssets: doc.querySelectorAll("body script[src], body link[rel='stylesheet']").length };
       }, html);

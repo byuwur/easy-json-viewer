@@ -5,9 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>easy-json-viewer | JSON, minus the mess.</title>
-  <meta
-    name="description"
-    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta name="description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta name="author" content="Andrés Trujillo [Mateus] byUwUr" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#141619" />
@@ -18,9 +16,7 @@
   <meta property="og:site_name" content="easy-json-viewer" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="easy-json-viewer | JSON, minus the mess." />
-  <meta
-    property="og:description"
-    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta property="og:description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta property="og:url" content="https://byuwur.github.io/easy-json-viewer/" />
   <meta property="og:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -30,9 +26,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:creator" content="@byUwUr" />
   <meta name="twitter:title" content="easy-json-viewer | JSON, minus the mess." />
-  <meta
-    name="twitter:description"
-    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta name="twitter:description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta name="twitter:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" />
   <meta name="twitter:image:alt" content="easy-json-viewer by BONYUR: JSON playground, options, source editor, and live preview." />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v19.4/css/shards.css" />
@@ -46,14 +40,7 @@
   <header class="border-bottom">
     <nav class="navbar navbar-expand-md site-width" aria-label="Main navigation">
       <a class="navbar-brand" href="#"><span class="brand-mark" aria-hidden="true">{ }</span>easy-json-viewer</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#site-menu"
-        aria-controls="site-menu"
-        aria-expanded="false"
-        aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-menu" aria-controls="site-menu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="site-menu">
@@ -79,8 +66,7 @@
 
     <section id="playground" aria-labelledby="playground-title" tabindex="-1">
       <div class="playground border">
-        <div
-          class="playground-toolbar bg-body-tertiary px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="playground-toolbar bg-body-tertiary px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
           <h2 id="playground-title" class="h6 m-0 fw-semibold">Playground</h2>
           <div class="source-picker">
             <label class="small font-monospace text-body-secondary d-block mb-1" for="source-preset">Data sample</label>
@@ -98,49 +84,19 @@
         </div>
 
         <div class="mobile-tabs nav nav-pills nav-fill d-md-none border-bottom p-2 gap-2" role="tablist" aria-label="Playground panels">
-          <button
-            id="config-tab"
-            class="nav-link"
-            type="button"
-            data-bs-toggle="tab"
-            data-bs-target="#config-panel"
-            data-panel="config"
-            role="tab"
-            aria-controls="config-panel"
-            aria-selected="false">
+          <button id="config-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#config-panel" data-panel="config" role="tab" aria-controls="config-panel" aria-selected="false">
             <i class="fa-solid fa-sliders me-1" aria-hidden="true"></i> Configure
           </button>
-          <button
-            id="source-tab"
-            class="nav-link"
-            type="button"
-            data-bs-toggle="tab"
-            data-bs-target="#source-panel"
-            data-panel="source"
-            role="tab"
-            aria-controls="source-panel"
-            aria-selected="false">
+          <button id="source-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#source-panel" data-panel="source" role="tab" aria-controls="source-panel" aria-selected="false">
             <i class="fa-solid fa-code me-1" aria-hidden="true"></i> Source
           </button>
-          <button
-            id="preview-tab"
-            class="nav-link active"
-            type="button"
-            data-bs-toggle="tab"
-            data-bs-target="#preview-panel"
-            data-panel="preview"
-            role="tab"
-            aria-controls="preview-panel"
-            aria-selected="true">
+          <button id="preview-tab" class="nav-link active" type="button" data-bs-toggle="tab" data-bs-target="#preview-panel" data-panel="preview" role="tab" aria-controls="preview-panel" aria-selected="true">
             <i class="fa-solid fa-eye me-1" aria-hidden="true"></i> Preview
           </button>
         </div>
 
         <div class="tab-content row g-0">
-          <section
-            class="tab-pane panel flex-column d-md-flex config-panel col-12 col-xl-3"
-            id="config-panel"
-            aria-labelledby="config-title">
+          <section class="tab-pane panel flex-column d-md-flex config-panel col-12 col-xl-3" id="config-panel" aria-labelledby="config-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="config-title" class="h6 m-0 fw-semibold flex-shrink-0">
                 <span class="small font-monospace text-body-secondary me-2">01</span> Configure
@@ -149,20 +105,10 @@
             <div class="border-bottom">
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
                 <div class="btn-group" role="group" aria-label="Options view">
-                  <button
-                    class="btn btn-quiet btn-sm"
-                    type="button"
-                    data-options-view="form"
-                    aria-controls="configuration"
-                    aria-pressed="true">
+                  <button class="btn btn-quiet btn-sm" type="button" data-options-view="form" aria-controls="configuration" aria-pressed="true">
                     Form
                   </button>
-                  <button
-                    class="btn btn-quiet btn-sm"
-                    type="button"
-                    data-options-view="json"
-                    aria-controls="options-json-panel"
-                    aria-pressed="false">
+                  <button class="btn btn-quiet btn-sm" type="button" data-options-view="json" aria-controls="options-json-panel" aria-pressed="false">
                     JSON
                   </button>
                 </div>
@@ -263,10 +209,7 @@
             <p class="small text-body-secondary mx-4 my-0" id="config-status" role="status"></p>
           </section>
 
-          <section
-            class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4"
-            id="source-panel"
-            aria-labelledby="source-title">
+          <section class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4" id="source-panel" aria-labelledby="source-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="source-title" class="h6 m-0 fw-semibold flex-shrink-0">
                 <label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label>
@@ -301,26 +244,15 @@
             </div>
           </section>
 
-          <section
-            class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5"
-            id="preview-panel"
-            aria-labelledby="preview-title">
+          <section class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5" id="preview-panel" aria-labelledby="preview-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0">
                 <span class="small font-monospace text-body-secondary me-2">03</span> Live preview
               </h3>
               <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
             </div>
-            <div
-              class="panel-body preview-scroll"
-              id="preview-scroll"
-              data-theme="dark"
-              tabindex="0"
-              aria-label="Scrollable JSON preview">
-              <iframe
-                id="preview-frame"
-                title="Live JSON document"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+            <div class="panel-body preview-scroll" id="preview-scroll" data-theme="dark" tabindex="0" aria-label="Scrollable JSON preview">
+              <iframe id="preview-frame" title="Live JSON document" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
             </div>
           </section>
         </div>
@@ -335,9 +267,7 @@
             <dd class="m-0 font-monospace" id="metric-parse">—</dd>
           </div>
           <div class="metric p-3 col-6 col-md-3">
-            <dt
-              class="small fw-normal font-monospace text-body-secondary mb-2"
-              title="Through the final entry insertion, including chunk delays; excludes browser paint">
+            <dt class="small fw-normal font-monospace text-body-secondary mb-2" title="Through the final entry insertion, including chunk delays; excludes browser paint">
               Render DOM
             </dt>
             <dd class="m-0 font-monospace" id="metric-render">—</dd>
@@ -385,8 +315,8 @@
     <section class="get-started py-5 row gy-4 gx-lg-5" id="get-started" aria-labelledby="get-started-title">
       <div class="col-lg-4">
         <h2 id="get-started-title" class="h2 mb-3">Get started</h2>
-        <p class="text-body-secondary">Copy your integration or download a short JSON sample with default settings.</p>
-        <p class="text-body-secondary small">Downloads are compact starters with default settings and CDN links. Viewing them requires internet access.</p>
+        <p class="text-body-secondary">Copy or download this short JSON starter with default settings.</p>
+        <p class="text-body-secondary small">CDN starters require internet access. Local starters need the viewer files beside the HTML.</p>
         <p class="text-body-secondary small">
           Playground powered by <a class="site-link" href="https://github.com/byuwur/spa.js" target="_blank" rel="noopener">SPA.js</a>.
         </p>
@@ -1000,7 +930,6 @@
         if (!configuration.checkValidity()) {
           document.getElementById("config-status").textContent = "Use a whole chunk size ≥ 1 and a delay ≥ 0.";
           applyButton.disabled = true;
-          document.getElementById("copy-code").disabled = true;
           document.getElementById("copy-options").disabled = true;
           return false;
         }
@@ -1169,7 +1098,7 @@
         editor.setAttribute("aria-invalid", "false");
         sampleNote.hidden = !["benchmark", "bigNumbers"].includes(name);
         sampleNote.textContent = name === "bigNumbers"
-          ? "Enable Big-number objects to render the exact balance. The HTML example includes the JavaScript adapter."
+          ? "Enable Big-number objects to render the exact balance. The preview uses a JavaScript adapter."
           : "Repository test.json. Press Run to render changes. Loading this file requires HTTP(S).";
         if (name === "benchmark") {
           state.loading = true;
@@ -1220,62 +1149,9 @@
       }
 
       function updateCode() {
-        // Themes belong to the stylesheet; this is the complete viewer API configuration.
         document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
-        const available = state.valid && !state.loading && configuration.checkValidity();
-        document.getElementById("copy-code").disabled = !available;
-        if (!available) {
-          document.getElementById("integration-code").value = "Enter valid JSON and settings to generate the integration example.";
-          return;
-        }
-        const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
-        const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
-        const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
-        const source = state.text.replace(/</g, "\\u003c");
-        let dataText = 'const data = JSON.parse(document.getElementById("viewer-data").textContent);';
-        if (state.source === "bigNumbers") {
-          dataText += "\n";
-          dataText += dedent(/* JavaScript */ `
-              const balance = data.balance;
-              data.balance = { isLosslessNumber: true, toString: () => balance };
-            `);
-        }
-        const initialization = [dataText, `byJSONviewer(document.getElementById("viewer"), data${optionText});`].join("\n");
-        // Interpolate script tags so escaped closing tags do not trap HTML highlighting.
-        const scripts = dedent(/* HTML */ `
-            ${'<script id="viewer-data" type="application/json">'}
-              ${source.replaceAll("\n", "\n              ")}
-            ${"<\/script>"}
-            ${"<script>"}
-              document.addEventListener("DOMContentLoaded", () => {
-                ${initialization.replaceAll("\n", "\n                ")}
-              });
-            ${"<\/script>"}
-          `);
-        document.getElementById("integration-code").value = dedent(/* HTML */ `
-            <!doctype html>
-            <html lang="en">
-              <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>My JSON viewer</title>
-                <link rel="stylesheet" href="${base}json.${state.install === "cdn" ? "min." : ""}css" />
-                <link id="byVIEWtheme" rel="stylesheet" href="${base}json.${state.theme}.css" />
-                ${`<script src="${base}json.${state.install === "cdn" ? "min." : ""}js" defer><\/script>`}
-              </head>
-              <body>
-                <pre id="viewer"></pre>
-                ${scripts.replaceAll("\n", "\n                ")}
-              </body>
-            </html>
-          `);
-        document.getElementById("install-note").textContent =
-          state.install === "cdn"
-            ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
-            : `Save this HTML beside json.js, json.css, and json.${state.theme}.css. Keep both theme files if the theme switch is enabled.`;
-      }
-
-      function downloadHTML() {
+        const cdn = state.install === "cdn";
+        const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
         const html = dedent(/* HTML */ `
           <!doctype html>
           <html lang="en">
@@ -1283,9 +1159,9 @@
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <title>My JSON viewer</title>
-              <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.css" />
-              <link id="byVIEWtheme" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.dark.css" />
-              ${'<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.js" defer><\/script>'}
+              <link rel="stylesheet" href="${base}${cdn ? "json.min.css" : "json.css"}" />
+              <link id="byVIEWtheme" rel="stylesheet" href="${base}json.dark.css" />
+              ${`<script src="${base}${cdn ? "json.min.js" : "json.js"}" defer><\/script>`}
             </head>
             <body>
               <pre id="viewer"></pre>
@@ -1306,6 +1182,15 @@
             </body>
           </html>
         `);
+        document.getElementById("integration-code").value = html;
+        document.getElementById("install-note").textContent = cdn
+          ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
+          : "Place the HTML beside json.js, json.css, json.light.css, and json.dark.css.";
+        return html;
+      }
+
+      function downloadHTML() {
+        const html = updateCode();
         const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
         const link = document.createElement("a");
         link.href = url;
@@ -1314,7 +1199,7 @@
         link.click();
         link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings and CDN files.";
+        document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings.";
       }
 
       // =============
@@ -1445,7 +1330,7 @@
         })
       );
       document.getElementById("copy-code").addEventListener("click", () => {
-        if (!readOptions() || !validateSource()) return;
+        updateCode();
         const code = document.getElementById("integration-code");
         copyText(code.value, code);
       });

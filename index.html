@@ -1276,14 +1276,6 @@
       }
 
       function downloadHTML() {
-        const base = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/";
-        const sample = {
-          project: "easy-json-viewer",
-          description: "A little less noise. A lot more JSON.",
-          openSource: true,
-          dependencies: 0
-        };
-        const source = JSON.stringify(sample, null, 2).replaceAll("\n", "\n              ");
         const html = dedent(/* HTML */ `
           <!doctype html>
           <html lang="en">
@@ -1291,15 +1283,23 @@
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
               <title>My JSON viewer</title>
-              <link rel="stylesheet" href="${base}json.min.css" />
-              <link id="byVIEWtheme" rel="stylesheet" href="${base}json.light.css" />
-              ${`<script src="${base}json.min.js" defer><\/script>`}
+              <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.css" />
+              <link id="byVIEWtheme" rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.dark.css" />
+              ${'<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/json.min.js" defer><\/script>'}
             </head>
             <body>
               <pre id="viewer"></pre>
+              ${'<script id="viewer-data" type="application/json">'}
+                {
+                  "project": "easy-json-viewer",
+                  "description": "A little less noise. A lot more JSON.",
+                  "openSource": true,
+                  "dependencies": 0
+                }
+              ${"<\/script>"}
               ${"<script>"}
-                const data = ${source};
                 document.addEventListener("DOMContentLoaded", () => {
+                  const data = JSON.parse(document.getElementById("viewer-data").textContent);
                   byJSONviewer(document.getElementById("viewer"), data);
                 });
               ${"<\/script>"}

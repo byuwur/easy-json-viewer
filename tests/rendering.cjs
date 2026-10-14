@@ -254,10 +254,10 @@ test("JSON rendering", async (t) => {
           await exported.goto(pathToFileURL(file).href);
           await exported.waitForFunction(() => document.getElementById("viewer").children.length > 0);
           assert.equal(await exported.evaluate(() => window.injected), undefined);
-          assert.deepEqual(await exported.evaluate(() => data), { project: "easy-json-viewer", description: "A little less noise. A lot more JSON.", openSource: true, dependencies: 0 });
+          assert.deepEqual(await exported.locator("#viewer-data").evaluate(element => JSON.parse(element.textContent)), { project: "easy-json-viewer", description: "A little less noise. A lot more JSON.", openSource: true, dependencies: 0 });
           assert.equal(await exported.locator("head script[src][defer]").count(), 1);
           assert.equal(await exported.locator("body script[src], body link[rel='stylesheet']").count(), 0);
-          assert.equal(await exported.locator("#byVIEWtheme").getAttribute("href").then(href => href.endsWith("json.light.css")), true);
+          assert.equal(await exported.locator("#byVIEWtheme").getAttribute("href").then(href => href.endsWith("json.dark.css")), true);
           const background = await exported.locator("#viewer").evaluate(element => getComputedStyle(element).backgroundColor);
           await exported.locator(".byVIEWthemeToggle").click();
           await exported.waitForFunction(before => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);

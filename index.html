@@ -5,7 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>easy-json-viewer | JSON, minus the mess.</title>
-  <meta name="description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta
+    name="description"
+    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta name="author" content="Andrés Trujillo [Mateus] byUwUr" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="theme-color" content="#141619" />
@@ -16,7 +18,9 @@
   <meta property="og:site_name" content="easy-json-viewer" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:title" content="easy-json-viewer | JSON, minus the mess." />
-  <meta property="og:description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta
+    property="og:description"
+    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta property="og:url" content="https://byuwur.github.io/easy-json-viewer/" />
   <meta property="og:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" />
   <meta property="og:image:type" content="image/jpeg" />
@@ -26,7 +30,9 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:creator" content="@byUwUr" />
   <meta name="twitter:title" content="easy-json-viewer | JSON, minus the mess." />
-  <meta name="twitter:description" content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
+  <meta
+    name="twitter:description"
+    content="A free, dependency-free JSON viewer by BONYUR. Edit JSON, collapse nodes, try the options, and copy a working integration. Plain JavaScript, MIT." />
   <meta name="twitter:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" />
   <meta name="twitter:image:alt" content="easy-json-viewer by BONYUR: JSON playground, options, source editor, and live preview." />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v19.4/css/shards.css" />
@@ -40,14 +46,25 @@
   <header class="border-bottom">
     <nav class="navbar navbar-expand-md site-width" aria-label="Main navigation">
       <a class="navbar-brand" href="#"><span class="brand-mark" aria-hidden="true">{ }</span>easy-json-viewer</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-menu" aria-controls="site-menu" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#site-menu"
+        aria-controls="site-menu"
+        aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
       <div class="collapse navbar-collapse" id="site-menu">
         <div class="navbar-nav ms-auto align-items-md-center gap-md-2">
           <a class="nav-link" href="#playground">Playground</a>
           <a class="nav-link" href="#get-started">Get started</a>
           <a class="nav-link" href="https://github.com/byuwur/easy-json-viewer#readme">Docs <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
           <a class="btn btn-quiet px-3" href="https://github.com/byuwur/easy-json-viewer"><i class="fa-brands fa-github me-1" aria-hidden="true"></i> GitHub</a>
-          <button id="site-theme" class="btn btn-quiet px-3" type="button" aria-label="Switch website to light theme"><i class="fa-solid fa-sun me-1" aria-hidden="true"></i> <span>Light</span></button>
+          <button id="site-theme" class="btn btn-quiet px-3" type="button" aria-label="Switch website to light theme">
+            <i class="fa-solid fa-sun me-1" aria-hidden="true"></i> <span>Light</span>
+          </button>
         </div>
       </div>
     </nav>
@@ -62,7 +79,8 @@
 
     <section id="playground" aria-labelledby="playground-title" tabindex="-1">
       <div class="playground border">
-        <div class="playground-toolbar bg-body-tertiary px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div
+          class="playground-toolbar bg-body-tertiary px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
           <h2 id="playground-title" class="h6 m-0 fw-semibold">Playground</h2>
           <div class="source-picker">
             <label class="small font-monospace text-body-secondary d-block mb-1" for="source-preset">Data sample</label>
@@ -80,28 +98,81 @@
         </div>
 
         <div class="mobile-tabs nav nav-pills nav-fill d-md-none border-bottom p-2 gap-2" role="tablist" aria-label="Playground panels">
-          <button id="config-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#config-panel" data-panel="config" role="tab" aria-controls="config-panel" aria-selected="false"><i class="fa-solid fa-sliders me-1"
-              aria-hidden="true"></i> Configure</button>
-          <button id="source-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#source-panel" data-panel="source" role="tab" aria-controls="source-panel" aria-selected="false"><i class="fa-solid fa-code me-1"
-              aria-hidden="true"></i> Source</button>
-          <button id="preview-tab" class="nav-link active" type="button" data-bs-toggle="tab" data-bs-target="#preview-panel" data-panel="preview" role="tab" aria-controls="preview-panel" aria-selected="true"><i class="fa-solid fa-eye me-1"
-              aria-hidden="true"></i> Preview</button>
+          <button
+            id="config-tab"
+            class="nav-link"
+            type="button"
+            data-bs-toggle="tab"
+            data-bs-target="#config-panel"
+            data-panel="config"
+            role="tab"
+            aria-controls="config-panel"
+            aria-selected="false">
+            <i class="fa-solid fa-sliders me-1" aria-hidden="true"></i> Configure
+          </button>
+          <button
+            id="source-tab"
+            class="nav-link"
+            type="button"
+            data-bs-toggle="tab"
+            data-bs-target="#source-panel"
+            data-panel="source"
+            role="tab"
+            aria-controls="source-panel"
+            aria-selected="false">
+            <i class="fa-solid fa-code me-1" aria-hidden="true"></i> Source
+          </button>
+          <button
+            id="preview-tab"
+            class="nav-link active"
+            type="button"
+            data-bs-toggle="tab"
+            data-bs-target="#preview-panel"
+            data-panel="preview"
+            role="tab"
+            aria-controls="preview-panel"
+            aria-selected="true">
+            <i class="fa-solid fa-eye me-1" aria-hidden="true"></i> Preview
+          </button>
         </div>
 
         <div class="tab-content row g-0">
-          <section class="tab-pane panel flex-column d-md-flex config-panel col-12 col-xl-3" id="config-panel" aria-labelledby="config-title">
+          <section
+            class="tab-pane panel flex-column d-md-flex config-panel col-12 col-xl-3"
+            id="config-panel"
+            aria-labelledby="config-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
-              <h3 id="config-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">01</span> Configure</h3>
+              <h3 id="config-title" class="h6 m-0 fw-semibold flex-shrink-0">
+                <span class="small font-monospace text-body-secondary me-2">01</span> Configure
+              </h3>
             </div>
             <div class="border-bottom">
               <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 py-2">
                 <div class="btn-group" role="group" aria-label="Options view">
-                  <button class="btn btn-quiet btn-sm" type="button" data-options-view="form" aria-controls="configuration" aria-pressed="true">Form</button>
-                  <button class="btn btn-quiet btn-sm" type="button" data-options-view="json" aria-controls="options-json-panel" aria-pressed="false">JSON</button>
+                  <button
+                    class="btn btn-quiet btn-sm"
+                    type="button"
+                    data-options-view="form"
+                    aria-controls="configuration"
+                    aria-pressed="true">
+                    Form
+                  </button>
+                  <button
+                    class="btn btn-quiet btn-sm"
+                    type="button"
+                    data-options-view="json"
+                    aria-controls="options-json-panel"
+                    aria-pressed="false">
+                    JSON
+                  </button>
                 </div>
                 <div class="d-flex flex-wrap justify-content-end gap-2 ms-auto">
-                  <button class="btn btn-quiet btn-sm" id="copy-options" type="button" hidden><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy</button>
-                  <button class="btn btn-quiet btn-sm" id="reset-settings" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Reset</button>
+                  <button class="btn btn-quiet btn-sm" id="copy-options" type="button" hidden>
+                    <i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy
+                  </button>
+                  <button class="btn btn-quiet btn-sm" id="reset-settings" type="button">
+                    <i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Reset
+                  </button>
                 </div>
               </div>
               <p class="small text-body-secondary mx-3 my-0" id="options-copy-status" role="status" aria-live="polite"></p>
@@ -117,52 +188,111 @@
                       <input class="btn-check" id="theme-light" name="viewerTheme" type="radio" value="light" />
                       <label class="btn btn-quiet flex-fill" for="theme-light">Light</label>
                     </div>
-                    <div class="form-check form-switch"><input class="form-check-input" id="themeToggle" type="checkbox" checked /><label class="form-check-label" for="themeToggle">Theme switch</label></div>
-                    <div class="form-check form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" checked /><label class="form-check-label" for="fontSizeControls">Text size controls</label></div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="themeToggle" type="checkbox" checked /><label
+                        class="form-check-label"
+                        for="themeToggle">Theme switch</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="fontSizeControls" type="checkbox" checked /><label
+                        class="form-check-label"
+                        for="fontSizeControls">Text size controls</label>
+                    </div>
                   </fieldset>
                 </div>
                 <div class="col-12 col-md-4 col-xl-12">
                   <fieldset class="mb-3">
                     <legend class="float-none small font-monospace text-body-secondary mb-3">Structure &amp; content</legend>
-                    <div class="form-check form-switch"><input class="form-check-input" id="collapsed" type="checkbox" /><label class="form-check-label" for="collapsed">Start collapsed</label></div>
-                    <div class="form-check form-switch"><input class="form-check-input" id="rootCollapsible" type="checkbox" checked /><label class="form-check-label" for="rootCollapsible">Collapsible root</label></div>
-                    <div class="form-check form-switch"><input class="form-check-input" id="withQuotes" type="checkbox" checked /><label class="form-check-label" for="withQuotes">Quote object keys</label></div>
-                    <div class="form-check form-switch"><input class="form-check-input" id="withLinks" type="checkbox" checked /><label class="form-check-label" for="withLinks">Clickable URLs</label></div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="collapsed" type="checkbox" /><label class="form-check-label" for="collapsed">Start collapsed</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="rootCollapsible" type="checkbox" checked /><label
+                        class="form-check-label"
+                        for="rootCollapsible">Collapsible root</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="withQuotes" type="checkbox" checked /><label
+                        class="form-check-label"
+                        for="withQuotes">Quote object keys</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="withLinks" type="checkbox" checked /><label
+                        class="form-check-label"
+                        for="withLinks">Clickable URLs</label>
+                    </div>
                   </fieldset>
                 </div>
                 <div class="col-12 col-md-4 col-xl-12">
                   <details id="render-settings" class="border-top">
                     <summary class="small font-monospace text-body-secondary py-3">Rendering &amp; big numbers</summary>
                     <div class="row g-2 mt-1">
-                      <div class="col-6"><label class="form-label small" for="chunkSize">Entries / chunk</label><input class="form-control" id="chunkSize" type="number" min="1" step="1" value="1000" required /></div>
-                      <div class="col-6"><label class="form-label small" for="chunkLatency">Delay / ms</label><input class="form-control" id="chunkLatency" type="number" min="0" step="any" value="25" required /></div>
+                      <div class="col-6">
+                        <label class="form-label small" for="chunkSize">Entries / chunk</label><input class="form-control" id="chunkSize" type="number" min="1" step="1" value="1000" required />
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label small" for="chunkLatency">Delay / ms</label><input class="form-control" id="chunkLatency" type="number" min="0" step="any" value="25" required />
+                      </div>
                     </div>
-                    <p class="form-text">Chunks apply per object or array. Smaller chunks yield more often; the delay is the wait before and between chunks.</p>
+                    <p class="form-text">
+                      Chunks apply per object or array. Smaller chunks yield more often; the delay is the wait before and between chunks.
+                    </p>
                     <button class="btn btn-quiet w-100 mb-2" id="normal-rendering" type="button">Restore normal rendering</button>
-                    <div class="form-check form-switch"><input class="form-check-input" id="bigNumbers" type="checkbox" aria-describedby="big-number-help" /><label class="form-check-label" for="bigNumbers">Big-number objects</label></div>
-                    <p class="form-text" id="big-number-help">For compatible JavaScript objects. It cannot recover precision lost by JSON.parse(). <button class="btn btn-quiet d-block mt-2" type="button" data-feature="bigNumbers">Try a
-                        precise value ↗</button></p>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" id="bigNumbers" type="checkbox" aria-describedby="big-number-help" /><label
+                        class="form-check-label"
+                        for="bigNumbers">Big-number objects</label>
+                    </div>
+                    <p class="form-text" id="big-number-help">
+                      For compatible JavaScript objects. It cannot recover precision lost by JSON.parse().
+                      <button class="btn btn-quiet d-block mt-2" type="button" data-feature="bigNumbers">Try a precise value ↗</button>
+                    </p>
                   </details>
                 </div>
               </div>
             </form>
             <div class="panel-body overflow-hidden" id="options-json-panel" hidden>
-              <textarea class="source-editor" id="options-json" readonly spellcheck="false" wrap="off" aria-label="Viewer options as JSON"></textarea>
+              <textarea
+                class="source-editor"
+                id="options-json"
+                readonly
+                spellcheck="false"
+                wrap="off"
+                aria-label="Viewer options as JSON"></textarea>
             </div>
             <p class="small text-body-secondary mx-4 my-0" id="config-status" role="status"></p>
           </section>
 
-          <section class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4" id="source-panel" aria-labelledby="source-title">
+          <section
+            class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4"
+            id="source-panel"
+            aria-labelledby="source-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
-              <h3 id="source-title" class="h6 m-0 fw-semibold flex-shrink-0"><label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label></h3>
+              <h3 id="source-title" class="h6 m-0 fw-semibold flex-shrink-0">
+                <label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label>
+              </h3>
               <div class="d-flex gap-1">
-                <button class="btn btn-quiet btn-sm" id="format-source" type="button"><i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> Format</button>
-                <button class="btn btn-quiet btn-sm" id="copy-source" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy</button>
-                <button class="btn btn-quiet btn-sm" id="restore-source" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Restore</button>
+                <button class="btn btn-quiet btn-sm" id="format-source" type="button">
+                  <i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> Format
+                </button>
+                <button class="btn btn-quiet btn-sm" id="copy-source" type="button">
+                  <i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy
+                </button>
+                <button class="btn btn-quiet btn-sm" id="restore-source" type="button">
+                  <i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Restore
+                </button>
               </div>
             </div>
             <div class="panel-body">
-              <textarea class="source-editor" id="json-source" aria-describedby="source-status" title="Ctrl / ⌘ + Enter to render. Tab moves focus." aria-invalid="false" spellcheck="false" autocapitalize="off" autocomplete="off"
+              <textarea
+                class="source-editor"
+                id="json-source"
+                aria-describedby="source-status"
+                title="Ctrl / ⌘ + Enter to render. Tab moves focus."
+                aria-invalid="false"
+                spellcheck="false"
+                autocapitalize="off"
+                autocomplete="off"
                 wrap="off"></textarea>
             </div>
             <div class="panel-footer d-flex align-items-center justify-content-between gap-2">
@@ -171,13 +301,27 @@
             </div>
           </section>
 
-          <section class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5" id="preview-panel" aria-labelledby="preview-title">
+          <section
+            class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5"
+            id="preview-panel"
+            aria-labelledby="preview-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
-              <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">03</span> Live preview</h3>
+              <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0">
+                <span class="small font-monospace text-body-secondary me-2">03</span> Live preview
+              </h3>
               <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
             </div>
-            <div class="panel-body preview-scroll" id="preview-scroll" data-theme="dark" tabindex="0" aria-label="Scrollable JSON preview"><iframe id="preview-frame" title="Live JSON document"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>
+            <div
+              class="panel-body preview-scroll"
+              id="preview-scroll"
+              data-theme="dark"
+              tabindex="0"
+              aria-label="Scrollable JSON preview">
+              <iframe
+                id="preview-frame"
+                title="Live JSON document"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+            </div>
           </section>
         </div>
 
@@ -191,7 +335,11 @@
             <dd class="m-0 font-monospace" id="metric-parse">—</dd>
           </div>
           <div class="metric p-3 col-6 col-md-3">
-            <dt class="small fw-normal font-monospace text-body-secondary mb-2" title="Through the final entry insertion, including chunk delays; excludes browser paint">Render DOM</dt>
+            <dt
+              class="small fw-normal font-monospace text-body-secondary mb-2"
+              title="Through the final entry insertion, including chunk delays; excludes browser paint">
+              Render DOM
+            </dt>
             <dd class="m-0 font-monospace" id="metric-render">—</dd>
           </div>
           <div class="metric p-3 col-6 col-md-3">
@@ -203,18 +351,34 @@
 
       <div class="discovery py-4 border-bottom d-flex flex-wrap align-items-center gap-2" aria-label="Try a feature">
         <span class="small font-monospace text-body-secondary me-2">Try it!</span>
-        <button class="btn btn-quiet" type="button" data-feature="nested">Nested data<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-        <button class="btn btn-quiet" type="button" data-feature="theme">Light / dark<i class="fa-solid fa-circle-half-stroke feature-arrow" aria-hidden="true"></i></button>
-        <button class="btn btn-quiet" type="button" data-feature="characters">Text &amp; URLs<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-        <button class="btn btn-quiet" type="button" data-feature="progressive">Watch the chunks<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-        <button class="btn btn-quiet" id="run-benchmark" type="button">Run repository benchmark<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
+        <button class="btn btn-quiet" type="button" data-feature="nested">
+          Nested data<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-quiet" type="button" data-feature="theme">
+          Light / dark<i class="fa-solid fa-circle-half-stroke feature-arrow" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-quiet" type="button" data-feature="characters">
+          Text &amp; URLs<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-quiet" type="button" data-feature="progressive">
+          Watch the chunks<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-quiet" id="run-benchmark" type="button">
+          Run repository benchmark<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i>
+        </button>
       </div>
 
       <p class="alert alert-secondary small mt-3 mb-0" id="sample-note" hidden></p>
-      <p class="alert alert-secondary small mt-3 mb-0" id="precision-note" hidden>Some numeric literals exceed JavaScript's safe precision. JSON.parse() may already have rounded them. Keep precise decimals as strings and use a compatible
-        object or parser.</p>
+      <p class="alert alert-secondary small mt-3 mb-0" id="precision-note" hidden>
+        Some numeric literals exceed JavaScript's safe precision. JSON.parse() may already have rounded them. Keep precise decimals as
+        strings and use a compatible object or parser.
+      </p>
       <noscript>
-        <p class="alert alert-secondary small mt-3">Enable JavaScript to use the playground. The <a class="site-link" href="https://github.com/byuwur/easy-json-viewer#readme">README</a> includes installation and usage examples.</p>
+        <p class="alert alert-secondary small mt-3">
+          Enable JavaScript to use the playground. The
+          <a class="site-link" href="https://github.com/byuwur/easy-json-viewer#readme">README</a> includes installation and usage
+          examples.
+        </p>
       </noscript>
     </section>
 
@@ -235,11 +399,22 @@
               <button class="btn btn-quiet" type="button" data-install="cdn" aria-pressed="true">CDN</button>
               <button class="btn btn-quiet" type="button" data-install="local" aria-pressed="false">Local files</button>
             </div>
-            <div class="d-flex flex-wrap gap-2"><button class="btn btn-quiet btn-sm px-3" id="copy-code" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span>Copy HTML</span></button>
-              <button id="download-html" class="btn btn-accent btn-sm px-3" type="button"><i class="fa-solid fa-download me-1" aria-hidden="true"></i> Download HTML</button>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-quiet btn-sm px-3" id="copy-code" type="button">
+                <i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span>Copy HTML</span>
+              </button>
+              <button class="btn btn-accent btn-sm px-3" id="download-html" type="button">
+                <i class="fa-solid fa-download me-1" aria-hidden="true"></i> Download HTML
+              </button>
             </div>
           </div>
-          <textarea id="integration-code" class="integration-code" readonly spellcheck="false" wrap="soft" aria-label="Complete HTML integration"></textarea>
+          <textarea
+            id="integration-code"
+            class="integration-code"
+            readonly
+            spellcheck="false"
+            wrap="soft"
+            aria-label="Complete HTML integration"></textarea>
         </div>
         <p class="text-body-secondary small mt-2 mb-0" id="install-note">CDN files are pinned to v2.7.final.</p>
         <p class="text-body-secondary small mt-2 mb-0" id="copy-status" role="status" aria-live="polite"></p>
@@ -249,7 +424,10 @@
 
   <footer class="site-footer border-top py-4 small">
     <div class="site-width d-flex flex-wrap justify-content-between align-items-center gap-3">
-      <p class="m-0">&copy; <span id="year-txt"></span>, Made with <i class="fa-solid fa-heart" role="img" aria-label="love"></i> by <a class="site-link" href="https://byuwur.co" target="_blank" rel="noopener">BONYUR @byUwUr</a></p>
+      <p class="m-0">
+        &copy; <span id="year-txt"></span>, Made with <i class="fa-solid fa-heart" role="img" aria-label="love"></i> by
+        <a class="site-link" href="https://byuwur.co" target="_blank" rel="noopener">BONYUR @byUwUr</a>
+      </p>
       <div class="d-flex flex-wrap gap-3">
         <a class="site-link" href="https://github.com/byuwur/easy-json-viewer/blob/main/LICENSE">MIT license</a>
         <a class="site-link" href="https://github.com/byuwur/easy-json-viewer">Source &amp; contributions <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
@@ -260,8 +438,8 @@
 
   <style>
     /* =============
-       === FONT & THEMES ===
-       ============= */
+             === FONT & THEMES ===
+             ============= */
     @font-face {
       font-family: Archivo;
       src: url("https://cdn.jsdelivr.net/gh/byuwur/spa.js@v19.4/css/webfonts/archivo.ttf") format("truetype");
@@ -311,8 +489,8 @@
     }
 
     /* =============
-       === LAYOUT & NAVIGATION ===
-       ============= */
+             === LAYOUT & NAVIGATION ===
+             ============= */
     html {
       scroll-padding-top: 1rem;
     }
@@ -335,7 +513,7 @@
 
     .site-link {
       color: var(--ink);
-      text-underline-offset: .25em;
+      text-underline-offset: 0.25em;
     }
 
     .site-link:hover {
@@ -347,7 +525,7 @@
       z-index: 10;
       left: 1rem;
       top: -5rem;
-      padding: .75rem;
+      padding: 0.75rem;
       background: var(--accent);
       color: var(--accent-ink);
     }
@@ -371,7 +549,7 @@
       place-items: center;
       width: 34px;
       height: 34px;
-      margin-right: .5rem;
+      margin-right: 0.5rem;
       background: var(--accent);
       color: var(--accent-ink);
       font: bold 1.1rem var(--mono);
@@ -379,7 +557,7 @@
 
     .navbar .nav-link {
       color: var(--muted);
-      padding: .75rem;
+      padding: 0.75rem;
     }
 
     .navbar .nav-link:hover {
@@ -401,8 +579,8 @@
     }
 
     /* =============
-       === CONTROLS ===
-       ============= */
+             === CONTROLS ===
+             ============= */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -430,7 +608,7 @@
 
     .btn i,
     .nav-link i {
-      font-size: .85em;
+      font-size: 0.85em;
     }
 
     .btn-quiet[aria-pressed="true"],
@@ -452,13 +630,13 @@
       background-color: var(--editor-bg);
       color: var(--ink);
       border-color: var(--accent);
-      box-shadow: 0 0 0 .15rem color-mix(in srgb, var(--accent) 20%, transparent);
+      box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--accent) 20%, transparent);
     }
 
     .form-switch {
       display: flex;
       align-items: center;
-      gap: .75rem;
+      gap: 0.75rem;
       padding-left: 0;
       margin: 0;
       min-height: 48px;
@@ -476,7 +654,7 @@
     .option-label {
       flex: 1;
       cursor: pointer;
-      padding-block: .5rem;
+      padding-block: 0.5rem;
     }
 
     .form-check-input:checked {
@@ -486,7 +664,7 @@
 
     .form-text,
     .option-description {
-      font-size: .8125rem;
+      font-size: 0.8125rem;
       color: var(--muted);
     }
 
@@ -508,8 +686,8 @@
     }
 
     /* =============
-       === PLAYGROUND & CODE ===
-       ============= */
+             === PLAYGROUND & CODE ===
+             ============= */
     .source-picker {
       width: min(100%, 18rem);
     }
@@ -559,7 +737,7 @@
       padding: 1.25rem 1.5rem;
       background: var(--editor-bg);
       color: var(--ink);
-      font: .875rem/1.8 var(--mono);
+      font: 0.875rem/1.8 var(--mono);
       white-space: pre;
       overflow: auto;
       tab-size: 2;
@@ -583,8 +761,8 @@
 
     .panel-footer {
       border-top: 1px solid var(--panel-line);
-      padding: .75rem 1.5rem;
-      font: .8125rem/1.5 var(--mono);
+      padding: 0.75rem 1.5rem;
+      font: 0.8125rem/1.5 var(--mono);
       color: var(--muted);
     }
 
@@ -612,13 +790,13 @@
     }
 
     .feature-arrow {
-      margin-left: .6rem;
+      margin-left: 0.6rem;
       color: var(--accent);
     }
 
     /* =============
-       === RESPONSIVE LAYOUT ===
-       ============= */
+             === RESPONSIVE LAYOUT ===
+             ============= */
     @media (min-width: 768px) and (max-width: 1199px) {
       .config-panel {
         height: auto;
@@ -637,10 +815,10 @@
       .source-panel {
         border-left: 0 !important;
       }
-
     }
 
-    @media (min-width: 768px) and (max-width: 991px), (min-width: 1200px) and (max-width: 1399px) {
+    @media (min-width: 768px) and (max-width: 991px),
+    (min-width: 1200px) and (max-width: 1399px) {
       .panel-heading {
         min-height: 7rem;
         align-content: center;
@@ -665,7 +843,7 @@
         border-left: 0;
       }
 
-      .metric:nth-child(n+3) {
+      .metric:nth-child(n + 3) {
         border-top: 1px solid var(--panel-line);
       }
     }
@@ -685,20 +863,26 @@
     "use strict";
 
     document.addEventListener("DOMContentLoaded", () => {
-
-      // Keep templates aligned while preserving their content indentation.
+      // Keep templates aligned with the code while preserving their content indentation.
       function dedent(text) {
-          const indentation = text.match(/\n([ \t]*)/)[1];
-          return text.replace(new RegExp(`^${indentation}`, "gm"), "").trim();
-        }
+        const indentation = text.match(/\n([ \t]*)/)[1];
+        return text.replace(new RegExp(`^${indentation}`, "gm"), "").trim();
+      }
+
       // =============
       // === STATE & SAMPLES ===
       // =============
       // Defaults mirror json.js; all mutable playground state lives here.
       const defaults = {
-        collapsed: false, rootCollapsible: true, withQuotes: true, withLinks: true,
-        bigNumbers: false, chunkSize: 1000, chunkLatency: 25,
-        themeToggle: true, fontSizeControls: true
+        collapsed: false,
+        rootCollapsible: true,
+        withQuotes: true,
+        withLinks: true,
+        bigNumbers: false,
+        chunkSize: 1000,
+        chunkLatency: 25,
+        themeToggle: true,
+        fontSizeControls: true
       };
       const samples = {
         basic: {
@@ -744,10 +928,22 @@
         bigNumbers: { balance: "900719925474099312345", unit: "tiny units", ordinaryNumber: 42 }
       };
       const state = {
-        source: "basic", sample: "basic", text: "", data: null, valid: false, manual: false,
-        options: { ...defaults }, theme: "dark", install: "cdn",
-        loading: false, request: null, sourceVersion: 0, benchmarkText: null,
-        editTimer: null, observer: null, entryCount: 0,
+        source: "basic",
+        sample: "basic",
+        text: "",
+        data: null,
+        valid: false,
+        manual: false,
+        options: { ...defaults },
+        theme: "dark",
+        install: "cdn",
+        loading: false,
+        request: null,
+        sourceVersion: 0,
+        benchmarkText: null,
+        editTimer: null,
+        observer: null,
+        entryCount: 0,
         bytes: 0
       };
       const editor = document.getElementById("json-source");
@@ -878,24 +1074,24 @@
       // === PREVIEW ===
       // =============
       function initializePreview() {
-          // Keep the real viewer and its theme outside the landing page's CSS.
-          const base = new URL("./", location.href).href.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-          frame.addEventListener(
-            "load",
-            () => {
-              renderer = frame.contentDocument.getElementById("byJSONrenderer");
-              themeLink = frame.contentDocument.getElementById("byVIEWtheme");
-              new MutationObserver(() => {
-                const theme = themeLink.getAttribute("href").includes(".light.css") ? "light" : "dark";
-                if (theme !== state.theme) setTheme(theme);
-              }).observe(themeLink, { attributes: true, attributeFilter: ["href"] });
-              setTheme(state.theme);
-              renderSource();
-            },
-            { once: true }
-          );
-          // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
-          frame.srcdoc = dedent(/* HTML */ `
+        // Keep the real viewer and its theme outside the landing page's CSS.
+        const base = new URL("./", location.href).href.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+        frame.addEventListener(
+          "load",
+          () => {
+            renderer = frame.contentDocument.getElementById("byJSONrenderer");
+            themeLink = frame.contentDocument.getElementById("byVIEWtheme");
+            new MutationObserver(() => {
+              const theme = themeLink.getAttribute("href").includes(".light.css") ? "light" : "dark";
+              if (theme !== state.theme) setTheme(theme);
+            }).observe(themeLink, { attributes: true, attributeFilter: ["href"] });
+            setTheme(state.theme);
+            renderSource();
+          },
+          { once: true }
+        );
+        // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
+        frame.srcdoc = dedent(/* HTML */ `
             <!doctype html>
             <html lang="en">
               <head>
@@ -914,7 +1110,7 @@
               </body>
             </html>
           `);
-        }
+      }
 
       function renderSource(explicit = false) {
         clearTimeout(state.editTimer);
@@ -1024,29 +1220,29 @@
       }
 
       function updateCode() {
-          // Themes belong to the stylesheet; this is the complete viewer API configuration.
-          document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
-          const available = state.valid && !state.loading && configuration.checkValidity();
-          document.getElementById("copy-code").disabled = !available;
-          if (!available) {
-            document.getElementById("integration-code").value = "Enter valid JSON and settings to generate the integration example.";
-            return;
-          }
-          const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
-          const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
-          const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
-          const source = state.text.replace(/</g, "\\u003c");
-          let dataText = 'const data = JSON.parse(document.getElementById("viewer-data").textContent);';
-          if (state.source === "bigNumbers") {
-            dataText += "\n";
-            dataText += dedent(/* JavaScript */ `
+        // Themes belong to the stylesheet; this is the complete viewer API configuration.
+        document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
+        const available = state.valid && !state.loading && configuration.checkValidity();
+        document.getElementById("copy-code").disabled = !available;
+        if (!available) {
+          document.getElementById("integration-code").value = "Enter valid JSON and settings to generate the integration example.";
+          return;
+        }
+        const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
+        const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
+        const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
+        const source = state.text.replace(/</g, "\\u003c");
+        let dataText = 'const data = JSON.parse(document.getElementById("viewer-data").textContent);';
+        if (state.source === "bigNumbers") {
+          dataText += "\n";
+          dataText += dedent(/* JavaScript */ `
               const balance = data.balance;
               data.balance = { isLosslessNumber: true, toString: () => balance };
             `);
-          }
-          const initialization = [dataText, `byJSONviewer(document.getElementById("viewer"), data${optionText});`].join("\n");
-          // Interpolate script tags so escaped closing tags do not trap HTML highlighting.
-          const scripts = dedent(/* HTML */ `
+        }
+        const initialization = [dataText, `byJSONviewer(document.getElementById("viewer"), data${optionText});`].join("\n");
+        // Interpolate script tags so escaped closing tags do not trap HTML highlighting.
+        const scripts = dedent(/* HTML */ `
             ${'<script id="viewer-data" type="application/json">'}
               ${source.replaceAll("\n", "\n              ")}
             ${"<\/script>"}
@@ -1056,7 +1252,7 @@
               });
             ${"<\/script>"}
           `);
-          document.getElementById("integration-code").value = dedent(/* HTML */ `
+        document.getElementById("integration-code").value = dedent(/* HTML */ `
             <!doctype html>
             <html lang="en">
               <head>
@@ -1073,23 +1269,20 @@
               </body>
             </html>
           `);
-          document.getElementById("install-note").textContent =
-            state.install === "cdn"
-              ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
-              : `Save this HTML beside json.js, json.css, and json.${state.theme}.css. Keep both theme files if the theme switch is enabled.`;
-        }
+        document.getElementById("install-note").textContent =
+          state.install === "cdn"
+            ? "CDN files are pinned to v2.7.final. Save this HTML and open it."
+            : `Save this HTML beside json.js, json.css, and json.${state.theme}.css. Keep both theme files if the theme switch is enabled.`;
+      }
 
-      // =============
-      // === CLIPBOARD ===
-      // =============
       function downloadHTML() {
         const base = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/";
         const sample = {
-              project: "easy-json-viewer",
-              description: "A little less noise. A lot more JSON.",
-              openSource: true,
-              dependencies: 0
-            };
+          project: "easy-json-viewer",
+          description: "A little less noise. A lot more JSON.",
+          openSource: true,
+          dependencies: 0
+        };
         const source = JSON.stringify(sample, null, 2).replaceAll("\n", "\n              ");
         const html = dedent(/* HTML */ `
           <!doctype html>
@@ -1124,6 +1317,9 @@
         document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings and CDN files.";
       }
 
+      // =============
+      // === CLIPBOARD ===
+      // =============
       async function copyText(text, selectable, status = document.getElementById("copy-status")) {
         try {
           await navigator.clipboard.writeText(text);
@@ -1138,14 +1334,16 @@
       // =============
       // === EVENTS ===
       // =============
-      document.querySelectorAll("[data-options-view]").forEach(button => button.addEventListener("click", () => {
-        if (!readOptions()) return;
-        const jsonView = button.dataset.optionsView === "json";
-        configuration.hidden = jsonView;
-        document.getElementById("options-json-panel").hidden = !jsonView;
-        document.getElementById("copy-options").hidden = !jsonView;
-        document.querySelectorAll("[data-options-view]").forEach(choice => choice.setAttribute("aria-pressed", String(choice === button)));
-      }));
+      document.querySelectorAll("[data-options-view]").forEach(button =>
+        button.addEventListener("click", () => {
+          if (!readOptions()) return;
+          const jsonView = button.dataset.optionsView === "json";
+          configuration.hidden = jsonView;
+          document.getElementById("options-json-panel").hidden = !jsonView;
+          document.getElementById("copy-options").hidden = !jsonView;
+          document.querySelectorAll("[data-options-view]").forEach(choice => choice.setAttribute("aria-pressed", String(choice === button)));
+        })
+      );
       document.getElementById("copy-options").addEventListener("click", () => {
         const options = document.getElementById("options-json");
         copyText(options.value, options, document.getElementById("options-copy-status"));
@@ -1172,21 +1370,21 @@
       });
       preset.addEventListener("change", () => selectSource(preset.value));
       editor.addEventListener("input", () => {
-          if (!["bigNumbers", "benchmark"].includes(state.source)) state.source = preset.value = "custom";
-          sampleNote.hidden = !["bigNumbers", "benchmark"].includes(state.source);
-          state.valid = false;
-          state.text = editor.value;
-          state.bytes = new Blob([state.text]).size;
-          state.manual = state.source === "benchmark" || state.bytes > 65536;
-          document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
-          document.getElementById("metric-parse").textContent = "—";
-          applyButton.disabled = !configuration.checkValidity();
-          markPending();
-          reportSource(state.manual ? "Edited = press Render to validate and apply" : "Checking JSON…");
-          updateCode();
-          clearTimeout(state.editTimer);
-          if (!state.manual) state.editTimer = setTimeout(() => renderSource(), 300);
-        });
+        if (!["bigNumbers", "benchmark"].includes(state.source)) state.source = preset.value = "custom";
+        sampleNote.hidden = !["bigNumbers", "benchmark"].includes(state.source);
+        state.valid = false;
+        state.text = editor.value;
+        state.bytes = new Blob([state.text]).size;
+        state.manual = state.source === "benchmark" || state.bytes > 65536;
+        document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
+        document.getElementById("metric-parse").textContent = "—";
+        applyButton.disabled = !configuration.checkValidity();
+        markPending();
+        reportSource(state.manual ? "Edited = press Render to validate and apply" : "Checking JSON…");
+        updateCode();
+        clearTimeout(state.editTimer);
+        if (!state.manual) state.editTimer = setTimeout(() => renderSource(), 300);
+      });
       editor.addEventListener("keydown", event => {
         if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
           event.preventDefault();
@@ -1206,29 +1404,31 @@
       });
       document.getElementById("copy-source").addEventListener("click", () => copyText(editor.value, editor, sourceStatus));
 
-      document.querySelectorAll("[data-feature]").forEach(button => button.addEventListener("click", async () => {
-        const feature = button.dataset.feature;
-        if (feature === "theme") {
-          setTheme(state.theme === "dark" ? "light" : "dark");
-        } else {
-          if (feature === "nested") state.options.collapsed = true;
-          if (feature === "characters") state.options.withLinks = true;
-          if (feature === "bigNumbers") state.options.bigNumbers = true;
-          if (feature === "progressive") {
-            state.options.collapsed = false;
-            state.options.chunkSize = 1;
-            state.options.chunkLatency = 180;
-            document.getElementById("render-settings").open = true;
+      document.querySelectorAll("[data-feature]").forEach(button =>
+        button.addEventListener("click", async () => {
+          const feature = button.dataset.feature;
+          if (feature === "theme") {
+            setTheme(state.theme === "dark" ? "light" : "dark");
+          } else {
+            if (feature === "nested") state.options.collapsed = true;
+            if (feature === "characters") state.options.withLinks = true;
+            if (feature === "bigNumbers") state.options.bigNumbers = true;
+            if (feature === "progressive") {
+              state.options.collapsed = false;
+              state.options.chunkSize = 1;
+              state.options.chunkLatency = 180;
+              document.getElementById("render-settings").open = true;
+            }
+            syncForm();
+            await selectSource(feature === "progressive" ? "basic" : feature);
+            if (feature === "progressive") {
+              sampleNote.hidden = false;
+              sampleNote.textContent = "One entry per chunk, with a 180 ms delay. Restore normal rendering to return to the defaults.";
+            }
           }
-          syncForm();
-          await selectSource(feature === "progressive" ? "basic" : feature);
-          if (feature === "progressive") {
-            sampleNote.hidden = false;
-            sampleNote.textContent = "One entry per chunk, with a 180 ms delay. Restore normal rendering to return to the defaults.";
-          }
-        }
-        showPanel("preview-panel", true);
-      }));
+          showPanel("preview-panel", true);
+        })
+      );
       document.getElementById("run-benchmark").addEventListener("click", async () => {
         const loading = selectSource("benchmark");
         const version = state.sourceVersion;
@@ -1237,16 +1437,18 @@
         renderSource(true);
         showPanel("preview-panel", true);
       });
-      document.querySelectorAll("[data-install]").forEach(button => button.addEventListener("click", () => {
-        state.install = button.dataset.install;
-        document.querySelectorAll("[data-install]").forEach(choice => choice.setAttribute("aria-pressed", String(choice === button)));
-        updateCode();
-      }));
+      document.querySelectorAll("[data-install]").forEach(button =>
+        button.addEventListener("click", () => {
+          state.install = button.dataset.install;
+          document.querySelectorAll("[data-install]").forEach(choice => choice.setAttribute("aria-pressed", String(choice === button)));
+          updateCode();
+        })
+      );
       document.getElementById("copy-code").addEventListener("click", () => {
-          if (!readOptions() || !validateSource()) return;
-          const code = document.getElementById("integration-code");
-          copyText(code.value, code);
-        });
+        if (!readOptions() || !validateSource()) return;
+        const code = document.getElementById("integration-code");
+        copyText(code.value, code);
+      });
       document.getElementById("download-html").addEventListener("click", downloadHTML);
       // =============
       // === LIFECYCLE ===
@@ -1272,7 +1474,9 @@
         button.querySelector("span").textContent = next === "light" ? "Light" : "Dark";
         button.querySelector("i").className = `fa-solid fa-${next === "light" ? "sun" : "moon"} me-1`;
         button.setAttribute("aria-label", `Switch website to ${next} theme`);
-        document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
+        document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.documentElement)
+          .getPropertyValue("--page-bg")
+          .trim();
       });
       // =============
       // === INITIALIZATION ===

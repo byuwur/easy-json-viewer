@@ -89,7 +89,7 @@
         </div>
 
         <div class="tab-content row g-0">
-          <section class="tab-pane panel flex-column d-md-flex config-panel col-12 col-lg-3" id="config-panel" aria-labelledby="config-title">
+          <section class="tab-pane panel flex-column d-md-flex config-panel col-12 col-xl-3" id="config-panel" aria-labelledby="config-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="config-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">01</span> Configure</h3>
             </div>
@@ -108,7 +108,7 @@
             </div>
             <form class="panel-body config-body p-4 bg-body-tertiary" id="configuration" novalidate>
               <div class="row gx-4">
-                <div class="col-12 col-md-4 col-lg-12">
+                <div class="col-12 col-md-4 col-xl-12">
                   <fieldset class="mb-3">
                     <legend class="float-none small font-monospace text-body-secondary mb-3">Appearance</legend>
                     <div class="btn-group w-100 mb-2" role="group" aria-label="Viewer theme">
@@ -121,7 +121,7 @@
                     <div class="form-check form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" checked /><label class="form-check-label" for="fontSizeControls">Text size controls</label></div>
                   </fieldset>
                 </div>
-                <div class="col-12 col-md-4 col-lg-12">
+                <div class="col-12 col-md-4 col-xl-12">
                   <fieldset class="mb-3">
                     <legend class="float-none small font-monospace text-body-secondary mb-3">Structure &amp; content</legend>
                     <div class="form-check form-switch"><input class="form-check-input" id="collapsed" type="checkbox" /><label class="form-check-label" for="collapsed">Start collapsed</label></div>
@@ -130,7 +130,7 @@
                     <div class="form-check form-switch"><input class="form-check-input" id="withLinks" type="checkbox" checked /><label class="form-check-label" for="withLinks">Clickable URLs</label></div>
                   </fieldset>
                 </div>
-                <div class="col-12 col-md-4 col-lg-12">
+                <div class="col-12 col-md-4 col-xl-12">
                   <details id="render-settings" class="border-top">
                     <summary class="small font-monospace text-body-secondary py-3">Rendering &amp; big numbers</summary>
                     <div class="row g-2 mt-1">
@@ -152,7 +152,7 @@
             <p class="small text-body-secondary mx-4 my-0" id="config-status" role="status"></p>
           </section>
 
-          <section class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-lg-4" id="source-panel" aria-labelledby="source-title">
+          <section class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4" id="source-panel" aria-labelledby="source-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="source-title" class="h6 m-0 fw-semibold flex-shrink-0"><label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label></h3>
               <div class="d-flex gap-1">
@@ -171,7 +171,7 @@
             </div>
           </section>
 
-          <section class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-lg-5" id="preview-panel" aria-labelledby="preview-title">
+          <section class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5" id="preview-panel" aria-labelledby="preview-title">
             <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-4 py-3">
               <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">03</span> Live preview</h3>
               <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
@@ -219,7 +219,7 @@
     </section>
 
     <section class="get-started py-5 row gy-4 gx-lg-5" id="get-started" aria-labelledby="get-started-title">
-      <div class="col-lg-4">
+      <div class="col-xl-4">
         <h2 id="get-started-title" class="h2 mb-3">Get started</h2>
         <p class="text-body-secondary">Copy a working HTML example with your settings.</p>
         <p class="text-body-secondary small">Playground powered by <a class="site-link" href="https://github.com/byuwur/spa.js" target="_blank" rel="noopener">SPA.js</a>.</p>
@@ -601,7 +601,7 @@
     /* =============
        === RESPONSIVE LAYOUT ===
        ============= */
-    @media (min-width: 768px) and (max-width: 991px) {
+    @media (min-width: 768px) and (max-width: 1199px) {
       .config-panel {
         height: auto;
         border-bottom: 1px solid var(--panel-line);
@@ -622,7 +622,7 @@
 
     }
 
-    @media (max-width: 1399px) {
+    @media (min-width: 768px) and (max-width: 991px), (min-width: 1200px) and (max-width: 1399px) {
       .panel-heading {
         min-height: 7rem;
         align-content: center;

@@ -809,7 +809,6 @@
         }
         document.getElementById("config-status").textContent = "";
         applyButton.disabled = state.loading;
-        document.getElementById("copy-code").disabled = false;
         document.getElementById("copy-options").disabled = false;
         updateCode();
         return true;
@@ -859,11 +858,13 @@
           editor.setAttribute("aria-invalid", "false");
           document.getElementById("precision-note").hidden = !unsafeNumber;
           reportSource(state.manual ? "Valid JSON = press Run / Render to apply" : "Valid JSON", "valid");
+          updateCode();
           return true;
         } catch (error) {
           editor.setAttribute("aria-invalid", "true");
           reportSource(`Cannot render: ${error.message}`, "error");
           previewStatus.textContent = "Previous preview kept = source needs attention";
+          updateCode();
           return false;
         }
       }
@@ -975,6 +976,7 @@
           editor.value = "";
           applyButton.disabled = true;
           reportSource("Loading ./test.json…");
+          updateCode();
           try {
             if (state.benchmarkText === null) {
               state.request = new AbortController();
@@ -1019,6 +1021,12 @@
       function updateCode() {
           // Themes belong to the stylesheet; this is the complete viewer API configuration.
           document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
+          const available = state.valid && !state.loading && configuration.checkValidity();
+          document.getElementById("copy-code").disabled = !available;
+          if (!available) {
+            document.getElementById("integration-code").value = "Enter valid JSON and settings to generate the integration example.";
+            return;
+          }
           const base = state.install === "cdn" ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
           const options = Object.fromEntries(Object.entries(state.options).filter(([name, value]) => value !== defaults[name]));
           const optionText = Object.keys(options).length ? `, ${JSON.stringify(options, null, 2)}` : "";
@@ -1117,20 +1125,21 @@
       });
       preset.addEventListener("change", () => selectSource(preset.value));
       editor.addEventListener("input", () => {
-        if (!["bigNumbers", "benchmark"].includes(state.source)) state.source = preset.value = "custom";
-        sampleNote.hidden = !["bigNumbers", "benchmark"].includes(state.source);
-        state.valid = false;
-        state.text = editor.value;
-        state.bytes = new Blob([state.text]).size;
-        state.manual = state.source === "benchmark" || state.bytes > 65536;
-        document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
-        document.getElementById("metric-parse").textContent = "—";
-        applyButton.disabled = !configuration.checkValidity();
-        markPending();
-        reportSource(state.manual ? "Edited = press Render to validate and apply" : "Checking JSON…");
-        clearTimeout(state.editTimer);
-        if (!state.manual) state.editTimer = setTimeout(() => renderSource(), 300);
-      });
+          if (!["bigNumbers", "benchmark"].includes(state.source)) state.source = preset.value = "custom";
+          sampleNote.hidden = !["bigNumbers", "benchmark"].includes(state.source);
+          state.valid = false;
+          state.text = editor.value;
+          state.bytes = new Blob([state.text]).size;
+          state.manual = state.source === "benchmark" || state.bytes > 65536;
+          document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
+          document.getElementById("metric-parse").textContent = "—";
+          applyButton.disabled = !configuration.checkValidity();
+          markPending();
+          reportSource(state.manual ? "Edited = press Render to validate and apply" : "Checking JSON…");
+          updateCode();
+          clearTimeout(state.editTimer);
+          if (!state.manual) state.editTimer = setTimeout(() => renderSource(), 300);
+        });
       editor.addEventListener("keydown", event => {
         if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
           event.preventDefault();
@@ -1187,9 +1196,10 @@
         updateCode();
       }));
       document.getElementById("copy-code").addEventListener("click", () => {
-        const code = document.getElementById("integration-code");
-        copyText(code.value, code);
-      });
+          if (!readOptions() || !validateSource()) return;
+          const code = document.getElementById("integration-code");
+          copyText(code.value, code);
+        });
       // =============
       // === LIFECYCLE ===
       // =============

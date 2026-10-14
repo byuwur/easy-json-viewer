@@ -232,6 +232,9 @@ test("JSON rendering", async (t) => {
       }, code);
       assert.equal(generated.source, source);
       assert.equal(generated.options.withLinks, false);
+      await playground.locator("#json-source").fill("{");
+      await playground.waitForFunction(() => document.getElementById("json-source").getAttribute("aria-invalid") === "true");
+      assert.equal(await playground.locator("#copy-code").isDisabled(), true);
       assert.deepEqual(errors, []);
       await playground.close();
     });

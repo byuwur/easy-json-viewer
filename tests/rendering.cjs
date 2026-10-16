@@ -26,6 +26,7 @@ test("JSON rendering", async (t) => {
         const root = document.createElement("div");
         byJSONviewer(root, value, { themeToggle: false, fontSizeControls: false, chunkLatency: 0, ...options });
         await waitFor(() => root.querySelectorAll("li").length === count);
+        root.querySelector(".byVIEWinfo").remove();
         return root;
       };
       const cases = [
@@ -203,6 +204,42 @@ test("JSON rendering", async (t) => {
     for (const { name, passed, error } of results) {
       await t.test(name, () => assert.ok(passed, error));
     }
+    await t.test("versioned attribution survives rerender with optional controls disabled", async () => {
+      await page.addStyleTag({ path: path.join(__dirname, "../json.css") });
+      const info = await page.evaluate(() => {
+        const root = document.createElement("div");
+        document.body.appendChild(root);
+        const options = { themeToggle: false, fontSizeControls: false, withLinks: false };
+        byJSONviewer(root, null, options);
+        byJSONviewer(root, true, options);
+        const label = root.querySelector(".byVIEWinfo");
+        const info = {
+          version: byJSONviewer.VERSION,
+          text: label.textContent,
+          opacity: getComputedStyle(label).opacity,
+          count: root.querySelectorAll(".byVIEWinfo").length,
+          independent: label.parentElement === root,
+          controls: root.querySelectorAll(".byVIEWcontrols").length,
+          buttons: root.querySelectorAll("button").length,
+          links: [...label.querySelectorAll("a")].map((link) => [link.href, link.target, link.rel])
+        };
+        root.remove();
+        return info;
+      });
+      assert.deepEqual(info, {
+        version: "2.8",
+        text: "easy-json-viewer · v2.8 · @byUwUr",
+        opacity: "0.5",
+        count: 1,
+        independent: true,
+        controls: 0,
+        buttons: 0,
+        links: [
+          ["https://github.com/byuwur/easy-json-viewer", "_blank", "noopener noreferrer"],
+          ["https://byuwur.co/", "_blank", "noopener noreferrer"]
+        ]
+      });
+    });
     await t.test("displayed, copied, and downloaded starters match with CDN or local assets", async () => {
       const playground = await browser.newPage();
       const errors = [];

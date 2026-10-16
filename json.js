@@ -409,6 +409,11 @@
     controls.className = "byVIEWcontrols";
     controls.setAttribute("role", "group");
     controls.setAttribute("aria-label", "Viewer controls");
+    const info = document.createElement("small");
+    info.className = "byVIEWinfo";
+    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
+      <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
+    element.appendChild(info);
     if (options.themeToggle) appendThemeToggle(controls, filename);
     if (options.fontSizeControls) appendFontSizeControls(element, controls);
     if (controls.childNodes.length) element.appendChild(controls);
@@ -450,4 +455,5 @@
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
   }
   global.byJSONviewer = byJSONviewer;
+  byJSONviewer.VERSION = "2.8"; // 2026-10-16
 })(typeof window !== "undefined" ? window : this);

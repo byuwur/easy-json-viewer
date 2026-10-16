@@ -261,7 +261,7 @@
             </div>
             <textarea id="integration-code" class="integration-code" readonly spellcheck="false" wrap="soft" aria-label="Complete HTML integration"></textarea>
           </div>
-          <p class="text-body-secondary small mt-2 mb-0" id="install-note">CDN files are pinned to v2.7.final.</p>
+          <p class="text-body-secondary small mt-2 mb-0" id="install-note">CDN files are pinned to v2.8.</p>
           <p class="text-body-secondary small mt-2 mb-0" id="copy-status" role="status" aria-live="polite"></p>
         </div>
       </section>
@@ -744,7 +744,7 @@
             workspace: {
               name: "Weekend projects",
               projects: [
-                { name: "easy-json-viewer", releases: [{ version: "2.7", files: ["json.js", "json.css"] }] },
+                { name: "easy-json-viewer", releases: [{ version: "2.8", files: ["json.js", "json.css"] }] },
                 { name: "stream.html", tools: { controller: { inputs: ["Gamepad", "Keyboard"] }, popup: { enabled: true } } }
               ],
               emptyShelf: [],
@@ -943,20 +943,8 @@
                 <link rel="stylesheet" href="json.css" />
                 <link id="byVIEWtheme" rel="stylesheet" href="json.dark.css" />
                 <style>
-                  html {
-                    color-scheme: dark;
-                  }
-                  body {
-                    margin: 0;
-                    background: #222;
-                  }
                   .byJSONdocument {
-                    margin: 0;
-                    box-sizing: border-box;
-                    min-height: 100vh;
-                  }
-                  .byJSONdocument:has(.byVIEWcontrols) {
-                    padding-top: 5.75rem;
+                    padding-top: 4rem;
                   }
                 </style>
                 ${'<script src="json.js"><\/script>'}
@@ -1077,7 +1065,7 @@
         function updateCode() {
           document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
           const cdn = state.install === "cdn";
-          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.7.final/" : "./";
+          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.8/" : "./";
           const html = dedent(/* HTML */ `
             <!doctype html>
             <html lang="en">
@@ -1097,7 +1085,7 @@
             </html>
           `);
           document.getElementById("integration-code").value = html;
-          document.getElementById("install-note").textContent = cdn ? "CDN files are pinned to v2.7.final. Save this HTML and open it." : "Place the HTML beside json.js, json.css, json.light.css, and json.dark.css.";
+          document.getElementById("install-note").textContent = cdn ? "CDN files are pinned to v2.8. Save this HTML and open it." : "Place the HTML beside json.js, json.css, json.light.css, and json.dark.css.";
           return html;
         }
 

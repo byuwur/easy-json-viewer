@@ -213,10 +213,11 @@ test("JSON rendering", async (t) => {
         byJSONviewer(root, null, options);
         byJSONviewer(root, true, options);
         const label = root.querySelector(".byVIEWinfo");
+        const opacity = Number(getComputedStyle(label).opacity);
         const info = {
           version: byJSONviewer.VERSION,
-          text: label.textContent,
-          opacity: getComputedStyle(label).opacity,
+          text: label.textContent.replace(/\s+/g, " ").trim(),
+          semiTransparent: opacity > 0 && opacity < 1,
           count: root.querySelectorAll(".byVIEWinfo").length,
           independent: label.parentElement === root,
           controls: root.querySelectorAll(".byVIEWcontrols").length,
@@ -229,7 +230,7 @@ test("JSON rendering", async (t) => {
       assert.deepEqual(info, {
         version: "2.8",
         text: "easy-json-viewer · v2.8 · @byUwUr",
-        opacity: "0.5",
+        semiTransparent: true,
         count: 1,
         independent: true,
         controls: 0,

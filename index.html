@@ -283,7 +283,7 @@
             </div>
             <textarea id="integration-code" class="integration-code" readonly spellcheck="false" wrap="soft" aria-label="Complete HTML integration"></textarea>
           </div>
-          <p class="text-body-secondary small mt-2 mb-0" id="install-note">CDN files are pinned to v2.8.</p>
+          <p class="text-body-secondary small mt-2 mb-0" id="install-note">CDN files are pinned @v2.9.</p>
           <p class="text-body-secondary small mt-2 mb-0" id="copy-status" role="status" aria-live="polite"></p>
         </div>
       </section>
@@ -1050,7 +1050,7 @@
         function updateCode() {
           document.getElementById("options-json").value = JSON.stringify(state.options, null, 2);
           const cdn = state.install === "cdn";
-          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.8/" : "./";
+          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.9/" : "./";
           const html = dedent(/* HTML */ `
             <!doctype html>
             <html lang="en">
@@ -1070,7 +1070,7 @@
             </html>
           `);
           document.getElementById("integration-code").value = html;
-          document.getElementById("install-note").textContent = cdn ? "CDN files are pinned to v2.8. Save this HTML and open it." : "Place the HTML beside json.js, json.css, json.light.css, and json.dark.css.";
+          document.getElementById("install-note").textContent = cdn ? "CDN files are pinned @v2.9. Save this HTML and open it." : "Place the HTML beside json.js, json.css, json.light.css, and json.dark.css.";
           return html;
         }
 

@@ -228,8 +228,8 @@ test("JSON rendering", async (t) => {
         return info;
       });
       assert.deepEqual(info, {
-        version: "2.8",
-        text: "easy-json-viewer · v2.8 · @byUwUr",
+        version: "2.9",
+        text: "easy-json-viewer · v2.9 · @byUwUr",
         semiTransparent: true,
         count: 1,
         independent: true,

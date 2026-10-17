@@ -80,6 +80,14 @@
             </div>
           </div>
 
+          <!-- <div id="features" class="discovery border-bottom px-3 py-2 d-flex flex-wrap align-items-center gap-1" aria-label="JSON examples">
+            <span class="small font-monospace text-body-secondary me-2">Try it!</span>
+            <button class="feature-chip" type="button" data-feature="theme">Light / dark</button>
+            <button class="feature-chip" type="button" data-feature="nested">Nested data</button>
+            <button class="feature-chip" type="button" data-feature="characters">Text &amp; URLs</button>
+            <button class="feature-chip" type="button" data-feature="progressive">Watch the chunks</button>
+          </div> -->
+
           <div class="mobile-tabs nav nav-pills nav-fill d-md-none border-bottom p-2 gap-2" role="tablist" aria-label="Playground panels">
             <button id="config-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#config-panel" data-panel="config" role="tab" aria-controls="config-panel" aria-selected="false">
               <i class="fa-solid fa-sliders me-1" aria-hidden="true"></i> Configure
@@ -104,52 +112,69 @@
                     <button class="btn btn-quiet btn-sm" type="button" data-options-view="json" aria-controls="options-json-panel" aria-pressed="false">JSON</button>
                   </div>
                   <div class="d-flex flex-wrap justify-content-end gap-2 ms-auto">
-                    <button class="btn btn-quiet btn-sm" id="copy-options" type="button" hidden><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy</button>
+                    <button class="btn btn-quiet btn-sm copy-button" id="copy-options" type="button" hidden><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span aria-live="polite">Copy</span></button>
                     <button class="btn btn-quiet btn-sm" id="reset-settings" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Reset</button>
                   </div>
                 </div>
-                <p class="small text-body-secondary mx-3 my-0" id="options-copy-status" role="status" aria-live="polite"></p>
               </div>
-              <form class="panel-body config-body p-4 bg-body-tertiary" id="configuration" novalidate>
-                <div class="row gx-4">
-                  <div class="col-12 col-md-4 col-xl-12">
-                    <fieldset class="mb-3">
-                      <legend class="float-none small font-monospace text-body-secondary mb-3">Appearance</legend>
-                      <div class="btn-group w-100 mb-2" role="group" aria-label="Viewer theme">
-                        <input class="btn-check" id="theme-dark" name="viewerTheme" type="radio" value="dark" checked />
-                        <label class="btn btn-quiet flex-fill" for="theme-dark">Dark</label>
-                        <input class="btn-check" id="theme-light" name="viewerTheme" type="radio" value="light" />
-                        <label class="btn btn-quiet flex-fill" for="theme-light">Light</label>
+              <form class="panel-body" id="configuration" aria-label="Viewer configuration" novalidate>
+                <div class="accordion accordion-flush">
+                  <div class="accordion-item">
+                    <h4 class="accordion-header">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#appearance-settings" aria-expanded="true" aria-controls="appearance-settings">Preview appearance</button>
+                    </h4>
+                    <div id="appearance-settings" class="accordion-collapse collapse show">
+                      <div class="accordion-body">
+                        <fieldset>
+                          <legend class="option-label fs-6 mb-2">Document theme</legend>
+                          <div class="btn-group w-100" role="group" aria-label="Document theme">
+                            <input class="btn-check" id="theme-light" name="viewerTheme" type="radio" value="light" />
+                            <label class="btn btn-quiet flex-fill" for="theme-light">Light</label>
+                            <input class="btn-check" id="theme-dark" name="viewerTheme" type="radio" value="dark" checked />
+                            <label class="btn btn-quiet flex-fill" for="theme-dark">Dark</label>
+                          </div>
+                          <p class="option-description mt-2 mb-0">Loads json.light.css or json.dark.css.</p>
+                        </fieldset>
                       </div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="themeToggle" type="checkbox" checked /><label class="form-check-label" for="themeToggle">Theme switch</label></div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" checked /><label class="form-check-label" for="fontSizeControls">Text size controls</label></div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="copyButton" type="checkbox" checked /><label class="form-check-label" for="copyButton">Copy button</label></div>
-                    </fieldset>
+                    </div>
                   </div>
-                  <div class="col-12 col-md-4 col-xl-12">
-                    <fieldset class="mb-3">
-                      <legend class="float-none small font-monospace text-body-secondary mb-3">Structure &amp; content</legend>
-                      <div class="form-check form-switch"><input class="form-check-input" id="collapsed" type="checkbox" /><label class="form-check-label" for="collapsed">Start collapsed</label></div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="rootCollapsible" type="checkbox" checked /><label class="form-check-label" for="rootCollapsible">Collapsible root</label></div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="withQuotes" type="checkbox" checked /><label class="form-check-label" for="withQuotes">Quote object keys</label></div>
-                      <div class="form-check form-switch"><input class="form-check-input" id="withLinks" type="checkbox" checked /><label class="form-check-label" for="withLinks">Clickable URLs</label></div>
-                    </fieldset>
-                  </div>
-                  <div class="col-12 col-md-4 col-xl-12">
-                    <details id="render-settings" class="border-top">
-                      <summary class="small font-monospace text-body-secondary py-3">Rendering &amp; big numbers</summary>
-                      <div class="row g-2 mt-1">
-                        <div class="col-6"><label class="form-label small" for="chunkSize">Entries / chunk</label><input class="form-control" id="chunkSize" type="number" min="1" step="1" value="1000" required /></div>
-                        <div class="col-6"><label class="form-label small" for="chunkLatency">Delay / ms</label><input class="form-control" id="chunkLatency" type="number" min="0" step="any" value="25" required /></div>
+                  <div class="accordion-item">
+                    <h4 class="accordion-header">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#viewer-settings" aria-expanded="true" aria-controls="viewer-settings">Viewer controls</button>
+                    </h4>
+                    <div id="viewer-settings" class="accordion-collapse collapse show">
+                      <div class="accordion-body" id="viewer-options">
+                        <div class="form-switch"><input class="form-check-input" id="themeToggle" type="checkbox" role="switch" checked /><label class="option-label" for="themeToggle">Theme switch</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" role="switch" checked /><label class="option-label" for="fontSizeControls">Text size controls</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="copyButton" type="checkbox" role="switch" checked /><label class="option-label" for="copyButton">Copy button</label></div>
                       </div>
-                      <p class="form-text">Chunks apply per object or array. Smaller chunks yield more often; the delay is the wait before and between chunks.</p>
-                      <button class="btn btn-quiet w-100 mb-2" id="normal-rendering" type="button">Restore normal rendering</button>
-                      <div class="form-check form-switch"><input class="form-check-input" id="bigNumbers" type="checkbox" aria-describedby="big-number-help" /><label class="form-check-label" for="bigNumbers">Big-number objects</label></div>
-                      <p class="form-text" id="big-number-help">
-                        For compatible JavaScript objects. It cannot recover precision lost by JSON.parse().
-                        <button class="btn btn-quiet d-block mt-2" type="button" data-feature="bigNumbers">Try a precise value ↗</button>
-                      </p>
-                    </details>
+                    </div>
+                  </div>
+                  <div class="accordion-item">
+                    <h4 class="accordion-header">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#render-settings" aria-expanded="true" aria-controls="render-settings">Rendering</button>
+                    </h4>
+                    <div id="render-settings" class="accordion-collapse collapse show">
+                      <div class="accordion-body" id="render-options">
+                        <div class="form-switch"><input class="form-check-input" id="withLinks" type="checkbox" role="switch" checked /><label class="option-label" for="withLinks">Links</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="collapsed" type="checkbox" role="switch" /><label class="option-label" for="collapsed">Start collapsed</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="rootCollapsible" type="checkbox" role="switch" checked /><label class="option-label" for="rootCollapsible">Collapsible root</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="withQuotes" type="checkbox" role="switch" checked /><label class="option-label" for="withQuotes">Quote object keys</label></div>
+                        <div class="row g-2 mt-3">
+                          <div class="col-6"><label class="form-label small" for="chunkSize">Entries / chunk</label><input class="form-control" id="chunkSize" type="number" min="1" step="1" value="1000" required /></div>
+                          <div class="col-6"><label class="form-label small" for="chunkLatency">Delay / ms</label><input class="form-control" id="chunkLatency" type="number" min="0" step="any" value="25" required /></div>
+                        </div>
+                        <p class="form-text">Chunks apply per object or array. Smaller chunks yield more often; the delay is the wait before and between chunks.</p>
+                        <button class="btn btn-quiet w-100 mb-2" id="normal-rendering" type="button">Restore normal rendering</button>
+                        <div class="form-switch">
+                          <input class="form-check-input" id="bigNumbers" type="checkbox" role="switch" aria-describedby="big-number-help" /><label class="option-label" for="bigNumbers">Big-number objects</label>
+                        </div>
+                        <p class="form-text" id="big-number-help">
+                          For compatible JavaScript objects. It cannot recover precision lost by JSON.parse().
+                          <button class="btn btn-quiet d-block mt-2" type="button" data-feature="bigNumbers">Try a precise value ↗</button>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </form>
@@ -165,9 +190,9 @@
                   <label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label>
                 </h3>
                 <div class="d-flex gap-1">
-                  <button class="btn btn-quiet btn-sm" id="format-source" type="button"><i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> Format</button>
-                  <button class="btn btn-quiet btn-sm" id="copy-source" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> Copy</button>
                   <button class="btn btn-quiet btn-sm" id="restore-source" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Restore</button>
+                  <button class="btn btn-quiet btn-sm" id="format-source" type="button"><i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> Format</button>
+                  <button class="btn btn-quiet btn-sm copy-button" id="copy-source" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span aria-live="polite">Copy</span></button>
                 </div>
               </div>
               <div class="panel-body">
@@ -219,13 +244,9 @@
           </dl>
         </div>
 
-        <div class="discovery py-4 border-bottom d-flex flex-wrap align-items-center gap-2" aria-label="Try a feature">
+        <div class="discovery py-4 border-bottom d-flex flex-wrap align-items-center gap-2">
           <span class="small font-monospace text-body-secondary me-2">Try it!</span>
-          <button class="btn btn-quiet" type="button" data-feature="nested">Nested data<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-          <button class="btn btn-quiet" type="button" data-feature="theme">Light / dark<i class="fa-solid fa-circle-half-stroke feature-arrow" aria-hidden="true"></i></button>
-          <button class="btn btn-quiet" type="button" data-feature="characters">Text &amp; URLs<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-          <button class="btn btn-quiet" type="button" data-feature="progressive">Watch the chunks<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
-          <button class="btn btn-quiet" id="run-benchmark" type="button">Run repository benchmark<i class="fa-solid fa-arrow-up-right-from-square feature-arrow" aria-hidden="true"></i></button>
+          <button class="btn btn-quiet" id="run-benchmark" type="button"><i class="fa-solid fa-gauge-high me-1" aria-hidden="true"></i> Run repository benchmark</button>
         </div>
 
         <p class="alert alert-secondary small mt-3 mb-0" id="sample-note" hidden></p>
@@ -256,7 +277,7 @@
                 <button class="btn btn-quiet" type="button" data-install="local" aria-pressed="false">Local files</button>
               </div>
               <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-quiet btn-sm px-3" id="copy-code" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span>Copy HTML</span></button>
+                <button class="btn btn-quiet btn-sm px-3 copy-button" id="copy-code" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span aria-live="polite">Copy HTML</span></button>
                 <button class="btn btn-accent btn-sm px-3" id="download-html" type="button"><i class="fa-solid fa-download me-1" aria-hidden="true"></i> Download HTML</button>
               </div>
             </div>
@@ -292,7 +313,6 @@
         font-weight: 100 900;
         font-display: swap;
       }
-
       :root {
         --page-bg: #141619;
         --panel-bg: #1b1e22;
@@ -319,7 +339,6 @@
         --bs-border-radius-lg: 0;
         color-scheme: dark;
       }
-
       :root[data-bs-theme="light"] {
         --page-bg: #f5f6f7;
         --panel-bg: #fff;
@@ -333,39 +352,32 @@
         --bs-tertiary-bg-rgb: 255, 255, 255;
         color-scheme: light;
       }
-
       /* =============
     === LAYOUT & NAVIGATION ===
     ============= */
       html {
         scroll-padding-top: 1rem;
       }
-
       ::selection {
         background: var(--accent);
         color: var(--accent-ink);
       }
-
       :focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 3px;
       }
-
       .site-width {
         max-width: 1480px;
         margin-inline: auto;
         padding-inline: clamp(1rem, 3vw, 3rem);
       }
-
       .site-link {
         color: var(--ink);
         text-underline-offset: 0.25em;
       }
-
       .site-link:hover {
         color: var(--accent);
       }
-
       .skip-link {
         position: fixed;
         z-index: 10;
@@ -375,21 +387,17 @@
         background: var(--accent);
         color: var(--accent-ink);
       }
-
       .skip-link:focus {
         top: 1rem;
       }
-
       .navbar {
         min-height: 76px;
       }
-
       .navbar-brand {
         color: var(--ink);
         font-size: 1rem;
         font-weight: 650;
       }
-
       .brand-mark {
         display: inline-grid;
         place-items: center;
@@ -400,30 +408,24 @@
         color: var(--accent-ink);
         font: bold 1.1rem var(--mono);
       }
-
       .navbar .nav-link {
         color: var(--muted);
         padding: 0.75rem;
       }
-
       .navbar .nav-link:hover {
         color: var(--ink);
       }
-
       .intro {
         padding-block: 3rem 2rem;
       }
-
       .intro h1 {
         font-size: clamp(2.5rem, 4.6vw, 4.5rem);
         font-weight: 650;
         line-height: 1.08;
       }
-
       .intro h1 span {
         color: var(--accent);
       }
-
       /* =============
     === CONTROLS ===
     ============= */
@@ -434,7 +436,6 @@
         min-height: 44px;
         font-weight: 600;
       }
-
       .btn-accent {
         --bs-btn-bg: var(--accent);
         --bs-btn-color: var(--accent-ink);
@@ -443,7 +444,6 @@
         --bs-btn-hover-color: var(--accent-ink);
         --bs-btn-hover-border-color: var(--ink);
       }
-
       .btn-quiet {
         --bs-btn-color: var(--ink);
         --bs-btn-border-color: var(--panel-line);
@@ -451,26 +451,22 @@
         --bs-btn-hover-bg: var(--panel-bg);
         --bs-btn-hover-border-color: var(--accent);
       }
-
       .btn i,
       .nav-link i {
         font-size: 0.85em;
       }
-
       .btn-quiet[aria-pressed="true"],
       .btn-check:checked + .btn-quiet {
         background: var(--accent);
         border-color: var(--accent);
         color: var(--accent-ink);
       }
-
       .form-select,
       .form-control {
         min-height: 44px;
         background-color: var(--editor-bg);
         color: var(--ink);
       }
-
       .form-select:focus,
       .form-control:focus {
         background-color: var(--editor-bg);
@@ -478,7 +474,6 @@
         border-color: var(--accent);
         box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--accent) 20%, transparent);
       }
-
       .form-switch {
         display: flex;
         align-items: center;
@@ -487,7 +482,6 @@
         margin: 0;
         min-height: 48px;
       }
-
       .form-switch .form-check-input {
         order: 2;
         float: none;
@@ -497,84 +491,69 @@
         margin: 0;
         cursor: pointer;
       }
-
       .form-switch .form-check-label,
       .option-label {
         flex: 1;
         cursor: pointer;
         padding-block: 0.5rem;
       }
-
       .form-check-input:checked {
         background-color: var(--accent);
         border-color: var(--accent);
       }
-
       .form-text,
       .option-description {
         font-size: 0.8125rem;
         color: var(--muted);
       }
-
       .mobile-tabs.nav.nav-pills {
         background: var(--panel-bg);
         --bs-nav-link-color: var(--muted);
         --bs-nav-pills-link-active-bg: var(--accent);
         --bs-nav-pills-link-active-color: var(--accent-ink);
       }
-
       .mobile-tabs.nav .nav-link {
         background-color: transparent;
         color: var(--muted);
       }
-
       .mobile-tabs.nav .nav-link.active {
         background-color: var(--accent);
         color: var(--accent-ink);
       }
-
       /* =============
     === PLAYGROUND & CODE ===
     ============= */
       .source-picker {
         width: min(100%, 18rem);
       }
-
       .panel {
         min-width: 0;
         height: clamp(34rem, 68dvh, 46rem);
       }
-
       .panel + .panel,
       .metric + .metric {
         border-left: 1px solid var(--panel-line);
       }
-
       .tab-content > .panel.active {
         display: flex;
       }
-
       .panel-heading {
         min-height: 68px;
       }
-
       .panel-heading .btn {
         white-space: nowrap;
         min-height: 34px;
       }
-
       .panel-body {
         flex: 1;
         min-height: 0;
         overflow: auto;
       }
-
       /* Each editor and iframe owns its scrolling; the panel must not scroll too. */
       .source-panel .panel-body,
       .preview-panel .panel-body {
         overflow: hidden;
       }
-
       .source-editor,
       .integration-code {
         display: block;
@@ -590,58 +569,61 @@
         overflow: auto;
         tab-size: 2;
       }
-
       .source-editor:focus {
         outline: 2px solid var(--accent);
         outline-offset: -2px;
       }
-
       .source-editor[aria-invalid="true"] {
         outline: 2px solid var(--danger);
         outline-offset: -2px;
       }
-
       .integration-code {
         height: 28rem;
         white-space: pre-wrap;
         overflow-wrap: anywhere;
       }
-
       .panel-footer {
         border-top: 1px solid var(--panel-line);
         padding: 0.75rem 1.5rem;
         font: 0.8125rem/1.5 var(--mono);
         color: var(--muted);
       }
-
       #preview-frame {
         display: block;
         width: 100%;
         height: 100%;
         border: 0;
       }
-
       #source-status {
         overflow-wrap: anywhere;
       }
-
       #source-status[data-kind="error"] {
         color: var(--danger);
       }
-
       #source-status[data-kind="valid"] {
         color: var(--accent);
       }
-
-      summary {
-        cursor: pointer;
+      .feature-chip {
+        min-height: 34px;
+        border: 1px solid transparent;
+        background: transparent;
+        padding: 0.3rem 0.5rem;
+        font: 0.875rem var(--mono);
+        color: var(--muted);
       }
-
-      .feature-arrow {
-        margin-left: 0.6rem;
+      .feature-chip:hover,
+      .feature-chip[aria-pressed="true"] {
         color: var(--accent);
+        border-color: var(--panel-line);
       }
-
+      .accordion {
+        --bs-accordion-bg: var(--panel-bg);
+        --bs-accordion-active-bg: var(--panel-bg);
+        --bs-accordion-active-color: var(--accent);
+      }
+      .accordion-button {
+        font: 0.875rem var(--mono);
+      }
       /* =============
     === RESPONSIVE LAYOUT ===
     ============= */
@@ -650,51 +632,52 @@
           height: auto;
           border-bottom: 1px solid var(--panel-line);
         }
-
         .config-panel .panel-body {
           overflow: visible;
         }
-
         .config-panel #options-json-panel {
           height: 20rem;
           flex: none;
         }
-
         .source-panel {
           border-left: 0 !important;
         }
+        .config-panel .accordion {
+          display: flex;
+        }
+        .config-panel .accordion-item {
+          flex: 1;
+          min-width: 0;
+          border: 0;
+        }
+        .config-panel .accordion-item + .accordion-item {
+          border-left: 1px solid var(--panel-line);
+        }
       }
-
       @media (min-width: 768px) and (max-width: 991px), (min-width: 1200px) and (max-width: 1399px) {
         .panel-heading {
           min-height: 7rem;
           align-content: center;
         }
       }
-
       @media (max-width: 767px) {
         .panel {
           height: 31rem;
           border-left: 0 !important;
         }
-
         .source-picker {
           width: 100%;
         }
-
         .panel-heading .btn {
           min-height: 44px;
         }
-
         .metric:nth-child(3) {
           border-left: 0;
         }
-
         .metric:nth-child(n + 3) {
           border-top: 1px solid var(--panel-line);
         }
       }
-
       @media (prefers-reduced-motion: reduce) {
         *,
         *::before,
@@ -720,16 +703,16 @@
         // =============
         // Defaults mirror json.js; all mutable playground state lives here.
         const defaults = {
+          themeToggle: true,
+          fontSizeControls: true,
+          copyButton: true,
+          withLinks: true,
           collapsed: false,
           rootCollapsible: true,
           withQuotes: true,
-          withLinks: true,
-          bigNumbers: false,
           chunkSize: 1000,
           chunkLatency: 25,
-          themeToggle: true,
-          fontSizeControls: true,
-          copyButton: true
+          bigNumbers: false
         };
         const samples = {
           basic: {
@@ -1107,16 +1090,30 @@
         // =============
         // === CLIPBOARD ===
         // =============
-        async function copyText(text, selectable, status = document.getElementById("copy-status")) {
+        async function copyText(text, selectable, button) {
+          const caption = button.querySelector("span");
           try {
             await navigator.clipboard.writeText(text);
-            status.textContent = selectable.id === "options-json" ? "Viewer options copied." : "Copied!";
+            caption.textContent = "Copied!";
+            button.removeAttribute("title");
           } catch {
             selectable.focus();
             selectable.select();
-            status.textContent = "Clipboard unavailable. Press Ctrl+C or ⌘C to copy the selected text.";
+            caption.textContent = "Failed";
+            button.title = "Clipboard unavailable. Press Ctrl+C or ⌘C to copy the selected text.";
           }
         }
+
+        document.querySelectorAll(".copy-button").forEach((button) => {
+          const caption = button.querySelector("span");
+          const label = caption.textContent;
+          const reset = () => {
+            caption.textContent = label;
+            button.removeAttribute("title");
+          };
+          button.addEventListener("mouseleave", reset);
+          button.addEventListener("focusout", reset);
+        });
 
         // =============
         // === EVENTS ===
@@ -1131,9 +1128,9 @@
             document.querySelectorAll("[data-options-view]").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
           })
         );
-        document.getElementById("copy-options").addEventListener("click", () => {
+        document.getElementById("copy-options").addEventListener("click", (event) => {
           const options = document.getElementById("options-json");
-          copyText(options.value, options, document.getElementById("options-copy-status"));
+          copyText(options.value, options, event.currentTarget);
         });
         configuration.addEventListener("submit", (event) => event.preventDefault());
         configuration.addEventListener("change", (event) => {
@@ -1189,7 +1186,7 @@
           markPending();
           renderSource();
         });
-        document.getElementById("copy-source").addEventListener("click", () => copyText(editor.value, editor, sourceStatus));
+        document.getElementById("copy-source").addEventListener("click", (event) => copyText(editor.value, editor, event.currentTarget));
 
         document.querySelectorAll("[data-feature]").forEach((button) =>
           button.addEventListener("click", async () => {
@@ -1204,7 +1201,7 @@
                 state.options.collapsed = false;
                 state.options.chunkSize = 1;
                 state.options.chunkLatency = 180;
-                document.getElementById("render-settings").open = true;
+                bootstrap.Collapse.getOrCreateInstance(document.getElementById("render-settings"), { toggle: false }).show();
               }
               syncForm();
               await selectSource(feature === "progressive" ? "basic" : feature);
@@ -1231,10 +1228,10 @@
             updateCode();
           })
         );
-        document.getElementById("copy-code").addEventListener("click", () => {
+        document.getElementById("copy-code").addEventListener("click", (event) => {
           updateCode();
           const code = document.getElementById("integration-code");
-          copyText(code.value, code);
+          copyText(code.value, code, event.currentTarget);
         });
         document.getElementById("download-html").addEventListener("click", downloadHTML);
         // =============

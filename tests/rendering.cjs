@@ -24,7 +24,7 @@ test("JSON rendering", async (t) => {
       };
       const render = async (value, count = 0, options = {}) => {
         const root = document.createElement("div");
-        byJSONviewer(root, value, { themeToggle: false, fontSizeControls: false, chunkLatency: 0, ...options });
+        byJSONviewer(root, value, { themeToggle: false, fontSizeControls: false, copyButton: false, chunkLatency: 0, ...options });
         await waitFor(() => root.querySelectorAll("li").length === count);
         root.querySelector(".byVIEWinfo").remove();
         return root;
@@ -209,7 +209,7 @@ test("JSON rendering", async (t) => {
       const info = await page.evaluate(() => {
         const root = document.createElement("div");
         document.body.appendChild(root);
-        const options = { themeToggle: false, fontSizeControls: false, withLinks: false };
+        const options = { themeToggle: false, fontSizeControls: false, copyButton: false, withLinks: false };
         byJSONviewer(root, null, options);
         byJSONviewer(root, true, options);
         const label = root.querySelector(".byVIEWinfo");
@@ -239,6 +239,77 @@ test("JSON rendering", async (t) => {
           ["https://github.com/byuwur/easy-json-viewer", "_blank", "noopener noreferrer"],
           ["https://byuwur.co/", "_blank", "noopener noreferrer"]
         ]
+      });
+    });
+    await t.test("copy includes pending JSON, preserves large numbers, and handles clipboard failures", async () => {
+      const result = await page.evaluate(async () => {
+        const root = document.createElement("div");
+        document.body.appendChild(root);
+        const copies = [];
+        let native = true;
+        Object.defineProperty(navigator, "clipboard", {
+          configurable: true,
+          value: {
+            writeText: async (text) => {
+              if (!native) throw new Error("Denied");
+              copies.push(text);
+            }
+          }
+        });
+        const clipboard = navigator.clipboard;
+        const copy = async (shiftKey = false) => {
+          const button = root.querySelector(".byVIEWcopy");
+          button.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey }));
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          return button.title;
+        };
+        try {
+          byJSONviewer(
+            root,
+            { text: 'Unicode 👋 and "quotes"', list: [1, true, null], big: 900719925474099312345n, lossless: { isLosslessNumber: true, toString: () => "900719925474099399999" } },
+            { bigNumbers: true, collapsed: true, chunkLatency: 1000 }
+          );
+          const pending = root.querySelectorAll("li").length === 0;
+          const last = [...root.querySelectorAll(".byVIEWcontrols button")].at(-1).classList.contains("byVIEWcopy");
+          await copy();
+          const value = JSON.parse(copies[0]);
+          const button = root.querySelector(".byVIEWcopy");
+          const copied = button.textContent === "Copied!";
+          button.dispatchEvent(new MouseEvent("mouseleave"));
+          const reset = button.textContent === "Copy" && button.title === "Copy JSON";
+          byJSONviewer(root, "latest", { themeToggle: false, fontSizeControls: false });
+          await copy();
+          const current = JSON.parse(copies[1]);
+          const currentButton = root.querySelector(".byVIEWcopy");
+          currentButton.dispatchEvent(new FocusEvent("focusout", { bubbles: true }));
+          const blur = currentButton.textContent === "Copy" && currentButton.getAttribute("aria-label") === currentButton.title;
+          native = false;
+          const copyCount = copies.length;
+          const failed = (await copy()).startsWith("Copy failed.") && root.querySelector(".byVIEWcopy").textContent === "Failed" && !root.querySelector(".byVIEWcopy").disabled && copies.length === copyCount;
+          Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+          const unavailable = (await copy()).startsWith("Copy failed.") && !root.querySelector(".byVIEWcopy").disabled;
+          Object.defineProperty(navigator, "clipboard", { configurable: true, value: clipboard });
+          native = true;
+          const retried = (await copy()).startsWith("Copied!");
+          byJSONviewer(root, null, { themeToggle: false, fontSizeControls: false, copyButton: false });
+          const hidden = !root.querySelector(".byVIEWcontrols");
+          return { pending, last, value, current, copied, reset, blur, failed, unavailable, retried, hidden };
+        } finally {
+          root.remove();
+        }
+      });
+      assert.deepEqual(result, {
+        pending: true,
+        last: true,
+        value: { text: 'Unicode 👋 and "quotes"', list: [1, true, null], big: "900719925474099312345", lossless: "900719925474099399999" },
+        current: "latest",
+        copied: true,
+        reset: true,
+        blur: true,
+        failed: true,
+        unavailable: true,
+        retried: true,
+        hidden: true
       });
     });
     await t.test("displayed, copied, and downloaded starters match with CDN or local assets", async () => {
@@ -273,7 +344,7 @@ test("JSON rendering", async (t) => {
       assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
       assert.ok(!code.includes('"withLinks": false'));
       assert.ok(code.includes('src="./json.js" defer'));
-      for (const name of ["themeToggle", "fontSizeControls"]) {
+      for (const name of ["themeToggle", "fontSizeControls", "copyButton"]) {
         await playground.locator(`#${name}`).evaluate((element) => {
           element.checked = false;
           element.dispatchEvent(new Event("change", { bubbles: true }));

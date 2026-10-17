@@ -123,6 +123,7 @@
                       </div>
                       <div class="form-check form-switch"><input class="form-check-input" id="themeToggle" type="checkbox" checked /><label class="form-check-label" for="themeToggle">Theme switch</label></div>
                       <div class="form-check form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" checked /><label class="form-check-label" for="fontSizeControls">Text size controls</label></div>
+                      <div class="form-check form-switch"><input class="form-check-input" id="copyButton" type="checkbox" checked /><label class="form-check-label" for="copyButton">Copy button</label></div>
                     </fieldset>
                   </div>
                   <div class="col-12 col-md-4 col-xl-12">
@@ -193,7 +194,7 @@
                 <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
               </div>
               <div class="panel-body preview-scroll" id="preview-scroll" data-theme="dark" tabindex="0" aria-label="Scrollable JSON preview">
-                <iframe id="preview-frame" title="Live JSON document" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+                <iframe id="preview-frame" title="Live JSON document" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
               </div>
             </section>
           </div>
@@ -727,7 +728,8 @@
           chunkSize: 1000,
           chunkLatency: 25,
           themeToggle: true,
-          fontSizeControls: true
+          fontSizeControls: true,
+          copyButton: true
         };
         const samples = {
           basic: {

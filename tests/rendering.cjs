@@ -428,6 +428,41 @@ test("JSON rendering", async (t) => {
         hidden: true
       });
     });
+    await t.test("themes select their own stylesheet, preserve URLs, and keep other controls independent", async () => {
+      const themed = await browser.newPage();
+      try {
+        await themed.route("https://themes.test/**", async (route) => {
+          const file = path.basename(new URL(route.request().url()).pathname);
+          const body = file === "other.dark.css" ? "" : await fs.readFile(path.join(__dirname, "..", file));
+          await route.fulfill({ body, contentType: "text/css" });
+        });
+        await themed.setContent(`<!doctype html>
+          <link rel="stylesheet" href="https://themes.test/json.css">
+          <link id="byVIEWtheme" rel="stylesheet" href="https://themes.test/other.dark.css">
+          <link id="viewer-theme" rel="stylesheet" href="https://themes.test/json.light.css/archive/json.light.css?keep=json.light.css#json.light.css">
+          <button id="host-control" class="byVIEWthemeToggle">Host control</button>
+          <div id="first"></div><div id="second"></div>`);
+        await themed.addScriptTag({ path: path.join(__dirname, "../json.js") });
+        await themed.evaluate(() => {
+          for (const id of ["first", "second"]) byJSONviewer(document.getElementById(id), "Content", { fontSizeControls: false, copyButton: false });
+        });
+        const background = await themed.locator("#first").evaluate((root) => getComputedStyle(root).backgroundColor);
+        await themed.locator("#first .byVIEWthemeToggle").click();
+        await themed.waitForFunction((before) => getComputedStyle(document.getElementById("first")).backgroundColor !== before, background);
+        assert.equal(await themed.locator("#viewer-theme").getAttribute("href"), "https://themes.test/json.light.css/archive/json.dark.css?keep=json.light.css#json.light.css");
+        assert.equal(await themed.locator("#byVIEWtheme").getAttribute("href"), "https://themes.test/other.dark.css");
+        assert.deepEqual(await themed.locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle").evaluateAll((buttons) => buttons.map((button) => [button.title, button.getAttribute("aria-label")])), [
+          ["Switch to light theme", "Switch to light theme"],
+          ["Switch to light theme", "Switch to light theme"]
+        ]);
+        assert.equal(await themed.locator("#host-control").evaluate((button) => getComputedStyle(button, "::after").content), "none");
+        await themed.locator("#viewer-theme").evaluate((link) => link.remove());
+        await themed.evaluate(() => byJSONviewer(document.getElementById("first"), "Content", { fontSizeControls: false, copyButton: false }));
+        assert.equal(await themed.locator("#first .byVIEWthemeToggle").count(), 0);
+      } finally {
+        await themed.close();
+      }
+    });
     await t.test("displayed, copied, and downloaded starters match with CDN or local assets", async () => {
       const playground = await browser.newPage();
       const errors = [];

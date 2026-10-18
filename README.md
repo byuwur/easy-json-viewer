@@ -64,7 +64,9 @@ Each viewer shows a semi-transparent GitHub link, version, and author portfolio 
 
 ## Themes
 
-Switch `#byVIEWtheme` between `json.light.css` and `json.dark.css`. A-/A+ adjust only this viewer by `0.125rem`, within `0.5rem`–`3rem`. Size survives re-rendering and works without a theme stylesheet.
+The toggle uses a compatible `#byVIEWtheme` or finds a stylesheet named `json.light.css`/`json.dark.css`, preserving its path, query, and hash. Theme changes apply to all JSON viewers using that stylesheet. Switch that stylesheet manually to select a theme.
+
+A-/A+ adjust only this viewer by `0.125rem`, within `0.5rem`–`3rem`. Size survives re-rendering and works without a theme stylesheet.
 
 ## Checks
 

@@ -54,7 +54,7 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
-.byVIEWcontrols {
+.byJSONdocument > .byVIEWcontrols {
   position: absolute;
   top: 1.5rem;
   right: 1rem;
@@ -64,7 +64,7 @@
   gap: 0.5rem;
   white-space: normal;
 }
-.byVIEWinfo {
+.byJSONdocument > .byVIEWinfo {
   position: absolute;
   top: 0.5rem;
   right: 1rem;
@@ -74,20 +74,20 @@
   white-space: nowrap;
   opacity: 0.25;
 }
-.byVIEWinfo a {
+.byJSONdocument > .byVIEWinfo a {
   color: inherit;
   text-decoration: none;
 }
-.byVIEWinfo a:hover,
-.byVIEWinfo a:focus-visible {
+.byJSONdocument > .byVIEWinfo a:hover,
+.byJSONdocument > .byVIEWinfo a:focus-visible {
   text-decoration: underline;
 }
-.byVIEWfontSizes {
+.byJSONdocument > .byVIEWcontrols .byVIEWfontSizes {
   display: flex;
   gap: 0.25rem;
 }
-.byVIEWfontSize,
-.byVIEWcopy {
+.byJSONdocument > .byVIEWcontrols .byVIEWfontSize,
+.byJSONdocument > .byVIEWcontrols .byVIEWcopy {
   width: 2rem;
   height: 1.75rem;
   padding: 0.25rem;
@@ -100,12 +100,12 @@
   line-height: 1;
   cursor: pointer;
 }
-.byVIEWfontSize:disabled,
-.byVIEWcopy:disabled {
+.byJSONdocument > .byVIEWcontrols .byVIEWfontSize:disabled,
+.byJSONdocument > .byVIEWcontrols .byVIEWcopy:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.byVIEWcopy {
+.byJSONdocument > .byVIEWcontrols .byVIEWcopy {
   width: auto;
   display: inline-flex;
   align-items: center;
@@ -113,20 +113,20 @@
   gap: 0.25rem;
   white-space: nowrap;
 }
-.byVIEWcopy svg {
+.byJSONdocument > .byVIEWcontrols .byVIEWcopy svg {
   width: 1rem;
   height: 1rem;
   fill: currentColor;
 }
-.byVIEWcontrols button:focus-visible {
+.byJSONdocument > .byVIEWcontrols button:focus-visible {
   outline: 0.125rem solid currentColor;
   outline-offset: 0.125rem;
 }
-.byVIEWinfo + *,
-.byVIEWcontrols + * {
+.byJSONdocument > .byVIEWinfo + *,
+.byJSONdocument > .byVIEWcontrols + * {
   margin-top: 0 !important;
 }
-.byVIEWthemeToggle {
+.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   font-variant-emoji: text !important;
   white-space: nowrap !important;
@@ -147,7 +147,7 @@
   text-align: justify;
   cursor: pointer;
 }
-.byVIEWthemeToggle::after {
+.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle::after {
   content: "";
   position: absolute;
   top: 0.2rem;

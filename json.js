@@ -7,6 +7,7 @@
  * https://github.com/byuwur/easy-json-viewer
  */
 (function (global) {
+  if (global.byJSONviewer?.initialized) return;
   // Keep render state tied to each target element
   const renderTokens = new WeakMap();
 
@@ -518,4 +519,5 @@
   }
   global.byJSONviewer = byJSONviewer;
   byJSONviewer.VERSION = "2.10"; // 2026-10-17
+  global.byJSONviewer.initialized = true;
 })(typeof window !== "undefined" ? window : this);

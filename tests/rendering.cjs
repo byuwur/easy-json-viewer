@@ -14,6 +14,13 @@ test("JSON rendering", async (t) => {
     const page = await browser.newPage();
     await page.setContent("<!doctype html><html><head></head><body></body></html>");
     await page.addScriptTag({ path: path.join(__dirname, "../json.js") });
+    await t.test("duplicate imports preserve the installed renderer", async () => {
+      await page.evaluate(() => {
+        window.installedRenderer = byJSONviewer;
+      });
+      await page.addScriptTag({ path: path.join(__dirname, "../json.js") });
+      assert.equal(await page.evaluate(() => byJSONviewer === installedRenderer), true);
+    });
     const benchmark = JSON.parse(await fs.readFile(path.join(__dirname, "../test.json"), "utf8"));
     const results = await page.evaluate(async (benchmark) => {
       const waitFor = async (verify) => {

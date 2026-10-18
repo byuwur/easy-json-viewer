@@ -12,6 +12,9 @@ test("JSON rendering", async (t) => {
   });
   try {
     const page = await browser.newPage();
+    const readme = await fs.readFile(path.join(__dirname, "../README.md"), "utf8");
+    const version = readme.match(/easy-json-viewer@v([^/]+)\//)?.[1];
+    assert.ok(version, "README must pin a viewer release");
     await page.setContent("<!doctype html><html><head></head><body></body></html>");
     await page.addScriptTag({ path: path.join(__dirname, "../json.js") });
     await t.test("duplicate imports preserve the installed renderer", async () => {
@@ -236,8 +239,8 @@ test("JSON rendering", async (t) => {
         return info;
       });
       assert.deepEqual(info, {
-        version: "2.10",
-        text: "easy-json-viewer · v2.10 · @byUwUr",
+        version,
+        text: `easy-json-viewer · v${version} · @byUwUr`,
         semiTransparent: true,
         count: 1,
         independent: true,
@@ -558,6 +561,7 @@ test("JSON rendering", async (t) => {
       });
       await playground.goto("https://viewer.test/index.html");
       const cdnCode = await playground.locator("#integration-code").inputValue();
+      assert.ok(cdnCode.includes(`easy-json-viewer@v${version}/`));
       const renderer = playground.frameLocator("#preview-frame").locator("#byJSONrenderer");
       await renderer.locator(".byJSONstring").first().waitFor();
       await renderer.evaluate((root) => {

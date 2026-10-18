@@ -94,6 +94,7 @@
   /**
    * Cancels an unfinished render on the given element.
    * @param {HTMLElement} element - Renderer element.
+   * @returns {void}
    */
   const cancelExistingRender = (element) => {
     const token = renderTokens.get(element);
@@ -108,6 +109,7 @@
    * @param {Object} token - Render token.
    * @param {Function} callback - Work to execute.
    * @param {number} delay - Delay in milliseconds.
+   * @returns {void}
    */
   const schedule = (token, callback, delay) => {
     if (token.cancel) return;
@@ -123,6 +125,7 @@
    * Sets the collapsed state of a toggle and its related elements.
    * @param {HTMLElement} toggle - Toggle element.
    * @param {boolean} collapsed - Desired state.
+   * @returns {void}
    */
   const setToggleState = (toggle, collapsed) => {
     toggle.classList.toggle("collapsed", collapsed);
@@ -137,6 +140,7 @@
   /**
    * Makes a placeholder trigger its sibling toggle.
    * @param {HTMLElement} element - Placeholder element.
+   * @returns {void}
    */
   const addPlaceholderListener = (element) => {
     element.addEventListener("click", (event) => {
@@ -150,6 +154,7 @@
   /**
    * Adds collapse/expand behavior to a toggle.
    * @param {HTMLElement} element - Toggle element.
+   * @returns {void}
    */
   const addToggleListener = (element) => {
     element.setAttribute("aria-expanded", "true");
@@ -209,6 +214,7 @@
    * @param {boolean} [isLast=false] - Whether this is the final item.
    * @param {boolean} [isObj=false] - Whether this is an object entry.
    * @param {string} [key=''] - Object key text.
+   * @returns {void}
    */
   const appendLI = (parent, item, options, token, isLast = false, isObj = false, key = "") => {
     if (token.cancel) return;
@@ -406,6 +412,13 @@
     return sizes;
   };
 
+  /**
+   * Add a copy action for the complete source, including content outside the visible rendered chunk.
+   * @param {unknown} controls Controls.
+   * @param {Function} getText Callback that returns the text to copy.
+   * @param {string} label Human-readable label.
+   * @returns {void}
+   */
   const appendCopyButton = (controls, getText, label) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -439,6 +452,14 @@
     });
   };
 
+  /**
+   * Attach the enabled theme, size, and copy controls to this renderer instance.
+   * @param {HTMLElement} element DOM element owned by this operation.
+   * @param {Object} options Options that configure this operation.
+   * @param {string} filename File name or relative asset path.
+   * @param {unknown} source Source data consumed without taking ownership of its storage.
+   * @returns {void}
+   */
   const appendViewerControls = (element, options, filename, source) => {
     const controls = document.createElement("div");
     controls.className = "byVIEWcontrols";
@@ -471,6 +492,8 @@
    * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
    * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    * @param {boolean} [options.copyButton=true] - Adds a clipboard copy button.
+   * @returns {void}
+   * @throws {TypeError}
    */
   function byJSONviewer(element, json, options = {}) {
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");

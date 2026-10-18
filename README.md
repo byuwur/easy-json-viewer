@@ -62,6 +62,8 @@ Copy uses two-space-indented JSON. BigInt and compatible big-number values are c
 
 Each viewer shows a semi-transparent GitHub link, version, and author portfolio link at the top right. Read the library version with `byJSONviewer.VERSION`.
 
+Controls wrap above the content on narrow viewers.
+
 ## Themes
 
 The toggle uses a compatible `#byVIEWtheme` or finds a stylesheet named `json.light.css`/`json.dark.css`, preserving its path, query, and hash. Theme changes apply to all JSON viewers using that stylesheet. Switch that stylesheet manually to select a theme.

@@ -1,12 +1,18 @@
 /* byuwur was here */
 .byJSONdocument {
   position: relative;
+  box-sizing: border-box;
   margin: 0;
-  padding: 1rem 1.5rem 1rem 2rem;
+  padding: 2rem 1.5rem 1rem 2rem;
   border: 0.0625rem solid currentColor;
   min-height: 6rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.byJSONdocument *,
+.byJSONdocument *::before,
+.byJSONdocument *::after {
+  box-sizing: border-box;
 }
 .byJSONdocument.byJSONmonospace {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
@@ -55,13 +61,13 @@
   display: inline;
 }
 .byJSONdocument > .byVIEWcontrols {
-  position: absolute;
-  top: 1.5rem;
-  right: 1rem;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 1rem;
   white-space: normal;
 }
 .byJSONdocument > .byVIEWinfo {

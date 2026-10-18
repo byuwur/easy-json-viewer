@@ -485,6 +485,43 @@ test("JSON rendering", async (t) => {
       });
       assert.deepEqual(layout, { width: 240, overflow: false, contained: true, aboveContent: true });
     });
+    await t.test("text controls follow root size changes, preserve host defaults, and enforce limits", async () => {
+      const sizes = await page.evaluate(() => {
+        const original = document.documentElement.style.fontSize;
+        const root = document.createElement("div");
+        document.body.appendChild(root);
+        try {
+          document.documentElement.style.fontSize = "16px";
+          root.style.fontSize = "24px";
+          const options = { themeToggle: false, copyButton: false };
+          byJSONviewer(root, "Content", options);
+          let [decrease, reset, increase] = root.querySelectorAll(".byVIEWfontSize");
+          const size = () => parseFloat(getComputedStyle(root).fontSize);
+          increase.click();
+          const initial = size();
+          document.documentElement.style.fontSize = "32px";
+          increase.click();
+          const resized = size();
+          reset.click();
+          const restored = size();
+          increase.click();
+          const next = size();
+          byJSONviewer(root, "Content", options);
+          [decrease, reset, increase] = root.querySelectorAll(".byVIEWfontSize");
+          const rerendered = size();
+          for (let index = 0; index < 30; index++) increase.click();
+          const maximum = [size(), increase.disabled];
+          for (let index = 0; index < 40; index++) decrease.click();
+          const minimum = [size(), decrease.disabled];
+          reset.click();
+          return { initial, resized, restored, next, rerendered, maximum, minimum, reset: size() };
+        } finally {
+          root.remove();
+          document.documentElement.style.fontSize = original;
+        }
+      });
+      assert.deepEqual(sizes, { initial: 26, resized: 56, restored: 24, next: 28, rerendered: 28, maximum: [96, true], minimum: [16, true], reset: 24 });
+    });
     await t.test("displayed, copied, and downloaded starters match with CDN or local assets", async () => {
       const playground = await browser.newPage();
       const errors = [];
@@ -514,6 +551,9 @@ test("JSON rendering", async (t) => {
       });
       assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
       assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
+      const defaultSize = await renderer.evaluate((root) => getComputedStyle(root).fontSize);
+      await renderer.locator(".byVIEWfontSize").nth(2).click();
+      assert.notEqual(await renderer.evaluate((root) => getComputedStyle(root).fontSize), defaultSize);
       await playground.locator("#forceMonospace").check();
       assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, true);
       assert.ok(await renderer.evaluate((root) => getComputedStyle(root).fontFamily.includes("monospace")));
@@ -521,6 +561,7 @@ test("JSON rendering", async (t) => {
       assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
       assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, false);
       assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
+      assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontSize), defaultSize);
       assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
       const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
       await playground.locator("#json-source").fill(source);

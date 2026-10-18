@@ -1161,6 +1161,7 @@
         document.getElementById("reset-settings").addEventListener("click", () => {
           state.options = { ...defaults };
           configuration.reset();
+          if (renderer) renderer.style.fontSize = renderer.dataset.byViewDefaultFontSize ?? "";
           setTheme("dark");
           markPending();
           renderSource();

@@ -18,7 +18,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 .byJSONstring {
-  color: #fff;
+  color: inherit;
 }
 .byJSONliteral {
   font-weight: bold;
@@ -48,7 +48,7 @@
   transition: transform 0.333s;
 }
 .byJSONtoggle:hover:before {
-  color: #fff;
+  color: currentColor;
 }
 .byJSONtoggle.collapsed:before {
   transform: rotate(-90deg);

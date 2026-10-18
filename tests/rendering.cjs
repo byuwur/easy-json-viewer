@@ -229,8 +229,8 @@ test("JSON rendering", async (t) => {
         return info;
       });
       assert.deepEqual(info, {
-        version: "2.9",
-        text: "easy-json-viewer · v2.9 · @byUwUr",
+        version: "2.10",
+        text: "easy-json-viewer · v2.10 · @byUwUr",
         semiTransparent: true,
         count: 1,
         independent: true,
@@ -241,6 +241,45 @@ test("JSON rendering", async (t) => {
           ["https://byuwur.co/", "_blank", "noopener noreferrer"]
         ]
       });
+    });
+    await t.test("monospace is opt in for non-pre viewers and restores host fonts", async () => {
+      const result = await page.evaluate(() => {
+        const host = document.createElement("div");
+        host.style.fontFamily = "serif";
+        const root = document.createElement("div");
+        root.style.fontFamily = "Arial, sans-serif";
+        const neighbor = document.createElement("div");
+        const pre = document.createElement("pre");
+        host.append(root, neighbor, pre);
+        document.body.appendChild(host);
+        const options = { themeToggle: false, fontSizeControls: false, copyButton: false };
+        try {
+          byJSONviewer(root, "Default font", options);
+          byJSONviewer(neighbor, "Host font", options);
+          byJSONviewer(pre, "Native monospace", options);
+          const defaultFont = getComputedStyle(root).fontFamily;
+          const neighborFont = getComputedStyle(neighbor).fontFamily;
+          const nativeFont = getComputedStyle(pre).fontFamily;
+          byJSONviewer(root, "Opt in", { ...options, forceMonospace: true });
+          const enabled = getComputedStyle(root).fontFamily;
+          const valueFont = getComputedStyle(root.querySelector(".byJSONstring")).fontFamily;
+          byJSONviewer(root, "Opt out", { ...options, forceMonospace: false });
+          const restored = getComputedStyle(root).fontFamily;
+          byJSONviewer(root, "Opt in again", { ...options, forceMonospace: true });
+          byJSONviewer(root, "Defaults again", options);
+          return { defaultFont, valueFont, neighborFont, nativeFont, restored, enabled, reset: getComputedStyle(root).fontFamily, inline: root.style.fontFamily };
+        } finally {
+          host.remove();
+        }
+      });
+      assert.equal(result.defaultFont, "Arial, sans-serif");
+      assert.equal(result.valueFont, result.enabled);
+      assert.equal(result.neighborFont, "serif");
+      assert.ok(result.nativeFont.includes("monospace"));
+      assert.equal(result.restored, "Arial, sans-serif");
+      assert.ok(result.enabled.includes("monospace"));
+      assert.equal(result.reset, result.defaultFont);
+      assert.equal(result.inline, "Arial, sans-serif");
     });
     await t.test("long text, keys, and URLs wrap inside narrow viewers", async () => {
       const root = await page.evaluateHandle(() => {
@@ -404,6 +443,21 @@ test("JSON rendering", async (t) => {
       });
       await playground.goto("https://viewer.test/index.html");
       const cdnCode = await playground.locator("#integration-code").inputValue();
+      const renderer = playground.frameLocator("#preview-frame").locator("#byJSONrenderer");
+      await renderer.locator(".byJSONstring").first().waitFor();
+      await renderer.evaluate((root) => {
+        root.style.fontFamily = "serif";
+      });
+      assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
+      assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
+      await playground.locator("#forceMonospace").check();
+      assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, true);
+      assert.ok(await renderer.evaluate((root) => getComputedStyle(root).fontFamily.includes("monospace")));
+      await playground.locator("#reset-settings").click();
+      assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
+      assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, false);
+      assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
+      assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
       const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
       await playground.locator("#json-source").fill(source);
       await playground.locator("#withLinks").uncheck();

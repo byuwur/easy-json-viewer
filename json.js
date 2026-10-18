@@ -77,6 +77,7 @@
       withQuotes: true,
       withLinks: true,
       bigNumbers: false,
+      forceMonospace: false,
       chunkSize: 1000,
       chunkLatency: 25,
       themeToggle: true,
@@ -464,6 +465,7 @@
    * @param {boolean} [options.withQuotes=true] - Wrap object keys in double quotes.
    * @param {boolean} [options.withLinks=true] - Render URL strings as clickable links.
    * @param {boolean} [options.bigNumbers=false] - Support compatible big-number objects.
+   * @param {boolean} [options.forceMonospace=false] - Force a system monospace font when using a target other than <pre>.
    * @param {number} [options.chunkSize=1000] - Number of elements rendered per chunk.
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
    * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
@@ -479,6 +481,7 @@
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add("byJSONdocument");
+    element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     appendViewerControls(element, normalizedOptions, "json", json);
     // Add the root toggle when applicable
     let rootToggle = null;

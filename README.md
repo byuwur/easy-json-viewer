@@ -47,11 +47,14 @@ Pass options as the third argument:
 | `withQuotes`       | `true`  | Quote object keys.                                                          |
 | `withLinks`        | `true`  | Link `http`, `https`, `ftp`, and `ftps` URLs.                               |
 | `bigNumbers`       | `false` | Use compatible big-number objects' string representation.                   |
+| `forceMonospace`   | `false` | Force a system monospace font when the target is not a `<pre>`.             |
 | `chunkSize`        | `1000`  | Elements per chunk; invalid/nonpositive values use the default.             |
 | `chunkLatency`     | `25`    | Milliseconds between chunks; invalid/negative values use the default.       |
 | `themeToggle`      | `true`  | Show a theme toggle.                                                        |
 | `fontSizeControls` | `true`  | Show A-/A+ controls.                                                        |
 | `copyButton`       | `true`  | Show a button to copy the complete JSON, including collapsed/pending nodes. |
+
+`<pre>` elements use a monospace font by default. Enable `forceMonospace` if you use another element, such as `<div>`, as your `.byJSONdocument`.
 
 Smaller chunks improve responsiveness; lower latency starts the next chunk sooner. Re-rendering a target cancels its pending chunks.
 

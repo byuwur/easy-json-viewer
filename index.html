@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.5/css/shards.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.5/css/fontawesome.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.5/js/popper.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.5/js/bootstrap.min.js" defer></script>
   </head>
 
@@ -135,6 +136,23 @@
                           </div>
                           <p class="option-description mt-2 mb-0">Loads json.light.css or json.dark.css.</p>
                         </fieldset>
+                        <div class="form-switch mt-3">
+                          <input class="form-check-input" id="forceMonospace" type="checkbox" role="switch" />
+                          <span class="flex-grow-1">
+                            <label class="option-label" for="forceMonospace">Force monospace font</label>
+                            <button
+                              id="monospace-help"
+                              class="btn btn-sm border-0 text-body-secondary p-1 ms-1"
+                              type="button"
+                              data-bs-toggle="popover"
+                              data-bs-placement="bottom"
+                              data-bs-title="Monospace font"
+                              data-bs-content="Enable when using an element other than &lt;pre&gt; as your .byJSONdocument. &lt;pre&gt; uses monospace by default."
+                              aria-label="About forcing a monospace font">
+                              <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            </button>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -703,6 +721,7 @@
         // =============
         // Defaults mirror json.js; all mutable playground state lives here.
         const defaults = {
+          forceMonospace: false,
           themeToggle: true,
           fontSizeControls: true,
           copyButton: true,
@@ -786,6 +805,12 @@
         const previewStatus = document.getElementById("preview-status");
         const applyButton = document.getElementById("apply-source");
         const sampleNote = document.getElementById("sample-note");
+        const monospaceHelp = document.getElementById("monospace-help");
+        const monospacePopover = window.bootstrap?.Popover && typeof window.Popper?.createPopper === "function" ? bootstrap.Popover.getOrCreateInstance(monospaceHelp, { trigger: "focus", container: "body", animation: false }) : null;
+        if (!monospacePopover) monospaceHelp.title = monospaceHelp.dataset.bsContent;
+        monospaceHelp.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") monospacePopover?.hide();
+        });
 
         // =============
         // === PLAYGROUND STATE ===
@@ -1238,6 +1263,7 @@
         // === LIFECYCLE ===
         // =============
         window.addEventListener("pagehide", () => {
+          monospacePopover?.hide();
           state.request?.abort();
           clearTimeout(state.editTimer);
           state.observer?.disconnect();

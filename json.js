@@ -491,5 +491,5 @@
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
   }
   global.byJSONviewer = byJSONviewer;
-  byJSONviewer.VERSION = "2.9"; // 2026-10-17
+  byJSONviewer.VERSION = "2.10"; // 2026-10-17
 })(typeof window !== "undefined" ? window : this);

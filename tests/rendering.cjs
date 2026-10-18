@@ -12,6 +12,7 @@ test("JSON rendering", async (t) => {
   });
   try {
     const page = await browser.newPage();
+    await page.setContent("<!doctype html><html><head></head><body></body></html>");
     await page.addScriptTag({ path: path.join(__dirname, "../json.js") });
     const benchmark = JSON.parse(await fs.readFile(path.join(__dirname, "../test.json"), "utf8"));
     const results = await page.evaluate(async (benchmark) => {
@@ -240,6 +241,75 @@ test("JSON rendering", async (t) => {
           ["https://byuwur.co/", "_blank", "noopener noreferrer"]
         ]
       });
+    });
+    await t.test("long text, keys, and URLs wrap inside narrow viewers", async () => {
+      const root = await page.evaluateHandle(() => {
+        const root = document.createElement("pre");
+        root.style.boxSizing = "border-box";
+        document.body.appendChild(root);
+        byJSONviewer(
+          root,
+          {
+            description: "A little less noise. A lot more JSON. ".repeat(8),
+            nested: [`https://example.com/${"segment".repeat(30)}`, "unbroken".repeat(30)],
+            ["longKey".repeat(30)]: true
+          },
+          { themeToggle: false, fontSizeControls: false, copyButton: false, chunkLatency: 0 }
+        );
+        return root;
+      });
+      try {
+        await page.waitForFunction((root) => root.querySelectorAll("li").length === 5, root);
+        for (const width of [320, 560]) {
+          for (const fontSize of [13, 24]) {
+            const result = await root.evaluate(
+              (root, { width, fontSize }) => {
+                root.style.width = `${width}px`;
+                root.style.fontSize = `${fontSize}px`;
+                const strings = [...root.querySelectorAll(".byJSONstring")];
+                return {
+                  fits: root.scrollWidth <= root.clientWidth,
+                  wrapped: strings.every((string) => string.getClientRects().length > 1),
+                  text: strings[0].textContent,
+                  href: root.querySelector("a.byJSONstring").getAttribute("href")
+                };
+              },
+              { width, fontSize }
+            );
+            assert.equal(result.fits, true, `Overflow at ${width}px with ${fontSize}px text`);
+            assert.equal(result.wrapped, true, `Unwrapped text at ${width}px with ${fontSize}px text`);
+            assert.equal(result.text, JSON.stringify("A little less noise. A lot more JSON. ".repeat(8)));
+            assert.equal(result.href, `https://example.com/${"segment".repeat(30)}`);
+          }
+        }
+      } finally {
+        await root.evaluate((root) => root.remove());
+        await root.dispose();
+      }
+    });
+    await t.test("text size controls keep the viewer's outer spacing fixed", async () => {
+      const result = await page.evaluate(() => {
+        const root = document.createElement("pre");
+        document.body.appendChild(root);
+        try {
+          byJSONviewer(root, "Text size sample", { themeToggle: false, copyButton: false });
+          const top = root.getBoundingClientRect().top;
+          const buttons = root.querySelectorAll(".byVIEWfontSize");
+          while (!buttons[2].disabled) buttons[2].click();
+          const maxSize = parseFloat(getComputedStyle(root).fontSize);
+          const maxTop = root.getBoundingClientRect().top;
+          while (!buttons[0].disabled) buttons[0].click();
+          const minTop = root.getBoundingClientRect().top;
+          buttons[1].click();
+          return { maxSize, top, maxTop, minTop, resetTop: root.getBoundingClientRect().top };
+        } finally {
+          root.remove();
+        }
+      });
+      assert.equal(result.maxSize, 48);
+      assert.equal(result.maxTop, result.top);
+      assert.equal(result.minTop, result.top);
+      assert.equal(result.resetTop, result.top);
     });
     await t.test("copy includes pending JSON, preserves large numbers, and handles clipboard failures", async () => {
       const result = await page.evaluate(async () => {

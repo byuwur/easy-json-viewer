@@ -336,26 +336,92 @@ test("JSON rendering", async (t) => {
         await root.dispose();
       }
     });
-    await t.test("text size controls keep the viewer's outer spacing fixed", async () => {
+    await t.test("wrapped lines stay tighter than the gap between JSON entries", async () => {
+      for (const tag of ["pre", "div"]) {
+        const root = await page.evaluateHandle((tag) => {
+          const root = document.createElement(tag);
+          root.style.width = "320px";
+          document.body.appendChild(root);
+          byJSONviewer(root, { message: "A readable wrapped property value. ".repeat(8), next: "Another property" }, { chunkLatency: 0 });
+          return root;
+        }, tag);
+        try {
+          await page.waitForFunction((root) => root.querySelectorAll("li").length === 2, root);
+          for (const fontSize of [13, 24]) {
+            const spacing = await root.evaluate((root, fontSize) => {
+              root.style.fontSize = `${fontSize}px`;
+              const [message, next] = root.querySelectorAll(".byJSONstring");
+              const lines = [...message.getClientRects()];
+              return { lines: lines.length, wrap: lines[1].top - lines[0].top, entry: next.getBoundingClientRect().top - lines.at(-1).top };
+            }, fontSize);
+            assert.ok(spacing.lines > 1);
+            assert.ok(spacing.wrap <= fontSize * 1.3, `${tag} at ${fontSize}px should keep wrapped lines compact`);
+            assert.ok(spacing.entry > spacing.wrap + 2, `${tag} at ${fontSize}px should separate entries more than wrapped lines`);
+          }
+        } finally {
+          await root.evaluate((root) => root.remove());
+          await root.dispose();
+        }
+      }
+    });
+    await t.test("first nested entries have the same spacing as following entries", async () => {
+      for (const tag of ["pre", "div"]) {
+        const root = await page.evaluateHandle((tag) => {
+          const root = document.createElement(tag);
+          document.body.appendChild(root);
+          byJSONviewer(root, { features: ["Collapsible nodes", "Light & dark", "Progressive rendering"], author: { name: "BONYUR", philosophy: "Simple is complicated enough." } }, { chunkLatency: 0 });
+          return root;
+        }, tag);
+        try {
+          await page.waitForFunction((root) => root.querySelectorAll("li").length === 7, root);
+          for (const fontSize of [13, 24]) {
+            const spacing = await root.evaluate((root, fontSize) => {
+              root.style.fontSize = `${fontSize}px`;
+              const textTop = (node) => {
+                const range = document.createRange();
+                range.selectNodeContents(node);
+                return range.getBoundingClientRect().top;
+              };
+              return [...root.querySelectorAll("li > .byJSONnest")].map((list) => {
+                const [first, second] = list.children;
+                const top = textTop(first.firstChild);
+                return { first: top - textTop(list.previousSibling), following: textTop(second.firstChild) - top };
+              });
+            }, fontSize);
+            for (const gap of spacing) assert.ok(Math.abs(gap.first - gap.following) < 1, `${tag} at ${fontSize}px should space the first nested entry evenly: ${JSON.stringify(gap)}`);
+          }
+        } finally {
+          await root.evaluate((root) => root.remove());
+          await root.dispose();
+        }
+      }
+    });
+    await t.test("text size controls preserve outer position and keep collapse arrows visible", async () => {
       const result = await page.evaluate(() => {
         const root = document.createElement("pre");
         document.body.appendChild(root);
         try {
-          byJSONviewer(root, "Text size sample", { themeToggle: false, copyButton: false });
+          root.style.width = "320px";
+          byJSONviewer(root, { property: "Text size sample" }, { themeToggle: false, copyButton: false });
           const top = root.getBoundingClientRect().top;
           const buttons = root.querySelectorAll(".byVIEWfontSize");
           while (!buttons[2].disabled) buttons[2].click();
           const maxSize = parseFloat(getComputedStyle(root).fontSize);
           const maxTop = root.getBoundingClientRect().top;
+          const toggle = root.querySelector(".byJSONtoggle");
+          const arrow = getComputedStyle(toggle, "::before");
+          const arrowLeft = toggle.getBoundingClientRect().left + parseFloat(arrow.left);
+          const maxArrowVisible = arrowLeft >= root.getBoundingClientRect().left && arrowLeft + parseFloat(arrow.width) <= root.getBoundingClientRect().right;
           while (!buttons[0].disabled) buttons[0].click();
           const minTop = root.getBoundingClientRect().top;
           buttons[1].click();
-          return { maxSize, top, maxTop, minTop, resetTop: root.getBoundingClientRect().top };
+          return { maxSize, top, maxTop, minTop, maxArrowVisible, resetTop: root.getBoundingClientRect().top };
         } finally {
           root.remove();
         }
       });
       assert.equal(result.maxSize, 48);
+      assert.equal(result.maxArrowVisible, true);
       assert.equal(result.maxTop, result.top);
       assert.equal(result.minTop, result.top);
       assert.equal(result.resetTop, result.top);

@@ -16,11 +16,12 @@
   color: var(--by-json-text);
   box-sizing: border-box;
   margin: 0;
-  padding: 2rem 1.5rem 1rem 2rem;
+  padding: 2rem 1.5rem 1rem max(1.5rem, 1.5em);
   border: 0.0625rem solid var(--by-json-border);
   min-height: 6rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  line-height: 1.25;
 }
 .byJSONdocument *,
 .byJSONdocument *::before,
@@ -40,11 +41,15 @@
 .byJSONnest {
   list-style: none;
   margin: 0;
+  padding-top: 0.35em;
   padding-left: 2em;
   border-left: var(--by-json-nest-border);
 }
 .byJSONnest.collapsed {
   display: none;
+}
+.byJSONnest > li + li {
+  margin-top: 0.35em;
 }
 .byJSONtoggle {
   position: relative;
@@ -56,10 +61,8 @@
   color: var(--by-json-toggle);
   position: absolute;
   left: -1.25em;
-  display: inline-block;
   width: 1em;
   line-height: 1.25em;
-  font-size: 1em;
   text-align: center;
   transition: transform 0.333s;
 }

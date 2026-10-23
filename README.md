@@ -64,6 +64,8 @@ Each viewer shows a semi-transparent GitHub link, version, and author portfolio 
 
 Controls wrap above the content on narrow viewers.
 
+Wrapped JSON lines use tighter spacing than the gap between properties or array entries.
+
 ## Themes
 
 `json.css` contains the styling rules and light defaults. Theme files only override CSS variables on `.byJSONdocument`.

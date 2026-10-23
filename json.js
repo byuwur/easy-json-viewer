@@ -34,26 +34,6 @@
   const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
 
   /**
-   * Finds a sibling by id or class.
-   * @param {HTMLElement} element - The element whose siblings are checked.
-   * @param {string} match - The id or class to search for.
-   * @return {Element|null} The matched sibling, if any.
-   */
-  const getSiblingByIdOrClass = (element, match) => {
-    let sibling = element.previousElementSibling;
-    while (sibling) {
-      if (sibling.id === match || sibling.classList.contains(match)) return sibling;
-      sibling = sibling.previousElementSibling;
-    }
-    sibling = element.nextElementSibling;
-    while (sibling) {
-      if (sibling.id === match || sibling.classList.contains(match)) return sibling;
-      sibling = sibling.nextElementSibling;
-    }
-    return null;
-  };
-
-  /**
    * Divides an array into smaller chunks.
    * @param {Array} arr - Array to divide.
    * @param {number} size - Size of each chunk.
@@ -84,6 +64,9 @@
       themeToggle: true,
       fontSizeControls: true,
       copyButton: true,
+      controlsSize: "regular",
+      controlsCompact: false,
+      controlsPosition: "top",
       ...source
     };
     // Keep chunk values valid before scheduling renders
@@ -131,11 +114,9 @@
   const setToggleState = (toggle, collapsed) => {
     toggle.classList.toggle("collapsed", collapsed);
     toggle.setAttribute("aria-expanded", String(!collapsed));
-    // Keep the nest and its placeholder in sync
-    const nest = getSiblingByIdOrClass(toggle, "byJSONnest");
-    if (nest) nest.classList.toggle("collapsed", collapsed);
-    const placeholder = getSiblingByIdOrClass(toggle, "byJSONplaceholder");
-    if (placeholder) placeholder.classList.toggle("collapsed", collapsed);
+    const parent = toggle.parentElement;
+    parent?.querySelector(":scope > .byJSONnest")?.classList.toggle("collapsed", collapsed);
+    parent?.querySelector(":scope > .byJSONplaceholder")?.classList.toggle("collapsed", collapsed);
   };
 
   /**
@@ -146,9 +127,7 @@
   const addPlaceholderListener = (element) => {
     element.addEventListener("click", (event) => {
       event.preventDefault();
-      // Find the sibling toggle and trigger it
-      const toggle = getSiblingByIdOrClass(event.currentTarget, "byJSONtoggle");
-      if (toggle) toggle.click();
+      event.currentTarget.parentElement?.querySelector(":scope > .byJSONtoggle")?.click();
     });
   };
 
@@ -336,22 +315,20 @@
       const match = (stylesheet.getAttribute("href") || "").match(themePattern);
       return match ? match[2].toLowerCase() : null;
     };
-    if (!getTheme()) return null;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "byVIEWthemeToggle";
-    button.textContent = "\u263E\uFE0E \u2600\uFE0E"; // ☾︎ ☀︎
+    button.innerHTML = '<span aria-hidden="true">\u263E\uFE0E</span> <span aria-hidden="true">\u2600\uFE0E</span>';
     // Keep accessibility text consistent with the theme actually loaded.
     const sync = () => {
       const next = getTheme() === "dark" ? "light" : "dark";
-      for (const toggle of [button, ...document.querySelectorAll(".byJSONdocument > .byVIEWcontrols > .byVIEWthemeToggle")]) {
+      for (const toggle of [button, ...document.querySelectorAll(".byJSONdocument > .byVIEWtoolbar > .byVIEWcontrols > .byVIEWthemeToggle")]) {
         toggle.title = `Switch to ${next} theme`;
         toggle.setAttribute("aria-label", toggle.title);
       }
     };
     button.addEventListener("click", () => {
-      const current = getTheme();
-      const next = current === "dark" ? "light" : "dark";
+      const next = getTheme() === "dark" ? "light" : "dark";
       const href = stylesheet.getAttribute("href") || "";
       // Replace only the theme filename while preserving paths and query strings.
       stylesheet.setAttribute(
@@ -465,6 +442,11 @@
    * @returns {void}
    */
   const appendViewerControls = (element, options, filename, source) => {
+    const toolbar = document.createElement("div");
+    toolbar.className = "byVIEWtoolbar";
+    toolbar.dataset.size = ["small", "regular", "large"].includes(options.controlsSize) ? options.controlsSize : "regular";
+    element.classList.toggle("byVIEWcompact", Boolean(options.controlsCompact));
+    element.classList.toggle("byVIEWbottom", options.controlsPosition === "bottom");
     const controls = document.createElement("div");
     controls.className = "byVIEWcontrols";
     controls.setAttribute("role", "group");
@@ -473,11 +455,13 @@
     info.className = "byVIEWinfo";
     info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
-    element.appendChild(info);
+    toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(controls, filename);
     if (options.fontSizeControls) appendFontSizeControls(element, controls);
     if (options.copyButton) appendCopyButton(controls, () => JSON.stringify(source, (_, value) => (typeof value === "bigint" || isBigNumber(value, options) ? value.toString() : value), 2) ?? "null", "Copy JSON");
-    if (controls.childNodes.length) element.appendChild(controls);
+    if (controls.childNodes.length) toolbar.appendChild(controls);
+    if (options.controlsPosition === "bottom") element.appendChild(toolbar);
+    else element.prepend(toolbar);
   };
 
   /**
@@ -496,6 +480,9 @@
    * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
    * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    * @param {boolean} [options.copyButton=true] - Adds a clipboard copy button.
+   * @param {"small"|"regular"|"large"} [options.controlsSize="regular"] - Sets the control size; invalid values use regular.
+   * @param {boolean} [options.controlsCompact=false] - Places attribution beside the controls, wrapping as needed.
+   * @param {"top"|"bottom"} [options.controlsPosition="top"] - Keeps the toolbar at the scroll area's top or bottom while the viewer is visible; invalid values use top.
    * @returns {void}
    * @throws {TypeError}
    */
@@ -509,16 +496,19 @@
     element.textContent = "";
     element.classList.add("byJSONdocument");
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
-    appendViewerControls(element, normalizedOptions, "json", json);
+    const content = document.createElement("div");
+    content.className = "byJSONcontent";
+    element.appendChild(content);
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
-      rootToggle = appendA(element, "byJSONtoggle");
+      rootToggle = appendA(content, "byJSONtoggle");
       addToggleListener(rootToggle);
     }
     // Render JSON and apply the initial root state
-    json2html(element, json, normalizedOptions, token);
+    json2html(content, json, normalizedOptions, token);
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
+    appendViewerControls(element, normalizedOptions, "json", json);
   }
   global.byJSONviewer = byJSONviewer;
   byJSONviewer.VERSION = "2.11"; // 2026-10-18

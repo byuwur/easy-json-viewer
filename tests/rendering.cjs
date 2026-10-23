@@ -37,7 +37,7 @@ test("JSON rendering", async (t) => {
         const root = document.createElement("div");
         byJSONviewer(root, value, { themeToggle: false, fontSizeControls: false, copyButton: false, chunkLatency: 0, ...options });
         await waitFor(() => root.querySelectorAll("li").length === count);
-        root.querySelector(".byVIEWinfo").remove();
+        root.querySelector(".byVIEWtoolbar").remove();
         return root;
       };
       const cases = [
@@ -124,7 +124,7 @@ test("JSON rendering", async (t) => {
           async () => {
             const root = await render({ child: [1] }, 2, { rootCollapsible: false, collapsed: true });
             const toggle = root.querySelector(".byJSONtoggle");
-            if (root.firstElementChild.tagName !== "UL" || toggle.getAttribute("aria-expanded") !== "false") return false;
+            if (root.querySelector(".byJSONcontent").firstElementChild.tagName !== "UL" || toggle.getAttribute("aria-expanded") !== "false") return false;
             toggle.click();
             return toggle.getAttribute("aria-expanded") === "true";
           }
@@ -224,13 +224,14 @@ test("JSON rendering", async (t) => {
         byJSONviewer(root, null, options);
         byJSONviewer(root, true, options);
         const label = root.querySelector(".byVIEWinfo");
-        const opacity = Number(getComputedStyle(label).opacity);
+        const style = getComputedStyle(label);
         const info = {
           version: byJSONviewer.VERSION,
           text: label.textContent.replace(/\s+/g, " ").trim(),
-          semiTransparent: opacity > 0 && opacity < 1,
+          opaque: style.opacity === "1",
+          muted: style.color !== getComputedStyle(root).color,
           count: root.querySelectorAll(".byVIEWinfo").length,
-          independent: label.parentElement === root,
+          independent: !label.closest(".byVIEWcontrols"),
           controls: root.querySelectorAll(".byVIEWcontrols").length,
           buttons: root.querySelectorAll("button").length,
           links: [...label.querySelectorAll("a")].map((link) => [link.href, link.target, link.rel])
@@ -241,7 +242,8 @@ test("JSON rendering", async (t) => {
       assert.deepEqual(info, {
         version,
         text: `easy-json-viewer · v${version} · @byUwUr`,
-        semiTransparent: true,
+        opaque: true,
+        muted: true,
         count: 1,
         independent: true,
         controls: 0,
@@ -342,7 +344,7 @@ test("JSON rendering", async (t) => {
           const root = document.createElement(tag);
           root.style.width = "320px";
           document.body.appendChild(root);
-          byJSONviewer(root, { message: "A readable wrapped property value. ".repeat(8), next: "Another property" }, { chunkLatency: 0 });
+          byJSONviewer(root, { message: "A readable wrapped property value. ".repeat(8), next: "Another property" }, { chunkLatency: 0, controlsCompact: true });
           return root;
         }, tag);
         try {
@@ -452,7 +454,7 @@ test("JSON rendering", async (t) => {
           byJSONviewer(
             root,
             { text: 'Unicode 👋 and "quotes"', list: [1, true, null], big: 900719925474099312345n, lossless: { isLosslessNumber: true, toString: () => "900719925474099399999" } },
-            { bigNumbers: true, collapsed: true, chunkLatency: 1000 }
+            { bigNumbers: true, collapsed: true, chunkLatency: 1000, controlsSize: "small", controlsCompact: true, controlsPosition: "bottom" }
           );
           const pending = root.querySelectorAll("li").length === 0;
           const last = [...root.querySelectorAll(".byVIEWcontrols button")].at(-1).classList.contains("byVIEWcopy");
@@ -515,14 +517,23 @@ test("JSON rendering", async (t) => {
         await themed.evaluate(() => {
           for (const id of ["first", "second"]) byJSONviewer(document.getElementById(id), "Content", { fontSizeControls: false, copyButton: false });
         });
+        const palette = () =>
+          themed.locator("#first").evaluate((root) => {
+            const background = getComputedStyle(root).backgroundColor;
+            const toolbar = getComputedStyle(root.querySelector(".byVIEWtoolbar"));
+            const credits = getComputedStyle(root.querySelector(".byVIEWinfo"));
+            return { matched: toolbar.backgroundColor === background, opaque: !toolbar.backgroundColor.includes("rgba"), color: credits.color, opacity: credits.opacity };
+          });
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(187, 187, 187)", opacity: "1" });
         const background = await themed.locator("#first").evaluate((root) => getComputedStyle(root).backgroundColor);
         await themed.locator("#first .byVIEWthemeToggle").click();
         await themed.waitForFunction((before) => getComputedStyle(document.getElementById("first")).backgroundColor !== before, background);
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(68, 68, 68)", opacity: "1" });
         assert.equal(await themed.locator("#viewer-theme").getAttribute("href"), "https://themes.test/json.light.css/archive/json.dark.css?keep=json.light.css#json.light.css");
         assert.equal(await themed.locator("#byVIEWtheme").getAttribute("href"), "https://themes.test/other.dark.css");
-        assert.deepEqual(await themed.locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle").evaluateAll((buttons) => buttons.map((button) => [button.title, button.getAttribute("aria-label")])), [
-          ["Switch to light theme", "Switch to light theme"],
-          ["Switch to light theme", "Switch to light theme"]
+        assert.deepEqual(await themed.locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle").evaluateAll((buttons) => buttons.map((button) => [button.textContent, button.title, button.getAttribute("aria-label")])), [
+          ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"],
+          ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"]
         ]);
         assert.equal(await themed.locator("#host-control").evaluate((button) => getComputedStyle(button, "::after").content), "none");
         await themed.locator("#viewer-theme").evaluate((link) => link.remove());
@@ -530,6 +541,197 @@ test("JSON rendering", async (t) => {
         assert.equal(await themed.locator("#first .byVIEWthemeToggle").count(), 0);
       } finally {
         await themed.close();
+      }
+    });
+    await t.test("control sizes and toolbar positions stay responsive through rerenders", async () => {
+      const preview = await browser.newPage();
+      try {
+        await preview.addStyleTag({ path: path.join(__dirname, "../json.css") });
+        await preview.addStyleTag({ path: path.join(__dirname, "../json.light.css") });
+        await preview.addScriptTag({ path: path.join(__dirname, "../json.js") });
+        const results = await preview.evaluate(async () => {
+          const theme = document.createElement("link");
+          theme.rel = "stylesheet";
+          theme.href = "json.light.css";
+          document.head.appendChild(theme);
+          const root = document.createElement("pre");
+          document.body.appendChild(root);
+          const sizes = {};
+          const failures = [];
+          for (const width of [200, 320, 360, 640]) {
+            root.style.width = `${width}px`;
+            for (const controlsSize of ["small", "regular", "large"]) {
+              for (const controlsCompact of [false, true]) {
+                for (const controlsPosition of ["top", "bottom"]) {
+                  byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize, controlsCompact, controlsPosition });
+                  const toolbar = root.querySelector(".byVIEWtoolbar");
+                  const bounds = toolbar.getBoundingClientRect();
+                  const info = root.querySelector(".byVIEWinfo").getBoundingClientRect();
+                  const controls = root.querySelector(".byVIEWcontrols").getBoundingClientRect();
+                  const first = root.querySelector(".byJSONstring").getBoundingClientRect();
+                  const last = root.querySelector(".byJSONstring").getBoundingClientRect();
+                  const buttons = [...root.querySelectorAll("button")];
+                  const heights = buttons.map((button) => button.getBoundingClientRect().height);
+                  const equalHeight = Math.max(...heights) - Math.min(...heights) < 0.1;
+                  const toggle = root.querySelector(".byVIEWthemeToggle");
+                  const track = toggle.getBoundingClientRect();
+                  const themeFits =
+                    [...toggle.children].every((icon) => {
+                      const rect = icon.getBoundingClientRect();
+                      return rect.height > track.height * 0.65 && rect.top >= track.top + 1 && rect.bottom <= track.bottom - 1;
+                    }) && parseFloat(getComputedStyle(toggle, "::after").width) > track.height * 0.72;
+                  const fits =
+                    root.scrollWidth <= root.clientWidth + 1 &&
+                    buttons.every((button) => {
+                      const rect = button.getBoundingClientRect();
+                      return rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1;
+                    });
+                  const separated = controlsPosition === "top" ? bounds.bottom <= first.top + 1 : bounds.top >= last.bottom - 1;
+                  const checkAlignment = width === 640 || (width === 360 && controlsSize === "small" && controlsCompact);
+                  const aligned = !checkAlignment || (controlsCompact ? info.top < controls.bottom && info.bottom > controls.top : controlsPosition === "bottom" ? controls.bottom <= info.top : info.bottom <= controls.top);
+                  if (!fits || !separated || !aligned || !equalHeight || !themeFits) failures.push({ width, controlsSize, controlsCompact, controlsPosition, fits, separated, aligned, equalHeight, themeFits });
+                  sizes[controlsSize] = buttons[1].getBoundingClientRect().width;
+                }
+              }
+            }
+          }
+          root.style.fontSize = "48px";
+          const fixedButtonSize = root.querySelector(".byVIEWfontSize").getBoundingClientRect().width === sizes.large;
+          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "small", controlsCompact: true, controlsPosition: "bottom", themeToggle: false, fontSizeControls: false, copyButton: false });
+          const hidden = !root.querySelector(".byVIEWcontrols") && root.lastElementChild.classList.contains("byVIEWtoolbar") && root.querySelectorAll(".byVIEWinfo").length === 1;
+          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "invalid", controlsPosition: "invalid" });
+          const fallback = root.firstElementChild.dataset.size === "regular" && !root.classList.contains("byVIEWbottom");
+          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.");
+          const reset = !root.classList.contains("byVIEWcompact") && !root.classList.contains("byVIEWbottom") && root.querySelectorAll(".byVIEWtoolbar").length === 1;
+          root.style.fontSize = "";
+          root.style.width = "640px";
+          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "large", controlsCompact: true });
+          const toolbar = root.querySelector(".byVIEWtoolbar");
+          const wideHeight = toolbar.offsetHeight;
+          root.style.width = "200px";
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const wrapped = toolbar.offsetHeight > wideHeight && toolbar.getBoundingClientRect().bottom <= root.querySelector(".byJSONstring").getBoundingClientRect().top;
+          root.style.width = "640px";
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const restored = toolbar.offsetHeight === wideHeight;
+          return { failures, sizes, fixedButtonSize, hidden, fallback, reset, wrapped, restored };
+        });
+        assert.deepEqual(results.failures, []);
+        assert.ok(results.sizes.small < results.sizes.regular && results.sizes.regular < results.sizes.large);
+        assert.equal(results.fixedButtonSize, true);
+        assert.equal(results.hidden, true);
+        assert.equal(results.fallback, true);
+        assert.equal(results.reset, true);
+        assert.equal(results.wrapped, true);
+        assert.equal(results.restored, true);
+      } finally {
+        await preview.close();
+      }
+    });
+    await t.test("bottom controls fill spare container space after resizing, collapsing and rerendering", async () => {
+      const preview = await browser.newPage();
+      try {
+        await preview.addStyleTag({ path: path.join(__dirname, "../json.css") });
+        await preview.addScriptTag({ path: path.join(__dirname, "../json.js") });
+        const failures = await preview.evaluate(() => {
+          const root = document.createElement("pre");
+          document.body.appendChild(root);
+          const failures = [];
+          for (const dimension of ["height", "min-height"]) {
+            root.style.cssText = `${dimension}: 320px; overflow: auto;`;
+            for (const controlsSize of ["small", "regular", "large"]) {
+              for (const controlsCompact of [false, true]) {
+                const options = { controlsPosition: "bottom", controlsSize, controlsCompact };
+                for (const width of [640, 240, 640]) {
+                  root.style.width = `${width}px`;
+                  byJSONviewer(root, { description: "A longer paragraph. ".repeat(100) }, options);
+                  root.querySelector(".byJSONtoggle").click();
+                  for (const state of ["collapsed", "short"]) {
+                    if (state === "short") byJSONviewer(root, { message: "Short content." }, options);
+                    const bounds = root.getBoundingClientRect();
+                    const toolbar = root.querySelector(".byVIEWtoolbar").getBoundingClientRect();
+                    const border = parseFloat(getComputedStyle(root).borderBottomWidth);
+                    const gap = bounds.bottom - border - toolbar.bottom;
+                    if (Math.abs(gap) > 1 || root.scrollHeight > root.clientHeight + 1) failures.push({ dimension, controlsSize, controlsCompact, width, state, gap });
+                  }
+                }
+              }
+            }
+          }
+          return failures;
+        });
+        assert.deepEqual(failures, []);
+      } finally {
+        await preview.close();
+      }
+    });
+    await t.test("controls stay visible while scrolling and bottom credits follow the buttons", async () => {
+      const preview = await browser.newPage({ viewport: { width: 640, height: 400 } });
+      try {
+        await preview.addStyleTag({ path: path.join(__dirname, "../json.css") });
+        await preview.addStyleTag({ path: path.join(__dirname, "../json.light.css") });
+        await preview.addScriptTag({ path: path.join(__dirname, "../json.js") });
+        for (const owner of ["page", "parent", "viewer"]) {
+          for (const controlsPosition of ["top", "bottom"]) {
+            for (const controlsCompact of [false, true]) {
+              await preview.evaluate(
+                ({ owner, controlsPosition, controlsCompact }) => {
+                  document.body.textContent = "";
+                  document.body.style.margin = "0";
+                  const host = document.createElement("div");
+                  host.id = "scroll-host";
+                  host.style.width = "240px";
+                  if (owner === "parent") host.style.cssText += "; height: 320px; overflow: auto;";
+                  const root = document.createElement("pre");
+                  root.id = "viewer";
+                  if (owner === "viewer") root.style.cssText = "height: 320px; overflow: auto;";
+                  host.appendChild(root);
+                  document.body.appendChild(host);
+                  byJSONviewer(
+                    root,
+                    Array.from({ length: 70 }, (_, index) => ({ property: index, description: "A paragraph that makes this viewer scroll." })),
+                    { controlsPosition, controlsCompact, chunkLatency: 0 }
+                  );
+                  window.scrollOwner = owner === "page" ? document.scrollingElement : owner === "parent" ? host : root;
+                },
+                { owner, controlsPosition, controlsCompact }
+              );
+              await preview.waitForFunction(() => document.querySelectorAll("li").length >= 70);
+              for (const fraction of [0, 0.5, 1]) {
+                await preview.evaluate((fraction) => {
+                  scrollOwner.scrollTop = (scrollOwner.scrollHeight - scrollOwner.clientHeight) * fraction;
+                }, fraction);
+                const result = await preview.evaluate(
+                  async ({ owner, controlsPosition }) => {
+                    await new Promise((resolve) => requestAnimationFrame(resolve));
+                    const root = document.getElementById("viewer");
+                    const toolbar = root.querySelector(".byVIEWtoolbar").getBoundingClientRect();
+                    const controls = root.querySelector(".byVIEWcontrols").getBoundingClientRect();
+                    const info = root.querySelector(".byVIEWinfo").getBoundingClientRect();
+                    const port =
+                      owner === "page"
+                        ? { top: 0, bottom: innerHeight }
+                        : {
+                            top: scrollOwner.getBoundingClientRect().top + scrollOwner.clientTop,
+                            bottom: scrollOwner.getBoundingClientRect().top + scrollOwner.clientTop + scrollOwner.clientHeight
+                          };
+                    const sameRow = info.top < controls.bottom && info.bottom > controls.top;
+                    const creditsOrdered = controlsPosition !== "bottom" || sameRow || info.top >= controls.bottom - 1;
+                    const clickable = [...root.querySelectorAll("button")].every((button) => {
+                      const rect = button.getBoundingClientRect();
+                      return button.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+                    });
+                    return { scrollable: scrollOwner.scrollHeight > scrollOwner.clientHeight, visible: toolbar.top >= port.top - 1 && toolbar.bottom <= port.bottom + 1, creditsOrdered, clickable };
+                  },
+                  { owner, controlsPosition }
+                );
+                assert.deepEqual(result, { scrollable: true, visible: true, creditsOrdered: true, clickable: true }, `${owner}, ${controlsPosition}, compact=${controlsCompact}, scroll=${fraction}`);
+              }
+            }
+          }
+        }
+      } finally {
+        await preview.close();
       }
     });
     await t.test("narrow viewers keep controls above content within host widths", async () => {

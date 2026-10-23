@@ -1,7 +1,9 @@
 /* byuwur was here */
 .byJSONdocument {
   position: relative;
-  --by-view-toggle-position: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  --by-view-toggle-position: 0.125em;
   --by-view-muted: #bbb;
   --by-view-bg: #eee;
   --by-json-text: #222;
@@ -16,7 +18,7 @@
   color: var(--by-json-text);
   box-sizing: border-box;
   margin: 0;
-  padding: 2rem 1.5rem 1rem max(1.5rem, 1.5em);
+  padding: 0 1rem 0.75rem max(1.5rem, 1.5em);
   border: 0.0625rem solid var(--by-json-border);
   min-height: 6rem;
   white-space: pre-wrap;
@@ -30,6 +32,10 @@
 }
 .byJSONdocument.byJSONmonospace {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+}
+.byJSONcontent {
+  flex: 1 0 auto;
+  min-width: 0;
 }
 .byJSONstring {
   color: var(--by-json-string);
@@ -80,107 +86,147 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
-.byJSONdocument > .byVIEWcontrols {
+.byJSONdocument > .byVIEWtoolbar {
+  position: sticky;
+  flex-shrink: 0;
+  top: 0;
+  z-index: 1;
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5em;
+  margin: 0;
+  padding: 0.5rem 0;
+  background: var(--by-view-bg);
+  font:
+    0.875rem/1.25 system-ui,
+    sans-serif;
   white-space: normal;
 }
-.byJSONdocument > .byVIEWinfo {
-  position: absolute;
-  top: 0.5rem;
-  right: 1rem;
-  font-size: 0.625rem;
-  line-height: 1;
-  text-align: right;
-  white-space: nowrap;
-  opacity: 0.25;
+.byJSONdocument > .byVIEWtoolbar[data-size="small"] {
+  font-size: 0.7rem;
 }
-.byJSONdocument > .byVIEWinfo a {
+.byJSONdocument > .byVIEWtoolbar[data-size="large"] {
+  font-size: 1rem;
+}
+.byJSONdocument.byVIEWbottom {
+  padding-top: 0.75rem;
+  padding-bottom: 0;
+}
+.byJSONdocument.byVIEWcompact > .byVIEWtoolbar {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.byJSONdocument.byVIEWbottom > .byVIEWtoolbar {
+  top: auto;
+  bottom: 0;
+  flex-direction: column-reverse;
+}
+.byJSONdocument.byVIEWcompact.byVIEWbottom > .byVIEWtoolbar {
+  flex-direction: row;
+  flex-wrap: wrap-reverse;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo {
+  max-width: 100%;
+  color: var(--by-view-muted);
+  font-size: 0.8em;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.byJSONdocument.byVIEWcompact > .byVIEWtoolbar .byVIEWinfo {
+  flex: 1 1 auto;
+  text-align: left;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo a {
   color: inherit;
   text-decoration: none;
 }
-.byJSONdocument > .byVIEWinfo a:hover,
-.byJSONdocument > .byVIEWinfo a:focus-visible {
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo a:hover,
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo a:focus-visible {
   text-decoration: underline;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWfontSizes {
+.byJSONdocument > .byVIEWtoolbar .byVIEWcontrols {
   display: flex;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5em;
+  margin-left: auto;
+  max-width: 100%;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWfontSize,
-.byJSONdocument > .byVIEWcontrols .byVIEWcopy {
-  width: 2rem;
-  height: 1.75rem;
-  padding: 0.25rem;
-  border: 0.0625rem solid currentColor;
-  border-radius: 0.25rem;
+.byJSONdocument > .byVIEWtoolbar button {
+  flex-shrink: 0;
+  min-width: 2em;
+  height: 1.75em;
+  margin: 0;
+  padding: 0.25em 0.5em;
+  border: 1px solid currentColor;
+  border-radius: 0.25em;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.875rem;
   line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWfontSize:disabled,
-.byJSONdocument > .byVIEWcontrols .byVIEWcopy:disabled {
+.byJSONdocument > .byVIEWtoolbar button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWcopy {
-  width: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-.byJSONdocument > .byVIEWcontrols .byVIEWcopy svg {
-  width: 1rem;
-  height: 1rem;
-  fill: currentColor;
-}
-.byJSONdocument > .byVIEWcontrols button:focus-visible {
+.byJSONdocument > .byVIEWtoolbar button:focus-visible {
   outline: 0.125rem solid currentColor;
   outline-offset: 0.125rem;
 }
-.byJSONdocument > .byVIEWinfo + *,
-.byJSONdocument > .byVIEWcontrols + * {
-  margin-top: 0 !important;
+.byJSONdocument > .byVIEWtoolbar .byVIEWfontSizes {
+  display: flex;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
-  font-variant-emoji: text !important;
-  white-space: nowrap !important;
+.byJSONdocument > .byVIEWtoolbar .byVIEWfontSize {
+  width: 2em;
+  padding: 0.25em;
+  border-radius: 0;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWfontSize + .byVIEWfontSize {
+  margin-left: -1px;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWfontSize:first-child {
+  border-radius: 0.25em 0 0 0.25em;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWfontSize:last-child {
+  border-radius: 0 0.25em 0.25em 0;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWcopy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375em;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWcopy svg {
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWthemeToggle {
   position: relative;
-  flex-shrink: 0;
-  width: 3rem;
-  height: 1.5rem;
-  padding: 0.25rem;
-  margin: 0;
-  border: 0.0625rem solid currentColor;
-  border-radius: 1rem;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 1.25rem;
-  line-height: 1rem;
-  letter-spacing: 0rem;
-  text-align: justify;
-  cursor: pointer;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  place-items: center;
+  width: 3.25em;
+  padding: 0.125em;
+  border-radius: 2em;
+  font-family: ui-monospace, monospace;
+  font-variant-emoji: text;
 }
-.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle::after {
+.byJSONdocument > .byVIEWtoolbar .byVIEWthemeToggle span {
+  font-size: 1.25em;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWthemeToggle::after {
   content: "";
   position: absolute;
-  top: 0.2rem;
+  top: 0.125em;
   left: var(--by-view-toggle-position);
-  width: 1rem;
-  height: 1rem;
+  width: calc(1.5em - 2px);
+  height: calc(1.5em - 2px);
   border-radius: 50%;
   background: currentColor;
-  transition: left 0.3s;
+  transition: left 0.2s;
 }

@@ -40,19 +40,22 @@ The landing page's **Copy HTML** and **Download HTML** use its displayed starter
 
 Pass options as the third argument:
 
-| Option             | Default | Meaning                                                                     |
-| ------------------ | ------- | --------------------------------------------------------------------------- |
-| `collapsed`        | `false` | Collapse nodes initially.                                                   |
-| `rootCollapsible`  | `true`  | Allow the root object/array to collapse.                                    |
-| `withQuotes`       | `true`  | Quote object keys.                                                          |
-| `withLinks`        | `true`  | Link `http`, `https`, `ftp`, and `ftps` URLs.                               |
-| `bigNumbers`       | `false` | Use compatible big-number objects' string representation.                   |
-| `forceMonospace`   | `false` | Force a system monospace font when the target is not a `<pre>`.             |
-| `chunkSize`        | `1000`  | Elements per chunk; invalid/nonpositive values use the default.             |
-| `chunkLatency`     | `25`    | Milliseconds between chunks; invalid/negative values use the default.       |
-| `themeToggle`      | `true`  | Show a theme toggle.                                                        |
-| `fontSizeControls` | `true`  | Show A-/A+ controls.                                                        |
-| `copyButton`       | `true`  | Show a button to copy the complete JSON, including collapsed/pending nodes. |
+| Option             | Default     | Meaning                                                                            |
+| ------------------ | ----------- | ---------------------------------------------------------------------------------- |
+| `collapsed`        | `false`     | Collapse nodes initially.                                                          |
+| `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                           |
+| `withQuotes`       | `true`      | Quote object keys.                                                                 |
+| `withLinks`        | `true`      | Link `http`, `https`, `ftp`, and `ftps` URLs.                                      |
+| `bigNumbers`       | `false`     | Use compatible big-number objects' string representation.                          |
+| `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                    |
+| `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                    |
+| `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.              |
+| `themeToggle`      | `true`      | Show a theme toggle.                                                               |
+| `fontSizeControls` | `true`      | Show A-/A+ controls.                                                               |
+| `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.        |
+| `controlsSize`     | `"regular"` | Button size: `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`. |
+| `controlsCompact`  | `false`     | Put attribution beside the controls, wrapping when space is limited.               |
+| `controlsPosition` | `"top"`     | Toolbar position: `"top"` or `"bottom"`; invalid values use `"top"`.               |
 
 `<pre>` elements use a monospace font by default. Enable `forceMonospace` if you use another element, such as `<div>`, as your `.byJSONdocument`.
 
@@ -60,9 +63,9 @@ Smaller chunks improve responsiveness; lower latency starts the next chunk soone
 
 Copy uses two-space-indented JSON. BigInt and compatible big-number values are copied as decimal strings to preserve precision. Copy requires browser clipboard access in a secure context; the button reports failure if access is unavailable or denied.
 
-Each viewer shows a semi-transparent GitHub link, version, and author portfolio link at the top right. Read the library version with `byJSONviewer.VERSION`.
+Each toolbar shows a GitHub link, version, and author portfolio link in a muted theme color. Read the library version with `byJSONviewer.VERSION`.
 
-Controls wrap above the content on narrow viewers.
+Controls stay visible at the selected edge of the page or nearest scrolling container while the viewer is in view. Their opaque background follows the viewer theme. Bottom toolbars put credits below the buttons when stacked. For a compact header, use `{ controlsSize: "small", controlsCompact: true, controlsPosition: "top" }`. Button size is independent of the document text size.
 
 Wrapped JSON lines use tighter spacing than the gap between properties or array entries.
 

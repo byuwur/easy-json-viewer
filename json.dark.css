@@ -1,6 +1,6 @@
 /* byuwur was here */
 .byJSONdocument {
-  --by-view-toggle-position: 1.7rem;
+  --by-view-toggle-position: calc(100% - 1.625em + 2px);
   --by-view-muted: #444;
   --by-view-bg: #222;
   --by-json-text: #eee;

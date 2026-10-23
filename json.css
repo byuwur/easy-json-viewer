@@ -1,10 +1,23 @@
 /* byuwur was here */
 .byJSONdocument {
   position: relative;
+  --by-view-toggle-position: 0.2rem;
+  --by-view-muted: #bbb;
+  --by-view-bg: #eee;
+  --by-json-text: #222;
+  --by-json-border: #bcd;
+  --by-json-string: #070;
+  --by-json-literal: #11c;
+  --by-json-nest-border: 0.0625rem dotted #bbb;
+  --by-json-toggle: #999;
+  --by-json-toggle-hover: #666;
+  --by-json-placeholder: #aaa;
+  background: var(--by-view-bg);
+  color: var(--by-json-text);
   box-sizing: border-box;
   margin: 0;
   padding: 2rem 1.5rem 1rem 2rem;
-  border: 0.0625rem solid currentColor;
+  border: 0.0625rem solid var(--by-json-border);
   min-height: 6rem;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -18,15 +31,17 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
 }
 .byJSONstring {
-  color: inherit;
+  color: var(--by-json-string);
 }
 .byJSONliteral {
+  color: var(--by-json-literal);
   font-weight: bold;
 }
 .byJSONnest {
   list-style: none;
   margin: 0;
   padding-left: 2em;
+  border-left: var(--by-json-nest-border);
 }
 .byJSONnest.collapsed {
   display: none;
@@ -38,6 +53,7 @@
 }
 .byJSONtoggle:before {
   content: "\25BC";
+  color: var(--by-json-toggle);
   position: absolute;
   left: -1.25em;
   display: inline-block;
@@ -48,7 +64,7 @@
   transition: transform 0.333s;
 }
 .byJSONtoggle:hover:before {
-  color: currentColor;
+  color: var(--by-json-toggle-hover);
 }
 .byJSONtoggle.collapsed:before {
   transform: rotate(-90deg);
@@ -56,6 +72,7 @@
 .byJSONplaceholder {
   display: none;
   padding: 0 1em;
+  color: var(--by-json-placeholder);
 }
 .byJSONplaceholder.collapsed {
   display: inline;
@@ -157,6 +174,7 @@
   content: "";
   position: absolute;
   top: 0.2rem;
+  left: var(--by-view-toggle-position);
   width: 1rem;
   height: 1rem;
   border-radius: 50%;

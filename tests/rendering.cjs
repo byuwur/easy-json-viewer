@@ -488,19 +488,18 @@ test("JSON rendering", async (t) => {
       });
       assert.deepEqual(layout, { width: 240, overflow: false, contained: true, aboveContent: true });
     });
-    await t.test("unthemed strings inherit the host text color", async () => {
-      const readable = await page.evaluate(() => {
+    await t.test("strings use the light palette by default", async () => {
+      const color = await page.evaluate(() => {
         const root = document.createElement("div");
-        root.style.color = "rgb(12, 34, 56)";
         document.body.appendChild(root);
         try {
           byJSONviewer(root, "Content", { themeToggle: false, fontSizeControls: false, copyButton: false });
-          return getComputedStyle(root.querySelector(".byJSONstring")).color === getComputedStyle(root).color;
+          return getComputedStyle(root.querySelector(".byJSONstring")).color;
         } finally {
           root.remove();
         }
       });
-      assert.equal(readable, true);
+      assert.equal(color, "rgb(0, 119, 0)");
     });
     await t.test("text controls follow root size changes, preserve host defaults, and enforce limits", async () => {
       const sizes = await page.evaluate(() => {

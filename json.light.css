@@ -1,30 +1,14 @@
 /* byuwur was here */
 .byJSONdocument {
-  background: #eee;
-  color: #222;
-  border: 0.0625rem solid #bcd;
-}
-.byJSONstring {
-  color: #070;
-}
-.byJSONliteral {
-  color: #11c;
-}
-.byJSONnest {
-  border-left: 0.0625rem dotted #bbb;
-}
-.byJSONtoggle:before {
-  color: #999;
-}
-.byJSONtoggle:hover:before {
-  color: #666;
-}
-.byJSONplaceholder {
-  color: #aaa;
-}
-.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle {
-  color: #111;
-}
-.byJSONdocument > .byVIEWcontrols .byVIEWthemeToggle::after {
-  left: 0.2rem;
+  --by-view-toggle-position: 0.2rem;
+  --by-view-muted: #bbb;
+  --by-view-bg: #eee;
+  --by-json-text: #222;
+  --by-json-border: #bcd;
+  --by-json-string: #070;
+  --by-json-literal: #11c;
+  --by-json-nest-border: 0.0625rem dotted #bbb;
+  --by-json-toggle: #999;
+  --by-json-toggle-hover: #666;
+  --by-json-placeholder: #aaa;
 }

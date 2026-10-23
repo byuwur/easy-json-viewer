@@ -842,7 +842,61 @@ test("JSON rendering", async (t) => {
       await playground.locator("#forceMonospace").check();
       assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, true);
       assert.ok(await renderer.evaluate((root) => getComputedStyle(root).fontFamily.includes("monospace")));
+      await playground.locator("#controlsSize-small").evaluate((input) => input.click());
+      await playground.locator("#controlsCompact").check();
+      await playground.locator("#controlsPosition-bottom").evaluate((input) => input.click());
+      assert.deepEqual(await renderer.evaluate((root) => [root.lastElementChild.dataset.size, root.classList.contains("byVIEWcompact"), root.classList.contains("byVIEWbottom")]), ["small", true, true]);
+      const selected = JSON.parse(await playground.locator("#options-json").inputValue());
+      assert.deepEqual([selected.controlsSize, selected.controlsCompact, selected.controlsPosition], ["small", true, "bottom"]);
+      await playground.locator("#controlsCompact").uncheck();
+      await playground.locator("#controlsSize-regular").evaluate((input) => input.click());
+      const originalSource = await playground.locator("#json-source").inputValue();
+      await playground.locator("#json-source").fill(JSON.stringify(Array.from({ length: 70 }, (_, index) => ({ index, value: "Scrollable preview" }))));
+      await renderer.locator("li").nth(69).waitFor();
+      for (const compact of [false, true]) {
+        await playground.locator("#controlsCompact").evaluate((input, compact) => {
+          if (input.checked !== compact) input.click();
+        }, compact);
+        for (const position of ["bottom", "top"]) {
+          await playground.locator(`#controlsPosition-${position}`).evaluate((input) => input.click());
+          await renderer.locator("li").nth(209).waitFor();
+          for (const fraction of [0, 0.5, 1]) {
+            const visible = await renderer.evaluate(
+              async (root, { fraction, position }) => {
+                const view = root.ownerDocument.defaultView;
+                const scroller = root.ownerDocument.scrollingElement;
+                scroller.scrollTop = (scroller.scrollHeight - scroller.clientHeight) * fraction;
+                await new Promise((resolve) => view.requestAnimationFrame(resolve));
+                const toolbar = root.querySelector(".byVIEWtoolbar");
+                const bounds = toolbar.getBoundingClientRect();
+                const controls = root.querySelector(".byVIEWcontrols").getBoundingClientRect();
+                const credits = root.querySelector(".byVIEWinfo").getBoundingClientRect();
+                const button = root.querySelector(".byVIEWcopy");
+                const rect = button.getBoundingClientRect();
+                return {
+                  scrollable: scroller.scrollHeight > scroller.clientHeight,
+                  visible: bounds.top >= 0 && bounds.bottom <= view.innerHeight,
+                  pinned: Math.abs(position === "top" ? bounds.top : view.innerHeight - bounds.bottom) < 1,
+                  creditsOrdered: position !== "bottom" || credits.top >= controls.bottom || (credits.top < controls.bottom && credits.bottom > controls.top),
+                  opaque: getComputedStyle(toolbar).backgroundColor === getComputedStyle(root).backgroundColor,
+                  clickable: button.contains(root.ownerDocument.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2))
+                };
+              },
+              { fraction, position }
+            );
+            assert.deepEqual(visible, { scrollable: true, visible: true, pinned: true, creditsOrdered: true, opaque: true, clickable: true }, `Playground iframe: ${position}, compact=${compact}, scroll=${fraction}`);
+          }
+        }
+      }
+      await renderer.evaluate((root) => {
+        root.ownerDocument.scrollingElement.scrollTop = 0;
+      });
+      await playground.locator("#json-source").fill(originalSource);
+      await renderer.locator(".byJSONstring").filter({ hasText: "easy-json-viewer" }).first().waitFor();
       await playground.locator("#reset-settings").click();
+      assert.equal(await playground.locator("#controlsSize-regular").isChecked(), true);
+      assert.equal(await playground.locator("#controlsCompact").isChecked(), false);
+      assert.equal(await playground.locator("#controlsPosition-top").isChecked(), true);
       assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
       assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, false);
       assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
@@ -852,6 +906,7 @@ test("JSON rendering", async (t) => {
       await playground.locator("#json-source").fill(source);
       await playground.locator("#withLinks").uncheck();
       await playground.locator("#theme-light").check();
+      assert.equal(await renderer.locator(".byVIEWthemeToggle").textContent(), "\u263E\uFE0E \u2600\uFE0E");
       assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
       await playground.locator('[data-install="local"]').click();
       const code = await playground.locator("#integration-code").inputValue();

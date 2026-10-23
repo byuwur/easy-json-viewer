@@ -165,6 +165,29 @@
                         <div class="form-switch"><input class="form-check-input" id="themeToggle" type="checkbox" role="switch" checked /><label class="option-label" for="themeToggle">Theme switch</label></div>
                         <div class="form-switch"><input class="form-check-input" id="fontSizeControls" type="checkbox" role="switch" checked /><label class="option-label" for="fontSizeControls">Text size controls</label></div>
                         <div class="form-switch"><input class="form-check-input" id="copyButton" type="checkbox" role="switch" checked /><label class="option-label" for="copyButton">Copy button</label></div>
+                        <div class="form-switch"><input class="form-check-input" id="controlsCompact" type="checkbox" role="switch" /><label class="option-label" for="controlsCompact">Compact controls</label></div>
+                        <div class="row g-2 mt-3">
+                          <fieldset class="col-6" id="controlsSize">
+                            <legend class="option-label small mb-2">Controls Size</legend>
+                            <div class="btn-group w-100" role="group" aria-label="Control size">
+                              <input class="btn-check" id="controlsSize-small" name="controlsSize" type="radio" value="small" aria-label="Small controls" />
+                              <label class="btn btn-quiet btn-sm flex-fill" for="controlsSize-small" title="Small" data-bs-toggle="tooltip" data-bs-placement="bottom">a</label>
+                              <input class="btn-check" id="controlsSize-regular" name="controlsSize" type="radio" value="regular" aria-label="Regular controls" checked />
+                              <label class="btn btn-quiet btn-sm flex-fill" for="controlsSize-regular" title="Regular" data-bs-toggle="tooltip" data-bs-placement="bottom">Aa</label>
+                              <input class="btn-check" id="controlsSize-large" name="controlsSize" type="radio" value="large" aria-label="Large controls" />
+                              <label class="btn btn-quiet btn-sm flex-fill" for="controlsSize-large" title="Large" data-bs-toggle="tooltip" data-bs-placement="bottom">A</label>
+                            </div>
+                          </fieldset>
+                          <fieldset class="col-6" id="controlsPosition">
+                            <legend class="option-label small mb-2">Controls Position</legend>
+                            <div class="btn-group w-100" role="group" aria-label="Controls position">
+                              <input class="btn-check" id="controlsPosition-top" name="controlsPosition" type="radio" value="top" aria-label="Top controls" checked />
+                              <label class="btn btn-quiet btn-sm flex-fill" for="controlsPosition-top" title="Top" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i></label>
+                              <input class="btn-check" id="controlsPosition-bottom" name="controlsPosition" type="radio" value="bottom" aria-label="Bottom controls" />
+                              <label class="btn btn-quiet btn-sm flex-fill" for="controlsPosition-bottom" title="Bottom" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i></label>
+                            </div>
+                          </fieldset>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -725,6 +748,9 @@
           themeToggle: true,
           fontSizeControls: true,
           copyButton: true,
+          controlsSize: "regular",
+          controlsCompact: false,
+          controlsPosition: "top",
           withLinks: true,
           collapsed: false,
           rootCollapsible: true,
@@ -808,6 +834,16 @@
         const monospaceHelp = document.getElementById("monospace-help");
         const monospacePopover = window.bootstrap?.Popover && typeof window.Popper?.createPopper === "function" ? bootstrap.Popover.getOrCreateInstance(monospaceHelp, { trigger: "focus", container: "body", animation: false }) : null;
         if (!monospacePopover) monospaceHelp.title = monospaceHelp.dataset.bsContent;
+        const controlTooltips = [];
+        if (window.bootstrap?.Tooltip && typeof window.Popper?.createPopper === "function") {
+          document.querySelectorAll('#viewer-options label[data-bs-toggle="tooltip"]').forEach((label) => {
+            const tooltip = bootstrap.Tooltip.getOrCreateInstance(label, { container: "body", trigger: "hover", animation: false });
+            const input = document.getElementById(label.htmlFor);
+            input.addEventListener("focus", () => tooltip.show());
+            input.addEventListener("blur", () => tooltip.hide());
+            controlTooltips.push(tooltip);
+          });
+        }
         monospaceHelp.addEventListener("keydown", (event) => {
           if (event.key === "Escape") monospacePopover?.hide();
         });
@@ -859,8 +895,8 @@
             return false;
           }
           for (const name of Object.keys(defaults)) {
-            const input = document.getElementById(name);
-            state.options[name] = input.type === "checkbox" ? input.checked : Number(input.value);
+            const input = configuration.elements.namedItem(name);
+            state.options[name] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
           }
           document.getElementById("config-status").textContent = "";
           applyButton.disabled = state.loading;
@@ -952,6 +988,15 @@
                 <base href="${base}" />
                 <link rel="stylesheet" href="json.css" />
                 <link id="byVIEWtheme" rel="stylesheet" href="json.dark.css" />
+                <style>
+                  body {
+                    margin: 0;
+                  }
+                  #byJSONrenderer {
+                    min-height: 100vh;
+                    border: 0;
+                  }
+                </style>
                 ${'<script src="json.js"><\/script>'}
               </head>
               <body>
@@ -1060,7 +1105,7 @@
         // =============
         function syncForm() {
           for (const [name, value] of Object.entries(state.options)) {
-            const input = document.getElementById(name);
+            const input = configuration.elements.namedItem(name);
             if (input.type === "checkbox") input.checked = value;
             else input.value = value;
           }
@@ -1260,6 +1305,7 @@
         // =============
         window.addEventListener("pagehide", () => {
           monospacePopover?.hide();
+          controlTooltips.forEach((tooltip) => tooltip.hide());
           state.request?.abort();
           clearTimeout(state.editTimer);
           state.observer?.disconnect();

@@ -9,9 +9,9 @@ Try [GitHub Pages](https://byuwur.github.io/easy-json-viewer/) or [CodePen](http
 ## Installation
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.11/json.min.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.11/json.light.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.11/json.min.js" defer></script>
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.min.css" rel="stylesheet" />
+<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.light.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.min.js" defer></script>
 ```
 
 For local use, save `json.js`, `json.css`, and `json.light.css` beside your HTML and use those paths. Omit the CDN version only when testing development changes; pinned URLs need a new release to receive fixes.

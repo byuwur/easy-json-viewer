@@ -511,6 +511,6 @@
     appendViewerControls(element, normalizedOptions, "json", json);
   }
   global.byJSONviewer = byJSONviewer;
-  byJSONviewer.VERSION = "2.11"; // 2026-10-18
+  byJSONviewer.VERSION = "2.12"; // 2026-10-23
   global.byJSONviewer.initialized = true;
 })(typeof window !== "undefined" ? window : this);

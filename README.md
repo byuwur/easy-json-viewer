@@ -8,20 +8,26 @@ Try [GitHub Pages](https://byuwur.github.io/easy-json-viewer/) or [CodePen](http
 
 ## Installation
 
+**Recommended: CDN.** No downloads or package manager.
+
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.min.css" rel="stylesheet" />
-<link id="byVIEWtheme" href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.light.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@v2.12/json.min.js" defer></script>
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.js" defer></script>
 ```
 
-For local use, save `json.js`, `json.css`, and `json.light.css` beside your HTML and use those paths. Omit the CDN version only when testing development changes; pinned URLs need a new release to receive fixes.
+The CDN example tracks `@main` and requires internet access. Use a published tag or commit to pin a version.
+
+**Local files:** For offline use, save `json.js` and `json.css` beside your HTML:
+
+```html
+<link href="json.css" rel="stylesheet" />
+<script src="json.js" defer></script>
+```
 
 ## Usage
 
-After the installation above:
-
 ```html
-<pre id="byJSONrenderer"></pre>
+<pre id="byJSONrenderer" data-theme="light"></pre>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const data = { name: "John Dough", projects: ["easy-json-viewer"], active: true };
@@ -30,11 +36,9 @@ After the installation above:
 </script>
 ```
 
-The target and library must exist before calling the viewer; `DOMContentLoaded` waits for the deferred library.
-
 Pass a JavaScript value: object, array, string, number, boolean, `null`, `bigint`, or a compatible big-number object. Parse JSON text with `JSON.parse()` first.
 
-The landing page's **Copy HTML** and **Download HTML** use its displayed starter and default settings, independently of the playground. CDN/local tabs also control those exports; CDN files need internet, local files must stay beside the saved HTML.
+Exported HTML starters use default settings, independently of playground changes.
 
 ## Options
 
@@ -50,7 +54,7 @@ Pass options as the third argument:
 | `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                    |
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                    |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.              |
-| `themeToggle`      | `true`      | Show a theme toggle.                                                               |
+| `themeToggle`      | `true`      | Show the theme toggle.                                                      |
 | `fontSizeControls` | `true`      | Show A-/A+ controls.                                                               |
 | `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.        |
 | `controlsSize`     | `"regular"` | Button size: `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`. |
@@ -71,11 +75,62 @@ Wrapped JSON lines use tighter spacing than the gap between properties or array 
 
 ## Themes
 
-`json.css` contains the styling rules and light defaults. Theme files only override CSS variables on `.byJSONdocument`.
+`json.css` includes all palettes in Light and Dark. Monokai is the default.
 
-The toggle uses a compatible `#byVIEWtheme` or finds a stylesheet named `json.light.css`/`json.dark.css`, preserving its path, query, and hash. Theme changes apply to all JSON viewers using that stylesheet. Switch that stylesheet manually to select a theme.
+| Palette           | `data-theme`    | What it looks like                                                |
+| ----------------- | --------------- | ----------------------------------------------------------------- |
+| Monokai (default) | `monokai`       | Warm light and dark colors.                                       |
+| GitHub            | `github`        | Familiar neutral surfaces and syntax colors.                      |
+| Solarized         | `solarized`     | Warm light or deep blue-green dark surfaces.                      |
+| High Contrast     | `high-contrast` | Black/white surfaces, strong text, borders, and focus indicators. |
 
-A-/A+ adjust only this viewer by `0.125rem`, within `0.5rem`–`3rem`. Size survives re-rendering and works without a theme stylesheet.
+Use a mode class and a palette name together:
+
+```html
+<div id="viewer" class="dark" data-theme="github"></div>
+<!-- High Contrast Light: class="light" data-theme="high-contrast" -->
+<!-- High Contrast Dark: class="dark" data-theme="high-contrast" -->
+```
+
+Rendering adds `.byJSONdocument`; its variables affect only that container and its children. The theme switch changes mode while keeping the palette; re-rendering preserves both. A named palette without a mode class starts in Light; if both mode classes are present, Dark wins.
+
+`data-theme="light"` and `data-theme="dark"` select Monokai and override mode classes. A mode class alone, or no explicit theme, also uses Monokai.
+
+### High Contrast
+
+High Contrast text colors target at least [7:1 contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html), with [3:1 contrast for control boundaries and focus cues](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html). Check contrast again when you override colors.
+
+### Make it yours
+
+Define a named palette after the viewer stylesheet. Unspecified colors inherit Monokai:
+
+```css
+.byJSONdocument.light[data-theme="ocean"] {
+  --by-view-bg: #f3f8fc;
+  --by-json-text: #102a43;
+  --by-json-border: #486581;
+  --by-json-string: #005a9c;
+}
+
+.byJSONdocument.dark[data-theme="ocean"] {
+  --by-view-bg: #102a43;
+  --by-json-text: #f0f6fc;
+  --by-json-border: #9fb3c8;
+  --by-json-string: #8cd3ff;
+}
+```
+
+```html
+<div id="viewer" class="dark" data-theme="ocean"></div>
+```
+
+Named palettes need no JavaScript registration or extra theme files.
+
+Text-size controls change only this viewer, in `0.125rem` steps from `0.5rem` to `3rem`, independently of button size. **A** restores its initial size; re-rendering preserves the selected size.
+
+### Legacy theme links
+
+Legacy integrations can use `#byVIEWtheme` or a detected `json.light.css` / `json.dark.css` link. The toggle keeps its path, query, and hash and updates viewers sharing the link. Explicit container themes stay independent. The separate theme files remain available for legacy integrations.
 
 ## Checks
 

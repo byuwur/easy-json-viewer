@@ -13,6 +13,15 @@ const legacyThemeCSS = (theme) => {
   return `.byJSONdocument {${section.match(/\{([\s\S]*?)\}/)[1]}}`;
 };
 
+let bootstrapCSS;
+const getBootstrapCSS = () =>
+  (bootstrapCSS ??= (async () => {
+    if (process.env.BOOTSTRAP_CSS_PATH) return require("node:fs/promises").readFile(process.env.BOOTSTRAP_CSS_PATH, "utf8");
+    const response = await fetch("https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.6/css/bootstrap.min.css");
+    assert.ok(response.ok, "Unable to load pinned Bootstrap CSS");
+    return response.text();
+  })());
+
 test("JSON rendering", async (t) => {
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined
@@ -379,7 +388,11 @@ test("JSON rendering", async (t) => {
         const root = await page.evaluateHandle((tag) => {
           const root = document.createElement(tag);
           document.body.appendChild(root);
-          byJSONviewer(root, { features: ["Collapsible nodes", "Light & dark", "Progressive rendering"], author: { name: "BONYUR", philosophy: "Simple is complicated enough." } }, { chunkLatency: 0 });
+          byJSONviewer(
+            root,
+            { features: ["Collapsible nodes", "Light & dark", "Progressive rendering"], author: { name: "BONYUR", philosophy: "Simple is complicated enough." } },
+            { chunkLatency: 0 }
+          );
           return root;
         }, tag);
         try {
@@ -480,7 +493,8 @@ test("JSON rendering", async (t) => {
           const blur = currentButton.textContent === "Copy" && currentButton.getAttribute("aria-label") === currentButton.title;
           native = false;
           const copyCount = copies.length;
-          const failed = (await copy()).startsWith("Copy failed.") && root.querySelector(".byVIEWcopy").textContent === "Failed" && !root.querySelector(".byVIEWcopy").disabled && copies.length === copyCount;
+          const failed =
+            (await copy()).startsWith("Copy failed.") && root.querySelector(".byVIEWcopy").textContent === "Failed" && !root.querySelector(".byVIEWcopy").disabled && copies.length === copyCount;
           Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
           const unavailable = (await copy()).startsWith("Copy failed.") && !root.querySelector(".byVIEWcopy").disabled;
           Object.defineProperty(navigator, "clipboard", { configurable: true, value: clipboard });
@@ -512,6 +526,7 @@ test("JSON rendering", async (t) => {
       try {
         await themed.route("https://themes.test/**", async (route) => {
           const file = path.basename(new URL(route.request().url()).pathname);
+          if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
           const body = file === "other.dark.css" ? "" : await fs.readFile(path.join(__dirname, "..", file));
           await route.fulfill({ body, contentType: "text/css" });
         });
@@ -532,17 +547,22 @@ test("JSON rendering", async (t) => {
             const credits = getComputedStyle(root.querySelector(".byVIEWinfo"));
             return { matched: toolbar.backgroundColor === background, opaque: !toolbar.backgroundColor.includes("rgba"), color: credits.color, opacity: credits.opacity };
           });
-        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(187, 187, 187)", opacity: "0.25" });
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(138, 136, 117)", opacity: "0.25" });
         const background = await themed.locator("#first").evaluate((root) => getComputedStyle(root).backgroundColor);
         await themed.locator("#first .byVIEWthemeToggle").click();
         await themed.waitForFunction((before) => getComputedStyle(document.getElementById("first")).backgroundColor !== before, background);
-        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(68, 68, 68)", opacity: "0.25" });
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(117, 113, 94)", opacity: "0.25" });
         assert.equal(await themed.locator("#viewer-theme").getAttribute("href"), "https://themes.test/json.light.css/archive/json.dark.css?keep=json.light.css#json.light.css");
         assert.equal(await themed.locator("#byVIEWtheme").getAttribute("href"), "https://themes.test/other.dark.css");
-        assert.deepEqual(await themed.locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle").evaluateAll((buttons) => buttons.map((button) => [button.textContent, button.title, button.getAttribute("aria-label")])), [
-          ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"],
-          ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"]
-        ]);
+        assert.deepEqual(
+          await themed
+            .locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle")
+            .evaluateAll((buttons) => buttons.map((button) => [button.textContent, button.title, button.getAttribute("aria-label")])),
+          [
+            ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"],
+            ["\u263E\uFE0E \u2600\uFE0E", "Switch to light theme", "Switch to light theme"]
+          ]
+        );
         assert.equal(await themed.locator("#host-control").evaluate((button) => getComputedStyle(button, "::after").content), "none");
         await themed.locator("#viewer-theme").evaluate((link) => link.remove());
         await themed.evaluate(() => byJSONviewer(document.getElementById("first"), "Content", { fontSizeControls: false, copyButton: false }));
@@ -690,7 +710,6 @@ test("JSON rendering", async (t) => {
       const preview = await browser.newPage({ viewport: { width: 640, height: 400 } });
       try {
         await preview.addStyleTag({ path: path.join(__dirname, "../json.css") });
-        await preview.addStyleTag({ path: path.join(__dirname, "../json.light.css") });
         await preview.addScriptTag({ path: path.join(__dirname, "../json.js") });
         for (const owner of ["page", "parent", "viewer"]) {
           for (const controlsPosition of ["top", "bottom"]) {
@@ -841,15 +860,20 @@ test("JSON rendering", async (t) => {
         });
       });
       await playground.route("**/*", async (route) => {
+        if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.6/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
         const url = new URL(route.request().url());
         if (url.origin !== "https://viewer.test") return route.abort();
         const file = path.basename(url.pathname);
+        if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
         const body = await fs.readFile(path.join(__dirname, "..", file));
         await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
       });
       await playground.goto("https://viewer.test/index.html");
+      assert.ok((await playground.locator("#integration-code").inputValue()).includes('href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.css"'));
+      assert.equal(await playground.locator('[data-install="cdn"]').getAttribute("aria-pressed"), "true");
+      await playground.locator('[data-install="cdn"]').click();
       const cdnCode = await playground.locator("#integration-code").inputValue();
-      assert.ok(cdnCode.includes(`easy-json-viewer@v${version}/`));
+      assert.ok(cdnCode.includes("easy-json-viewer@main/"));
       const renderer = playground.frameLocator("#preview-frame").locator("#byJSONrenderer");
       await renderer.locator(".byJSONstring").first().waitFor();
       await renderer.evaluate((root) => {
@@ -866,7 +890,11 @@ test("JSON rendering", async (t) => {
       await playground.locator("#controlsSize-small").evaluate((input) => input.click());
       await playground.locator("#controlsCompact").check();
       await playground.locator("#controlsPosition-bottom").evaluate((input) => input.click());
-      assert.deepEqual(await renderer.evaluate((root) => [root.lastElementChild.dataset.size, root.classList.contains("byVIEWcompact"), root.classList.contains("byVIEWbottom")]), ["small", true, true]);
+      assert.deepEqual(await renderer.evaluate((root) => [root.lastElementChild.dataset.size, root.classList.contains("byVIEWcompact"), root.classList.contains("byVIEWbottom")]), [
+        "small",
+        true,
+        true
+      ]);
       const selected = JSON.parse(await playground.locator("#options-json").inputValue());
       assert.deepEqual([selected.controlsSize, selected.controlsCompact, selected.controlsPosition], ["small", true, "bottom"]);
       await playground.locator("#controlsCompact").uncheck();
@@ -905,7 +933,11 @@ test("JSON rendering", async (t) => {
               },
               { fraction, position }
             );
-            assert.deepEqual(visible, { scrollable: true, visible: true, pinned: true, creditsOrdered: true, opaque: true, clickable: true }, `Playground iframe: ${position}, compact=${compact}, scroll=${fraction}`);
+            assert.deepEqual(
+              visible,
+              { scrollable: true, visible: true, pinned: true, creditsOrdered: true, opaque: true, clickable: true },
+              `Playground iframe: ${position}, compact=${compact}, scroll=${fraction}`
+            );
           }
         }
       }
@@ -926,7 +958,7 @@ test("JSON rendering", async (t) => {
       const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
       await playground.locator("#json-source").fill(source);
       await playground.locator("#withLinks").uncheck();
-      await playground.locator("#theme-light").check();
+      await playground.locator('label[for="theme-light"]').click();
       assert.equal(await renderer.locator(".byVIEWthemeToggle").textContent(), "\u263E\uFE0E \u2600\uFE0E");
       assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
       await playground.locator('[data-install="local"]').click();
@@ -941,11 +973,11 @@ test("JSON rendering", async (t) => {
         });
       }
       const directory = await fs.mkdtemp(path.join(os.tmpdir(), "viewer-starter-"));
-      await Promise.all(["json.js", "json.css", "json.light.css", "json.dark.css"].map((file) => fs.copyFile(path.join(__dirname, "..", file), path.join(directory, file))));
+      await Promise.all(["json.js", "json.css"].map((file) => fs.copyFile(path.join(__dirname, "..", file), path.join(directory, file))));
       const exported = await browser.newPage();
       exported.on("pageerror", (error) => errors.push(error.message));
       await exported.route("https://cdn.jsdelivr.net/**", async (route) => {
-        const file = path.basename(new URL(route.request().url()).pathname).replace(".min.", ".");
+        const file = path.basename(new URL(route.request().url()).pathname);
         const body = await fs.readFile(path.join(__dirname, "..", file));
         if (file.endsWith(".js")) await new Promise((resolve) => setTimeout(resolve, 75));
         await route.fulfill({ body, contentType: file.endsWith(".js") ? "text/javascript" : "text/css" });
@@ -962,7 +994,7 @@ test("JSON rendering", async (t) => {
           await playground.locator("#copy-code").click();
           assert.equal(await playground.evaluate(() => window.copiedHTML), displayed);
           const [download] = await Promise.all([playground.waitForEvent("download"), playground.locator("#download-html").click()]);
-          assert.equal(download.suggestedFilename(), "my-json-viewer.html");
+          assert.equal(download.suggestedFilename(), "easy-json-viewer.html");
           const file = path.join(directory, download.suggestedFilename());
           await download.saveAs(file);
           const html = await fs.readFile(file, "utf8");
@@ -979,13 +1011,10 @@ test("JSON rendering", async (t) => {
           });
           assert.equal(await exported.locator("head script[src][defer]").count(), 1);
           assert.equal(await exported.locator("body script[src], body link[rel='stylesheet']").count(), 0);
-          assert.equal(
-            await exported
-              .locator("#byVIEWtheme")
-              .getAttribute("href")
-              .then((href) => href.endsWith("json.dark.css")),
-            true
-          );
+          assert.equal(await exported.locator("#viewer").getAttribute("data-theme"), "dark");
+          assert.equal(await exported.locator("#byVIEWtheme").count(), 0);
+          assert.equal(await exported.locator('head link[rel="stylesheet"]').count(), 1);
+          assert.doesNotMatch(html, /\.(light|dark)\.css|\.min\.(css|js)/);
           const background = await exported.locator("#viewer").evaluate((element) => getComputedStyle(element).backgroundColor);
           await exported.locator(".byVIEWthemeToggle").click();
           await exported.waitForFunction((before) => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
@@ -1012,18 +1041,166 @@ test("JSON rendering", async (t) => {
       assert.deepEqual(errors, []);
       await playground.close();
     });
-    await t.test("legacy demo loads styles and deferred scripts from the head", async () => {
-      const html = await fs.readFile(path.join(__dirname, "..", "index.old.html"), "utf8");
-      const structure = await page.evaluate((html) => {
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        return { themes: doc.querySelectorAll("head #byVIEWtheme").length, libraries: doc.querySelectorAll("head script[src][defer]").length, bodyAssets: doc.querySelectorAll("body script[src], body link[rel='stylesheet']").length };
-      }, html);
-      assert.deepEqual(structure, { themes: 1, libraries: 1, bodyAssets: 0 });
-    });
   } finally {
     await browser.close();
   }
 });
+
+test("family customization, navigation and monospace controls", async () => {
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined, channel: process.env.BROWSER_CHANNEL || undefined });
+  try {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.addInitScript(() =>
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (text) => {
+            window.lastCopy = text;
+          }
+        }
+      })
+    );
+    await page.route("**/*", async (route) => {
+      if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.6/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
+      const url = new URL(route.request().url());
+      if (url.origin !== "https://viewer.test") return route.abort();
+      const file = path.basename(url.pathname);
+      if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
+      return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
+    });
+    await page.goto("https://viewer.test/index.html");
+    const frame = page.frames().find((candidate) => candidate.parentFrame());
+    await frame.waitForSelector(".byVIEWtoolbar");
+    assert.equal(await page.locator("#controlsCompact").isChecked(), true);
+    assert.equal(JSON.parse(await page.locator("#options-json").inputValue()).controlsCompact, true);
+    assert.equal(await frame.locator(".byJSONdocument").evaluate((root) => root.classList.contains("byVIEWcompact")), true);
+    assert.deepEqual(await frame.evaluate(async (source) => {
+      const host = document.createElement("div");
+      document.body.append(host);
+      const states = [];
+      let controller;
+      try {
+        for (const options of [undefined, { controlsCompact: false }, { controlsCompact: true }, undefined]) {
+          controller = byJSONviewer(host, source, options);
+          await controller?.ready;
+          states.push(host.classList.contains("byVIEWcompact"));
+        }
+        controller = byJSONviewer(host, source, { themeToggle: false, fontSizeControls: false, copyButton: false });
+        await controller?.ready;
+        states.push(host.querySelectorAll(".byVIEWinfo").length === 1 && !host.querySelector(".byVIEWcontrols"));
+        return states;
+      } finally {
+        controller?.destroy?.();
+        host.remove();
+      }
+    }, "Sample"), [true, false, true, true, true], "Compact defaults, opt-out, rerenders, and disabled controls agree");
+    assert.deepEqual(await page.locator(".form-switch .form-check-input").first().evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { width: style.width, height: style.height };
+    }), { width: "44px", height: "24px" });
+    assert.equal(await page.locator(".form-switch .form-check-input").evaluateAll((inputs) => inputs.every((input) => {
+      const toggle = input.getBoundingClientRect();
+      const row = input.closest(".form-switch").getBoundingClientRect();
+      return Math.abs(toggle.right - row.right) < 1 && Math.abs(toggle.top + toggle.height / 2 - row.top - row.height / 2) < 1;
+    })), true, "Every switch lines up at the right edge and center of its row");
+    for (const width of [768, 1280]) {
+      await page.setViewportSize({ width, height: 720 });
+      assert.equal(await page.locator("#controlsSize").evaluate((size) => {
+        const a = size.querySelector(".btn-group").getBoundingClientRect();
+        const b = document.querySelector("#controlsPosition .btn-group").getBoundingClientRect();
+        return Math.abs(a.top - b.top) < 1 && Math.abs(a.width - b.width) < 1 && a.right < b.left;
+      }), true, "Size and position controls share one evenly divided row");
+    }
+    assert.deepEqual(await page.locator(".accordion-button").allTextContents().then((labels) => labels.map((label) => label.trim()).slice(0, 3)), ["Preview appearance", "Viewer controls", "Rendering"]);
+    assert.deepEqual(await page.locator("#options-json").evaluate((editor) => Object.keys(JSON.parse(editor.value)).slice(0, 16)), [
+      "theme", "palette", "fontFamily", "fontSize", "lineHeight", "controlsFont", "backgroundColor", "textColor", "customThemeCSS", "forceMonospace",
+      "themeToggle", "fontSizeControls", "copyButton", "controlsCompact", "controlsSize", "controlsPosition"
+    ]);
+    assert.equal(await page.locator(".intro h1 + p").textContent(), "Plain JavaScript. No dependencies. Open source. Free. Forever.");
+    assert.ok((await page.locator("header .brand-mark").textContent()).trim());
+
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--bs-body-bg").trim()), "#141618");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(20, 22, 24)");
+    assert.equal(await page.locator('.source-editor').first().evaluate((element) => getComputedStyle(element).backgroundColor), "rgb(20, 22, 24)");
+    assert.equal(await page.locator('meta[name="theme-color"]').getAttribute("content"), "#141618");
+    await page.locator("#site-theme").evaluate((button) => button.click());
+    assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--bs-body-bg").trim()), "#fff");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(255, 255, 255)");
+    assert.equal(await page.locator('meta[name="theme-color"]').getAttribute("content"), "#fff");
+    const root = frame.locator(".byJSONdocument");
+    const initial = await root.evaluate((element) => ({ font: element.style.fontFamily, size: element.style.fontSize, bg: element.style.getPropertyValue("--by-view-bg") }));
+    assert.match(await frame.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).fontFamily), /monospace/);
+    assert.equal(await page.locator('[aria-label="Viewer suite"] a').count(), 8);
+    assert.equal(await page.locator('[aria-label="Viewer suite"]').getByRole("link", { name: "JSON", exact: true }).getAttribute("aria-current"), "page");
+    assert.equal(await page.locator(".site-footer .fa-heart").count(), 1);
+    assert.equal(await page.locator("header .fa-github").count(), 1);
+    assert.equal(
+      await page.evaluate(() => Boolean(document.querySelector('[aria-label="Viewer suite"]').compareDocumentPosition(document.querySelector("footer")) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      true
+    );
+    await page.locator(".preview-appearance").evaluate((element) => {
+      element.open = true;
+    });
+    await page.evaluate(() => {
+      for (const [id, value] of [
+        ["preview-font", "Georgia, serif"],
+        ["preview-size", "1.5"],
+        ["preview-leading", "1.8"],
+        ["preview-controls-font", "system-ui, sans-serif"],
+        ["preview-bg", "#123456"],
+        ["preview-ink", "#fedcba"]
+      ]) {
+        const input = document.getElementById(id);
+        input.value = value;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+    assert.deepEqual(
+      await root.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return { font: style.fontFamily, size: style.fontSize, line: style.lineHeight, bg: style.backgroundColor, text: style.color };
+      }),
+      { font: "Georgia, serif", size: "24px", line: "43.2px", bg: "rgb(18, 52, 86)", text: "rgb(254, 220, 186)" }
+    );
+    assert.match(await frame.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).fontFamily), /system-ui/);
+    await page.locator("#copy-appearance").evaluate((button) => button.click());
+    await page.waitForFunction(() => window.lastCopy?.includes("--by-view-controls-font"));
+    assert.match(await page.evaluate(() => lastCopy), /\.byJSONdocument/);
+    assert.ok((await page.evaluate(() => lastCopy)).includes("--by-view-bg: #123456"));
+    await page.locator('[data-options-view="json"]').evaluate((button) => button.click());
+    const configuration = JSON.parse(await page.locator("#options-json").inputValue());
+    for (const [name, value] of Object.entries({
+      theme: "dark",
+      fontFamily: "Georgia, serif",
+      fontSize: 1.5,
+      lineHeight: 1.8,
+      controlsFont: "system-ui, sans-serif",
+      backgroundColor: "#123456",
+      textColor: "#fedcba"
+    })) {
+      assert.deepEqual(configuration[name], value, name);
+    }
+    assert.ok(!["options", "appearance", "callbacks"].some((key) => key in configuration));
+    const readme = require("node:fs").readFileSync(path.join(__dirname, "../README.md"), "utf8");
+    for (const match of readme.matchAll(/^\|\s*`([a-zA-Z]+)`\s*\|/gm)) {
+      assert.ok(match[1] in configuration, `Missing parameter: ${match[1]}`);
+    }
+    await page.locator("#copy-options").evaluate((button) => button.click());
+    await page.waitForFunction(() => window.lastCopy?.startsWith("{"));
+    assert.deepEqual(JSON.parse(await page.evaluate(() => lastCopy)), configuration);
+    assert.ok(!Object.keys(configuration).some((key) => key.startsWith("preview")));
+    await page.locator('[data-options-view="form"]').evaluate((button) => button.click());
+    await page.locator("#reset-settings").evaluate((button) => button.click());
+    assert.deepEqual(await root.evaluate((element) => ({ font: element.style.fontFamily, size: element.style.fontSize, bg: element.style.getPropertyValue("--by-view-bg") })), initial);
+    assert.match(await frame.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).fontFamily), /monospace/);
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});
+
 
 test("container themes are scoped, independent, and compatible with legacy links", async () => {
   const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || undefined, executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined });
@@ -1199,6 +1376,87 @@ test("named palettes retain mode, isolate custom CSS, and meet High Contrast tar
     assert.equal(await page.locator("#other").evaluate((element) => getComputedStyle(element).backgroundColor), "rgb(39, 40, 34)");
     assert.equal(await page.locator("#outside").evaluate((element) => getComputedStyle(element).getPropertyValue("--by-view-muted")), "");
 
+  } finally {
+    await browser.close();
+  }
+});
+
+test("playground palettes and editable two-mode custom themes stay synchronized", async () => {
+  const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || undefined, executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined });
+  try {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text) => { window.lastCopy = text; } } }));
+    await page.route("**/*", async (route) => {
+      const url = new URL(route.request().url());
+      if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.6/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
+      if (url.origin !== "https://viewer.test") return route.abort();
+      const file = path.basename(url.pathname);
+      return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
+    });
+    await page.goto("https://viewer.test/index.html");
+    const frame = page.frames().find((candidate) => candidate.parentFrame());
+    await frame.waitForSelector(".byVIEWtoolbar");
+    const root = frame.locator(".byJSONdocument");
+    const editor = page.locator("#custom-theme-css");
+    const palette = page.locator("#preview-palette");
+    const background = () => root.evaluate((element) => getComputedStyle(element).backgroundColor);
+    const initialBackground = await background();
+    const hostBackground = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    assert.equal(await palette.inputValue(), "monokai");
+    await page.waitForFunction(() => document.getElementById("custom-theme-css").value.includes('.dark[data-theme="custom"]'));
+    const defaults = await editor.inputValue();
+    assert.ok(defaults.includes('.byJSONdocument.light[data-theme="custom"]'));
+    await palette.selectOption("github");
+    const setMode = (mode) => page.evaluate((mode) => {
+      const input = document.querySelector('#preview-theme, input[name="viewerTheme"][value="' + mode + '"], input[name="previewTheme"][value="' + mode + '"]');
+      if (input.tagName === "SELECT") input.value = mode;
+      else input.checked = true;
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }, mode);
+    await setMode("dark");
+    assert.equal(await background(), "rgb(13, 17, 23)");
+    await root.locator(".byVIEWthemeToggle").click();
+    await page.waitForFunction(() => JSON.parse(document.getElementById("options-json").value).theme === "light");
+    assert.equal(await palette.inputValue(), "github");
+    assert.equal(await background(), "rgb(255, 255, 255)");
+    for (const name of ["solarized", "high-contrast"]) {
+      await palette.selectOption(name);
+      assert.equal(await root.getAttribute("data-theme"), name);
+      assert.ok((await editor.inputValue()).includes("--by-view-bg"));
+      await setMode("dark");
+      assert.equal(await background(), name === "solarized" ? "rgb(0, 43, 54)" : "rgb(0, 0, 0)");
+    }
+    await page.locator(".preview-appearance").evaluate((element) => { element.open = true; });
+    const custom = '.byJSONdocument.light[data-theme="custom"] { --by-view-bg: #f3f8fc; }\n.byJSONdocument.dark[data-theme="custom"] { --by-view-bg: #102a43; }';
+    await editor.fill(custom);
+    await page.waitForFunction(() => document.getElementById("preview-palette").value === "custom");
+    assert.equal(await background(), "rgb(16, 42, 67)");
+    await setMode("light");
+    assert.equal(await background(), "rgb(243, 248, 252)");
+    await root.locator(".byVIEWthemeToggle").click();
+    assert.equal(await root.getAttribute("data-theme"), "custom");
+    assert.equal(await background(), "rgb(16, 42, 67)");
+    await page.locator("#copy-theme").evaluate((button) => button.click());
+    await page.waitForFunction(() => window.lastCopy?.includes('[data-theme="custom"]'));
+    assert.equal(await page.evaluate(() => lastCopy), custom);
+    const config = JSON.parse(await page.locator("#options-json").inputValue());
+    assert.equal(config.theme, "dark");
+    assert.equal(config.palette, "custom");
+    assert.equal(config.customThemeCSS, custom);
+    assert.ok(!("appearance" in config) && !("options" in config));
+    await palette.selectOption("github");
+    assert.equal(await background(), "rgb(13, 17, 23)");
+    await palette.selectOption("custom");
+    assert.equal(await editor.inputValue(), custom, "Preset changes retain the draft");
+    assert.equal(await background(), "rgb(16, 42, 67)");
+    await page.locator("#reset-settings, #reset-options").evaluate((button) => button.click());
+    await page.waitForFunction(() => document.getElementById("preview-palette").value === "monokai");
+    assert.equal(await editor.inputValue(), defaults);
+    assert.equal(await background(), initialBackground);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), hostBackground);
+    assert.deepEqual(errors, []);
   } finally {
     await browser.close();
   }

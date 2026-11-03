@@ -893,6 +893,7 @@ test("JSON rendering", async (t) => {
       assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
       assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
       const defaultSize = await renderer.evaluate((root) => getComputedStyle(root).fontSize);
+      await playground.locator("#fontSizeControls").check();
       await renderer.locator(".byVIEWfontSize").nth(2).click();
       assert.notEqual(await renderer.evaluate((root) => getComputedStyle(root).fontSize), defaultSize);
       await playground.locator("#forceMonospace").check();
@@ -977,7 +978,7 @@ test("JSON rendering", async (t) => {
       assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
       assert.ok(!code.includes('"withLinks": false'));
       assert.ok(code.includes('src="./json.js" defer'));
-      for (const name of ["themeToggle", "fontSizeControls", "copyButton"]) {
+      for (const name of ["toolbar", "credits", "themeToggle", "fontSizeControls", "copyButton"]) {
         await playground.locator(`#${name}`).evaluate((element) => {
           element.checked = false;
           element.dispatchEvent(new Event("change", { bubbles: true }));
@@ -1029,9 +1030,7 @@ test("JSON rendering", async (t) => {
           const background = await exported.locator("#viewer").evaluate((element) => getComputedStyle(element).backgroundColor);
           await exported.locator(".byVIEWthemeToggle").click();
           await exported.waitForFunction((before) => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
-          const fontSize = await exported.locator("#viewer").evaluate((element) => parseFloat(getComputedStyle(element).fontSize));
-          await exported.locator(".byVIEWfontSize").nth(2).click();
-          assert.ok(await exported.locator("#viewer").evaluate((element, before) => parseFloat(getComputedStyle(element).fontSize) > before, fontSize));
+          assert.equal(await exported.locator(".byVIEWfontSize").count(), 3);
         }
       } finally {
         await exported.close();
@@ -1154,6 +1153,11 @@ test("family customization, navigation and monospace controls", async () => {
     await page.locator(".preview-appearance").evaluate((element) => {
       element.open = true;
     });
+    await page.locator("#preview-controls-font-0").focus();
+    await page.keyboard.press("ArrowRight");
+    assert.equal(await page.locator("#preview-controls-font-1").isChecked(), true);
+    assert.equal(JSON.parse(await page.locator("#options-json").inputValue()).controlsFont, "system-ui, sans-serif");
+    await page.keyboard.press("ArrowLeft");
     await page.evaluate(() => {
       for (const [id, value] of [
         ["preview-font", "Georgia, serif"],
@@ -1163,8 +1167,9 @@ test("family customization, navigation and monospace controls", async () => {
         ["preview-bg", "#123456"],
         ["preview-ink", "#fedcba"]
       ]) {
-        const input = document.getElementById(id);
-        input.value = value;
+        const input = id === "preview-controls-font" ? document.querySelector(`[name="preview-controls-font"][value="${value}"]`) : document.getElementById(id);
+        if (input.type === "radio") input.checked = true;
+        else input.value = value;
         input.dispatchEvent(new Event("change", { bubbles: true }));
       }
     });

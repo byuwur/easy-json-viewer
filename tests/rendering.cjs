@@ -419,13 +419,13 @@ test("JSON rendering", async (t) => {
         }
       }
     });
-    await t.test("text size controls preserve outer position and keep collapse arrows visible", async () => {
+    await t.test("text size controls preserve position and keep the root disclosure inside its inset", async () => {
       const result = await page.evaluate(() => {
         const root = document.createElement("pre");
         document.body.appendChild(root);
         try {
           root.style.width = "320px";
-          byJSONviewer(root, { property: "Text size sample" }, { themeToggle: false, copyButton: false });
+          byJSONviewer(root, { property: "Text size sample" }, { themeToggle: false, fontSizeControls: true, copyButton: false });
           const top = root.getBoundingClientRect().top;
           const buttons = root.querySelectorAll(".byVIEWfontSize");
           while (!buttons[2].disabled) buttons[2].click();
@@ -434,17 +434,28 @@ test("JSON rendering", async (t) => {
           const toggle = root.querySelector(".byJSONtoggle");
           const arrow = getComputedStyle(toggle, "::before");
           const arrowLeft = toggle.getBoundingClientRect().left + parseFloat(arrow.left);
-          const maxArrowVisible = arrowLeft >= root.getBoundingClientRect().left && arrowLeft + parseFloat(arrow.width) <= root.getBoundingClientRect().right;
+          const bounds = root.getBoundingClientRect();
+          const style = getComputedStyle(root);
+          const inset = bounds.left + parseFloat(style.borderLeftWidth) + parseFloat(style.paddingLeft);
+          const maxArrowVisible = arrowLeft >= inset && arrowLeft + parseFloat(arrow.width) <= bounds.right;
+          const braces = [...root.querySelector(".byJSONcontent").childNodes].filter((node) => node.nodeType === Node.TEXT_NODE);
+          const textLeft = (node) => {
+            const range = document.createRange();
+            range.selectNode(node);
+            return range.getBoundingClientRect().left;
+          };
+          const bracesAligned = Math.abs(textLeft(braces[0]) - textLeft(braces.at(-1))) < 0.1;
           while (!buttons[0].disabled) buttons[0].click();
           const minTop = root.getBoundingClientRect().top;
           buttons[1].click();
-          return { maxSize, top, maxTop, minTop, maxArrowVisible, resetTop: root.getBoundingClientRect().top };
+          return { maxSize, top, maxTop, minTop, maxArrowVisible, bracesAligned, resetTop: root.getBoundingClientRect().top };
         } finally {
           root.remove();
         }
       });
       assert.equal(result.maxSize, 48);
       assert.equal(result.maxArrowVisible, true);
+      assert.equal(result.bracesAligned, true);
       assert.equal(result.maxTop, result.top);
       assert.equal(result.minTop, result.top);
       assert.equal(result.resetTop, result.top);

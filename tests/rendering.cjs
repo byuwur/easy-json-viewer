@@ -880,11 +880,17 @@ test("JSON rendering", async (t) => {
         await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
       });
       await playground.goto("https://viewer.test/index.html");
-      assert.ok((await playground.locator("#integration-code").inputValue()).includes('href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.css"'));
+      const release = await playground.frameLocator("#preview-frame").locator(".byVIEWtoolbar").evaluate(() => byJSONviewer.VERSION);
+      assert.ok((await playground.frameLocator("#preview-frame").locator(".byVIEWinfo").textContent()).includes(` v${release} `), "Credits must match the runtime release");
+      const cdnBase = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/";
+      const readme = require("node:fs").readFileSync(path.join(__dirname, "../README.md"), "utf8");
+      for (const extension of ["css", "js"]) assert.ok(readme.includes(`${cdnBase}json.${extension}`), "README assets must match the CDN starter");
+      assert.equal(await playground.locator("#install-note").textContent(), "CDN follows main and requires the updated files to be published there.");
+      assert.ok((await playground.locator("#integration-code").inputValue()).includes(`href="${cdnBase}json.css"`));
       assert.equal(await playground.locator('[data-install="cdn"]').getAttribute("aria-pressed"), "true");
       await playground.locator('[data-install="cdn"]').click();
       const cdnCode = await playground.locator("#integration-code").inputValue();
-      assert.ok(cdnCode.includes("easy-json-viewer@main/"));
+      assert.ok(cdnCode.includes(cdnBase));
       const renderer = playground.frameLocator("#preview-frame").locator("#byJSONrenderer");
       await renderer.locator(".byJSONstring").first().waitFor();
       await renderer.evaluate((root) => {

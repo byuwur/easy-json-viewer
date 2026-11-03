@@ -131,7 +131,7 @@
   color: var(--by-json-text);
   box-sizing: border-box;
   margin: 0;
-  padding: 0 1rem 0.75rem max(1.5rem, 1.5em);
+  padding: 0 1.5rem 1.5rem;
   border: 0.0625rem solid var(--by-json-border);
   min-height: 6rem;
   white-space: pre-wrap;
@@ -176,6 +176,10 @@
   position: relative;
   color: inherit;
   text-decoration: none;
+}
+/* Keep the root disclosure inside the fixed padding as text grows. */
+.byJSONcontent > .byJSONtoggle {
+  margin-left: max(0px, calc(1.5em - 1.5rem));
 }
 .byJSONtoggle:before {
   content: "\25BC";

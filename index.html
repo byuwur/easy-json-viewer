@@ -412,7 +412,7 @@
           <p class="text-body-secondary">Copy or download this JSON starter with default settings.</p>
           <p class="text-body-secondary small">CDN starters require internet access. Local starters need the viewer files beside the HTML.</p>
           <p class="text-body-secondary small">Playground powered by <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/spa.js" target="_blank" rel="noopener">SPA.js</a>.</p>
-          <p id="install-note" class="text-body-secondary small mb-2">CDN follows main and requires the updated files to be published there.</p>
+          <p id="install-note" class="text-body-secondary small mb-2">CDN follows the latest release; updates may take time to reach caches.</p>
           <a class="small link-body-emphasis link-offset-2" href="https://github.com/byuwur/easy-json-viewer#readme" target="_blank" rel="noopener"
             >Read the full API <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i
           ></a>
@@ -1158,7 +1158,7 @@
         function updateCode() {
           document.getElementById("options-json").value = settingsJSON(state.options);
           const cdn = state.install === "cdn";
-          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/" : "./";
+          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/" : "./";
           const html = dedent(/* HTML */ `
             <!doctype html>
             <html lang="en">
@@ -1177,7 +1177,7 @@
             </html>
           `);
           document.getElementById("integration-code").value = html;
-          document.getElementById("install-note").textContent = cdn ? "CDN follows main and requires the updated files to be published there." : "Place the HTML beside json.js and json.css.";
+          document.getElementById("install-note").textContent = cdn ? "CDN follows the latest release; updates may take time to reach caches." : "Place the HTML beside json.js and json.css.";
           return html;
         }
 

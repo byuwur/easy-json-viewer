@@ -19,11 +19,11 @@ Open `index.html` for the local playground; its page assets require internet acc
 **Recommended: CDN.** No downloads or package manager.
 
 ```html
-<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@main/json.js" defer></script>
+<link href="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/json.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/json.js" defer></script>
 ```
 
-The CDN example tracks `@main` and requires internet access. Use a published tag or commit to pin a version.
+The CDN example uses `@latest` and requires internet access. Use a published tag or commit to pin a version.
 
 **Local files:** For offline use, save `json.js` and `json.css` beside your HTML:
 

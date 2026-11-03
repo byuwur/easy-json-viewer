@@ -2,9 +2,17 @@
 
 ![easy-json-viewer preview](prev.jpg)
 
-Render JSON with collapsible nodes, chunked rendering, clickable URLs, light/dark themes, and text-size controls. Plain JavaScript; no dependencies or build step.
+**JSON, structure at a glance.**
 
-Try [GitHub Pages](https://byuwur.github.io/easy-json-viewer/) or [CodePen](https://codepen.io/byuwur/pen/ExBeOPR).
+Turn JavaScript values into a collapsible tree.
+
+Use it for API responses, configuration, debugging panels, and large nested payloads.
+
+One JavaScript file. One scoped stylesheet. No build step. Plain JavaScript, with no runtime dependencies.
+
+[Open the playground](https://byuwur.github.io/easy-json-viewer/) · [CodePen](https://codepen.io/byuwur/pen/ExBeOPR)
+
+Open `index.html` for the local playground; its page assets require internet access.
 
 ## Installation
 
@@ -44,34 +52,30 @@ Exported HTML starters use default settings, independently of playground changes
 
 Pass options as the third argument:
 
-| Option             | Default     | Meaning                                                                            |
-| ------------------ | ----------- | ---------------------------------------------------------------------------------- |
-| `collapsed`        | `false`     | Collapse nodes initially.                                                          |
-| `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                           |
-| `withQuotes`       | `true`      | Quote object keys.                                                                 |
-| `withLinks`        | `true`      | Link `http`, `https`, `ftp`, and `ftps` URLs.                                      |
-| `bigNumbers`       | `false`     | Use compatible big-number objects' string representation.                          |
-| `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                    |
-| `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                    |
-| `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.              |
+| Option             | Default     | Meaning                                                                     |
+| ------------------ | ----------- | --------------------------------------------------------------------------- |
+| `collapsed`        | `false`     | Collapse nodes initially.                                                   |
+| `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                    |
+| `withQuotes`       | `true`      | Quote object keys.                                                          |
+| `withLinks`        | `true`      | Link `http`, `https`, `ftp`, and `ftps` URLs.                               |
+| `bigNumbers`       | `false`     | Use compatible big-number objects' string representation.                   |
+| `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.             |
+| `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.             |
+| `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.       |
 | `themeToggle`      | `true`      | Show the theme toggle.                                                      |
-| `fontSizeControls` | `true`      | Show A-/A+ controls.                                                               |
-| `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.        |
-| `controlsSize`     | `"regular"` | Button size: `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`. |
-| `controlsCompact`  | `true`     | Put attribution beside the controls, wrapping when space is limited.               |
-| `controlsPosition` | `"top"`     | Toolbar position: `"top"` or `"bottom"`; invalid values use `"top"`.               |
-
-`<pre>` elements use a monospace font by default. Enable `forceMonospace` if you use another element, such as `<div>`, as your `.byJSONdocument`.
+| `fontSizeControls` | `true`      | Show text-size controls.                                                    |
+| `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes. |
+| `controlsSize`     | `"regular"` | `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`.       |
+| `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.         |
+| `controlsPosition` | `"top"`     | Sticky `"top"` or `"bottom"` toolbar; invalid values use `"top"`.           |
 
 Smaller chunks improve responsiveness; lower latency starts the next chunk sooner. Re-rendering a target cancels its pending chunks.
 
-Copy uses two-space-indented JSON. BigInt and compatible big-number values are copied as decimal strings to preserve precision. Copy requires browser clipboard access in a secure context; the button reports failure if access is unavailable or denied.
+Copy uses two-space-indented JSON. BigInt and compatible big-number values become decimal strings to preserve precision. Copy requires clipboard permission in a secure context.
 
-Each toolbar shows a GitHub link, version, and author portfolio link in a muted theme color. Read the library version with `byJSONviewer.VERSION`.
+Read the library version with `byJSONviewer.VERSION`.
 
-Controls stay visible at the selected edge of the page or nearest scrolling container while the viewer is in view. Their opaque background follows the viewer theme. Bottom toolbars put credits below the buttons when stacked. For a compact header, use `{ controlsSize: "small", controlsCompact: true, controlsPosition: "top" }`. Button size is independent of the document text size.
-
-Wrapped JSON lines use tighter spacing than the gap between properties or array entries.
+Controls stick to the selected edge of the page or nearest scrolling container.
 
 Controls use monospace by default; override `--by-view-controls-font` to change it.
 

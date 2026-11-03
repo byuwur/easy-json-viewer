@@ -54,6 +54,7 @@ Pass options as the third argument:
 
 | Option             | Default     | Meaning                                                                     |
 | ------------------ | ----------- | --------------------------------------------------------------------------- |
+| `collapsible`      | `true`      | Show disclosure controls; false keeps every node expanded.                  |
 | `collapsed`        | `false`     | Collapse nodes initially.                                                   |
 | `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                    |
 | `withQuotes`       | `true`      | Quote object keys.                                                          |
@@ -62,8 +63,10 @@ Pass options as the third argument:
 | `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.             |
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.             |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.       |
+| `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.          |
+| `credits`          | `true`      | Show attribution in the header.                                             |
 | `themeToggle`      | `true`      | Show the theme toggle.                                                      |
-| `fontSizeControls` | `true`      | Show text-size controls.                                                    |
+| `fontSizeControls` | `true`     | Show text-size controls.                                                    |
 | `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes. |
 | `controlsSize`     | `"regular"` | `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`.       |
 | `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.         |
@@ -76,6 +79,8 @@ Copy uses two-space-indented JSON. BigInt and compatible big-number values becom
 Read the library version with `byJSONviewer.VERSION`.
 
 Controls stick to the selected edge of the page or nearest scrolling container.
+
+The default header shows Theme, text-size controls, and Copy. Secondary tools are opt-in. Use `toolbar: false` to hide the header, or switch individual controls off as needed.
 
 Controls use monospace by default; override `--by-view-controls-font` to change it.
 

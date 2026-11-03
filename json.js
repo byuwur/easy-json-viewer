@@ -55,6 +55,7 @@
   const normalizeOptions = (options) => {
     const source = options && typeof options === "object" ? options : {};
     const normalized = {
+      collapsible: true,
       collapsed: false,
       rootCollapsible: true,
       withQuotes: true,
@@ -63,6 +64,8 @@
       forceMonospace: false,
       chunkSize: 1000,
       chunkLatency: 25,
+      toolbar: true,
+      credits: true,
       themeToggle: true,
       fontSizeControls: true,
       copyButton: true,
@@ -71,6 +74,7 @@
       controlsPosition: "top",
       ...source
     };
+    if (normalized.collapsible === false) normalized.collapsed = false;
     // Keep chunk values valid before scheduling renders
     normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize >= 1 ? Math.floor(normalized.chunkSize) : 1000;
     normalized.chunkLatency = Number.isFinite(normalized.chunkLatency) && normalized.chunkLatency >= 0 ? normalized.chunkLatency : 25;
@@ -203,7 +207,7 @@
     const li = document.createElement("li");
     let toggle = null;
     // Only non-empty structures need a toggle
-    if (isCollapsible(item) && !isBigNumber(item, options)) {
+    if (options.collapsible !== false && isCollapsible(item) && !isBigNumber(item, options)) {
       toggle = appendA(li, "byJSONtoggle");
       addToggleListener(toggle);
     }
@@ -472,11 +476,15 @@
     info.className = "byVIEWinfo";
     info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
-    toolbar.appendChild(info);
+    if (options.credits !== false) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);
     if (options.fontSizeControls) appendFontSizeControls(element, controls);
     if (options.copyButton) appendCopyButton(controls, () => JSON.stringify(source, (_, value) => (typeof value === "bigint" || isBigNumber(value, options) ? value.toString() : value), 2) ?? "null", "Copy JSON");
     if (controls.childNodes.length) toolbar.appendChild(controls);
+    if (options.toolbar === false || !toolbar.childNodes.length) {
+      element.classList.remove("byVIEWbottom");
+      return;
+    }
     if (options.controlsPosition === "bottom") element.appendChild(toolbar);
     else element.prepend(toolbar);
   };
@@ -487,6 +495,7 @@
    * @param {HTMLElement} element - DOM element where the JSON will be rendered.
    * @param {*} json - JSON-compatible data to render.
    * @param {Object} [options] - Configuration options.
+   * @param {boolean} [options.collapsible=true] - Show disclosure controls; false keeps all nodes expanded.
    * @param {boolean} [options.collapsed=false] - Collapse nested arrays/objects by default.
    * @param {boolean} [options.rootCollapsible=true] - Make the root array/object collapsible.
    * @param {boolean} [options.withQuotes=true] - Wrap object keys in double quotes.
@@ -495,6 +504,8 @@
    * @param {boolean} [options.forceMonospace=false] - Force a system monospace font when using a target other than <pre>.
    * @param {number} [options.chunkSize=1000] - Number of elements rendered per chunk.
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
+   * @param {boolean} [options.toolbar=true] - Show the viewer header.
+   * @param {boolean} [options.credits=true] - Show attribution in the header.
    * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
    * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    * @param {boolean} [options.copyButton=true] - Adds a clipboard copy button.
@@ -519,7 +530,7 @@
     element.appendChild(content);
     // Add the root toggle when applicable
     let rootToggle = null;
-    if (normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
+    if (normalizedOptions.collapsible !== false && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
       rootToggle = appendA(content, "byJSONtoggle");
       addToggleListener(rootToggle);
     }

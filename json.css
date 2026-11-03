@@ -214,9 +214,7 @@
   margin: 0;
   padding: 0.5rem 0;
   background: var(--by-view-bg);
-  font:
-    0.875rem/1.25 system-ui,
-    sans-serif;
+  font: 0.875rem/1.25 var(--by-view-controls-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace);
   white-space: normal;
 }
 .byJSONdocument > .byVIEWtoolbar[data-size="small"] {
@@ -246,9 +244,15 @@
 .byJSONdocument > .byVIEWtoolbar .byVIEWinfo {
   max-width: 100%;
   color: var(--by-view-muted);
-  font-size: 0.8em;
+  opacity: 0.25;
+  font-size: 0.75em;
   text-align: right;
   overflow-wrap: anywhere;
+}
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo:hover,
+.byJSONdocument > .byVIEWtoolbar .byVIEWinfo:focus-within,
+.byJSONdocument[data-theme="high-contrast"] > .byVIEWtoolbar .byVIEWinfo {
+  opacity: 1;
 }
 .byJSONdocument.byVIEWcompact > .byVIEWtoolbar .byVIEWinfo {
   flex: 1 1 auto;

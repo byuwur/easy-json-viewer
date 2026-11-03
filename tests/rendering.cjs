@@ -234,7 +234,8 @@ test("JSON rendering", async (t) => {
         const info = {
           version: byJSONviewer.VERSION,
           text: label.textContent.replace(/\s+/g, " ").trim(),
-          opaque: style.opacity === "1",
+          opacity: style.opacity,
+          relativeSize: parseFloat(style.fontSize) / parseFloat(getComputedStyle(label.parentElement).fontSize),
           muted: style.color !== getComputedStyle(root).color,
           count: root.querySelectorAll(".byVIEWinfo").length,
           independent: !label.closest(".byVIEWcontrols"),
@@ -248,7 +249,8 @@ test("JSON rendering", async (t) => {
       assert.deepEqual(info, {
         version,
         text: `easy-json-viewer · v${version} · @byUwUr`,
-        opaque: true,
+        opacity: "0.25",
+        relativeSize: 0.75,
         muted: true,
         count: 1,
         independent: true,
@@ -530,11 +532,11 @@ test("JSON rendering", async (t) => {
             const credits = getComputedStyle(root.querySelector(".byVIEWinfo"));
             return { matched: toolbar.backgroundColor === background, opaque: !toolbar.backgroundColor.includes("rgba"), color: credits.color, opacity: credits.opacity };
           });
-        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(187, 187, 187)", opacity: "1" });
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(187, 187, 187)", opacity: "0.25" });
         const background = await themed.locator("#first").evaluate((root) => getComputedStyle(root).backgroundColor);
         await themed.locator("#first .byVIEWthemeToggle").click();
         await themed.waitForFunction((before) => getComputedStyle(document.getElementById("first")).backgroundColor !== before, background);
-        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(68, 68, 68)", opacity: "1" });
+        assert.deepEqual(await palette(), { matched: true, opaque: true, color: "rgb(68, 68, 68)", opacity: "0.25" });
         assert.equal(await themed.locator("#viewer-theme").getAttribute("href"), "https://themes.test/json.light.css/archive/json.dark.css?keep=json.light.css#json.light.css");
         assert.equal(await themed.locator("#byVIEWtheme").getAttribute("href"), "https://themes.test/other.dark.css");
         assert.deepEqual(await themed.locator("#first .byVIEWthemeToggle, #second .byVIEWthemeToggle").evaluateAll((buttons) => buttons.map((button) => [button.textContent, button.title, button.getAttribute("aria-label")])), [
@@ -553,13 +555,8 @@ test("JSON rendering", async (t) => {
       const preview = await browser.newPage();
       try {
         await preview.addStyleTag({ path: path.join(__dirname, "../json.css") });
-        await preview.addStyleTag({ path: path.join(__dirname, "../json.light.css") });
         await preview.addScriptTag({ path: path.join(__dirname, "../json.js") });
         const results = await preview.evaluate(async () => {
-          const theme = document.createElement("link");
-          theme.rel = "stylesheet";
-          theme.href = "json.light.css";
-          document.head.appendChild(theme);
           const root = document.createElement("pre");
           document.body.appendChild(root);
           const sizes = {};
@@ -614,12 +611,19 @@ test("JSON rendering", async (t) => {
           }
           root.style.fontSize = "48px";
           const fixedButtonSize = root.querySelector(".byVIEWfontSize").getBoundingClientRect().width === sizes.large;
-          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "small", controlsCompact: true, controlsPosition: "bottom", themeToggle: false, fontSizeControls: false, copyButton: false });
+          byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", {
+            controlsSize: "small",
+            controlsCompact: true,
+            controlsPosition: "bottom",
+            themeToggle: false,
+            fontSizeControls: false,
+            copyButton: false
+          });
           const hidden = !root.querySelector(".byVIEWcontrols") && root.lastElementChild.classList.contains("byVIEWtoolbar") && root.querySelectorAll(".byVIEWinfo").length === 1;
           byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "invalid", controlsPosition: "invalid" });
           const fallback = root.firstElementChild.dataset.size === "regular" && !root.classList.contains("byVIEWbottom");
           byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.");
-          const reset = !root.classList.contains("byVIEWcompact") && !root.classList.contains("byVIEWbottom") && root.querySelectorAll(".byVIEWtoolbar").length === 1;
+          const reset = root.classList.contains("byVIEWcompact") && !root.classList.contains("byVIEWbottom") && root.querySelectorAll(".byVIEWtoolbar").length === 1;
           root.style.fontSize = "";
           root.style.width = "640px";
           byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { controlsSize: "large", controlsCompact: true });
@@ -912,7 +916,7 @@ test("JSON rendering", async (t) => {
       await renderer.locator(".byJSONstring").filter({ hasText: "easy-json-viewer" }).first().waitFor();
       await playground.locator("#reset-settings").click();
       assert.equal(await playground.locator("#controlsSize-regular").isChecked(), true);
-      assert.equal(await playground.locator("#controlsCompact").isChecked(), false);
+      assert.equal(await playground.locator("#controlsCompact").isChecked(), true);
       assert.equal(await playground.locator("#controlsPosition-top").isChecked(), true);
       assert.equal(await playground.locator("#forceMonospace").isChecked(), false);
       assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, false);

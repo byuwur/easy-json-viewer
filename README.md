@@ -58,7 +58,7 @@ Pass options as the third argument:
 | `fontSizeControls` | `true`      | Show A-/A+ controls.                                                               |
 | `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.        |
 | `controlsSize`     | `"regular"` | Button size: `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`. |
-| `controlsCompact`  | `false`     | Put attribution beside the controls, wrapping when space is limited.               |
+| `controlsCompact`  | `true`     | Put attribution beside the controls, wrapping when space is limited.               |
 | `controlsPosition` | `"top"`     | Toolbar position: `"top"` or `"bottom"`; invalid values use `"top"`.               |
 
 `<pre>` elements use a monospace font by default. Enable `forceMonospace` if you use another element, such as `<div>`, as your `.byJSONdocument`.
@@ -72,6 +72,8 @@ Each toolbar shows a GitHub link, version, and author portfolio link in a muted 
 Controls stay visible at the selected edge of the page or nearest scrolling container while the viewer is in view. Their opaque background follows the viewer theme. Bottom toolbars put credits below the buttons when stacked. For a compact header, use `{ controlsSize: "small", controlsCompact: true, controlsPosition: "top" }`. Button size is independent of the document text size.
 
 Wrapped JSON lines use tighter spacing than the gap between properties or array entries.
+
+Controls use monospace by default; override `--by-view-controls-font` to change it.
 
 ## Themes
 

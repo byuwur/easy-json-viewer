@@ -325,7 +325,7 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "byVIEWthemeToggle";
-    button.innerHTML = '<span aria-hidden="true">\u263E\uFE0E</span> <span aria-hidden="true">\u2600\uFE0E</span>';
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
     const sync = () => {
       const next = getTheme() === "dark" ? "light" : "dark";
       const toggles = !localTheme(element) && legacyTheme() ? [button, ...document.querySelectorAll(".byJSONdocument > .byVIEWtoolbar > .byVIEWcontrols > .byVIEWthemeToggle")] : [button];
@@ -427,8 +427,11 @@
     button.className = "byVIEWcopy";
     button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true" focusable="false"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448L480 448C515.3 448 544 419.3 544 384L544 183.4C544 166 536.9 149.3 524.3 137.2L466.6 81.8C454.7 70.4 438.8 64 422.3 64L288 64zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L352 496L352 512L160 512L160 256L176 256L176 192L160 192z"/></svg>`;
     const caption = document.createElement("span");
+    caption.setAttribute("aria-live", "polite");
     button.appendChild(caption);
     const reset = () => {
+      if (button.dataset.state === "error") return;
+      delete button.dataset.state;
       caption.textContent = "Copy";
       button.title = label;
       button.setAttribute("aria-label", label);
@@ -443,8 +446,10 @@
       try {
         await navigator.clipboard.writeText(getText(event));
         caption.textContent = message;
+        button.dataset.state = "success";
       } catch {
         caption.textContent = "Failed";
+        button.dataset.state = "error";
         message = "Copy failed. Check clipboard access.";
       } finally {
         button.disabled = false;

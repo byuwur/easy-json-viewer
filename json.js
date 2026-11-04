@@ -38,6 +38,7 @@
       chunkLatency: 25,
       toolbar: true,
       credits: true,
+      statusBar: true,
       themeToggle: true,
       fontSizeControls: true,
       copyButton: true,
@@ -524,6 +525,7 @@
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
    * @param {boolean} [options.toolbar=true] - Show the viewer header.
    * @param {boolean} [options.credits=true] - Show attribution in the header.
+   * @param {boolean} [options.statusBar=true] - Show the root value type and entry count.
    * @param {boolean} [options.themeToggle=true] - Adds the theme toggle.
    * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    * @param {boolean} [options.copyButton=true] - Adds a clipboard copy button.
@@ -546,7 +548,27 @@
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     const content = document.createElement("div");
     content.className = "byJSONcontent";
-    element.appendChild(content);
+    const body = document.createElement("div");
+    body.className = "byVIEWcontent";
+    const panel = document.createElement("div");
+    panel.className = "byVIEWpanel";
+    const status = document.createElement("p");
+    status.className = "byVIEWstatus";
+    status.setAttribute("role", "status");
+    const array = Array.isArray(json);
+    const collection = json !== null && typeof json === "object" && !isBigNumber(json, normalizedOptions);
+    const count = array ? json.length : collection ? Object.keys(json).length : 0;
+    // Summarize the root without walking descendants ahead of their scheduled chunks.
+    let type = "Null";
+    if (collection) type = array ? "Array" : "Object";
+    else if (typeof json === "string") type = "String";
+    else if (typeof json === "boolean") type = "Boolean";
+    else if ((typeof json === "number" && Number.isFinite(json)) || typeof json === "bigint" || isBigNumber(json, normalizedOptions)) type = "Number";
+    status.textContent = collection ? `${type} · ${count} ${array ? (count === 1 ? "item" : "items") : count === 1 ? "property" : "properties"}` : type;
+    status.hidden = normalizedOptions.statusBar === false;
+    panel.append(status, content);
+    body.appendChild(panel);
+    element.appendChild(body);
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.collapsible !== false && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {

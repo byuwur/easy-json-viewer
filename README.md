@@ -68,6 +68,7 @@ Pass options as the third argument:
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.             |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.       |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.          |
+| `statusBar`        | `true`      | Show the root type and number of items or properties in the content frame.  |
 | `credits`          | `true`      | Show attribution in the header.                                             |
 | `themeToggle`      | `true`      | Show the theme toggle.                                                      |
 | `fontSizeControls` | `true`      | Show text-size controls.                                                    |
@@ -91,6 +92,14 @@ Use `toolbar: false` to hide the header, or disable `credits`, `themeToggle`, `f
 Controls use monospace by default; override `--by-view-controls-font` to change it.
 
 ## Themes
+
+The outer document and inner surfaces have independent CSS backgrounds. Both follow the selected theme unless overridden. Set `--by-view-document-bg: transparent` to reveal the host page while keeping content panels and individual controls readable. `--by-view-container-bg` sets the shared background of those panels and controls; it also accepts alpha colors or `transparent`. The toolbar and credits have no background. These overrides survive theme changes.
+
+```css
+.byJSONdocument {
+  --by-view-document-bg: transparent;
+}
+```
 
 `json.css` includes all palettes in Light and Dark. Monokai is the default.
 

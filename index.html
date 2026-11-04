@@ -176,7 +176,9 @@
                           <label class="d-block form-label" for="preview-container-bg">Content &amp; controls background</label>
                           <div class="input-group mb-2">
                             <input id="preview-container-bg" class="form-control" type="text" placeholder="Theme default" title="CSS color, including transparent, hex, or rgba" maxlength="80" />
-                            <button class="btn btn-outline-secondary" type="button" data-color-picker="preview-container-bg" aria-label="Choose content and controls background color"><i class="fa-solid fa-palette" aria-hidden="true"></i></button>
+                            <button class="btn btn-outline-secondary" type="button" data-color-picker="preview-container-bg" aria-label="Choose content and controls background color">
+                              <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                            </button>
                           </div>
                           <label class="d-block form-label" for="preview-ink">Text color</label
                           ><input id="preview-ink" class="form-control mb-2" type="text" placeholder="Theme default" pattern="#[0-9a-fA-F]{6}" title="Six-digit hex color, for example #eeeeee" maxlength="7" />
@@ -223,9 +225,7 @@
                           >
                         </div>
                         <div class="form-switch d-flex align-items-center gap-3 ps-0 m-0">
-                          <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="credits" type="checkbox" role="switch" checked="" /><label class="form-check-label flex-grow-1 py-2" for="credits"
-                            >Credits</label
-                          >
+                          <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="credits" type="checkbox" role="switch" checked="" /><label class="form-check-label flex-grow-1 py-2" for="credits">Credits</label>
                         </div>
                         <div class="form-switch d-flex align-items-center gap-3 ps-0 m-0">
                           <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="themeToggle" type="checkbox" role="switch" checked="" /><label class="form-check-label flex-grow-1 py-2" for="themeToggle"
@@ -248,7 +248,9 @@
                           >
                         </div>
                         <div class="form-switch d-flex align-items-center gap-3 ps-0 m-0">
-                          <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="statusBar" type="checkbox" role="switch" checked /><label class="form-check-label flex-grow-1 py-2" for="statusBar">Status information</label>
+                          <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="statusBar" type="checkbox" role="switch" checked /><label class="form-check-label flex-grow-1 py-2" for="statusBar"
+                            >Status information</label
+                          >
                         </div>
                         <div class="row g-2 mt-3 align-items-end">
                           <fieldset class="col-6" id="controlsSize">
@@ -808,7 +810,8 @@
           controlsCompact: true,
           controlsPosition: "top",
           withLinks: true,
-          collapsible: true, collapsed: false,
+          collapsible: true,
+          collapsed: false,
           rootCollapsible: true,
           withQuotes: true,
           chunkSize: 1000,
@@ -1416,7 +1419,12 @@
               continue;
             }
             const picker = Pickr.create({
-              el: button, useAsButton: true, position: "bottom-start", theme: "classic", default: "#fafaf5", defaultRepresentation: "HEX",
+              el: button,
+              useAsButton: true,
+              position: "bottom-start",
+              theme: "classic",
+              default: "#fafaf5",
+              defaultRepresentation: "HEX",
               components: { preview: true, opacity: true, hue: true, interaction: { hex: true, rgba: false, hsla: false, hsva: false, cmyk: false, input: true, save: true, clear: true } },
               i18n: { "btn:clear": "Theme default", "aria:btn:clear": "Use the theme background" }
             });
@@ -1444,7 +1452,9 @@
             picker.on("save", () => picker.hide());
             pickers.push(picker);
           }
-          window.addEventListener("pagehide", (event) => { if (!event.persisted) pickers.forEach((picker) => picker.destroyAndRemove()); });
+          window.addEventListener("pagehide", (event) => {
+            if (!event.persisted) pickers.forEach((picker) => picker.destroyAndRemove());
+          });
         });
       })();
     </script>

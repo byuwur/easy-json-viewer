@@ -46,6 +46,10 @@ The CDN example uses `@latest` and requires internet access. Use a published tag
 
 Pass a JavaScript value: object, array, string, number, boolean, `null`, `bigint`, or a compatible big-number object. Parse JSON text with `JSON.parse()` first.
 
+`byJSONviewer(element, value, options?)` replaces the target's contents and returns `undefined`. An invalid target throws `TypeError`. It has no `ready` promise or `destroy()` controller; rendering another value on the same target cancels its pending chunks.
+
+Use acyclic, JSON-shaped data. Only own enumerable object properties are shown; functions, symbols, and `undefined` display as `null`. Non-finite numbers also display as `null`. Dates, Maps, Sets, and custom class instances have no special rendering support. Keep the supplied value stable while its chunks render; the viewer does not clone it.
+
 Exported HTML starters use default settings, independently of playground changes.
 
 ## Options
@@ -66,7 +70,7 @@ Pass options as the third argument:
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.          |
 | `credits`          | `true`      | Show attribution in the header.                                             |
 | `themeToggle`      | `true`      | Show the theme toggle.                                                      |
-| `fontSizeControls` | `true`     | Show text-size controls.                                                    |
+| `fontSizeControls` | `true`      | Show text-size controls.                                                    |
 | `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes. |
 | `controlsSize`     | `"regular"` | `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`.       |
 | `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.         |
@@ -74,13 +78,15 @@ Pass options as the third argument:
 
 Smaller chunks improve responsiveness; lower latency starts the next chunk sooner. Re-rendering a target cancels its pending chunks.
 
-Copy uses two-space-indented JSON. BigInt and compatible big-number values become decimal strings to preserve precision. Copy requires clipboard permission in a secure context.
+Chunking spreads DOM creation across timers; it does not virtualize or limit the input. Collapsed descendants still render. Bound payload size and depth in the calling application.
+
+Copy serializes the supplied value as two-space-indented JSON, independently of which chunks are visible. Unsupported values follow `JSON.stringify()` semantics and can differ from the displayed `null` fallback. BigInt and compatible big-number values become decimal strings to preserve precision. Copy requires clipboard permission in a secure context.
 
 Read the library version with `byJSONviewer.VERSION`.
 
 Controls stick to the selected edge of the page or nearest scrolling container.
 
-The default header shows Theme, text-size controls, and Copy. Secondary tools are opt-in. Use `toolbar: false` to hide the header, or switch individual controls off as needed.
+Use `toolbar: false` to hide the header, or disable `credits`, `themeToggle`, `fontSizeControls`, and `copyButton` individually.
 
 Controls use monospace by default; override `--by-view-controls-font` to change it.
 
@@ -113,7 +119,7 @@ High Contrast text colors target at least [7:1 contrast](https://www.w3.org/WAI/
 
 ### Make it yours
 
-**Custom theme CSS** starts with the selected palette's complete Light/Dark defaults, including controls and format-specific colors. Switching presets keeps your custom draft until Reset. On your page, use `data-theme="custom"` with `class="light"` or `class="dark"`.
+The playground's **Custom theme CSS** field edits both modes of the selected palette. Export those rules to your own stylesheet and use `data-theme="custom"` with `class="light"` or `class="dark"`. Custom drafts stay in the playground; the renderer does not store them.
 
 Define a named palette after the viewer stylesheet. Unspecified colors inherit Monokai:
 
@@ -155,13 +161,24 @@ Theme tests cover both modes, container isolation, legacy links, custom CSS, and
 
 Landing tests fetch the pinned Bootstrap stylesheet unless `BOOTSTRAP_CSS_PATH` points to a cached copy.
 
+Install Playwright outside the repository and set `NODE_PATH` to its `node_modules` directory:
+
+```sh
+node --check json.js
+node --test tests/rendering.cjs
+```
+
+`CHROMIUM_EXECUTABLE_PATH` selects a Chromium executable for every test. Otherwise, install Playwright Chromium; `BROWSER_CHANNEL=chrome` applies only to the suites that support it.
+
 [GitHub Actions](.github/workflows/rendering.yml) runs `tests/rendering.cjs` against local `json.js` in Chromium, covering values, escaping, links, controls, chunk ordering/cancellation, `test.json`, and playground exports.
 
 ## The easy viewers
 
-Need a viewer for another format? Explore the family:
+Need another format, or a Markdown editor? Explore the family:
 
 [Markdown](https://github.com/byuwur/easy-md-viewer) · [JSON](https://github.com/byuwur/easy-json-viewer) · [CSV & TSV](https://github.com/byuwur/easy-csv-viewer) · [Logs](https://github.com/byuwur/easy-log-viewer) · [Diff](https://github.com/byuwur/easy-diff-viewer) · [XML](https://github.com/byuwur/easy-xml-viewer) · [YAML](https://github.com/byuwur/easy-yaml-viewer) · [Source code](https://github.com/byuwur/easy-code-viewer)
+
+[Write Markdown with easy-md-editor](https://github.com/byuwur/easy-md-editor).
 
 ## License
 

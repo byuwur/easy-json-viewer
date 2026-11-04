@@ -9,43 +9,9 @@
 (function (global) {
   /* --- SETUP --- */
   if (global.byJSONviewer?.initialized) return;
+
   // Keep render state tied to each target element
   const renderTokens = new WeakMap();
-
-  /**
-   * Checks if a value is a non-empty collapsible object or array.
-   * @param {*} arg - The value to check.
-   * @return {boolean} True if the value is collapsible, otherwise false.
-   */
-  /* --- CONTENT --- */
-  const isCollapsible = (arg) => arg !== null && typeof arg === "object" && Object.keys(arg).length > 0;
-
-  /**
-   * Checks if a string starts with a supported URL protocol.
-   * @param {string} string - The string to check.
-   * @return {boolean} True if the string looks like a URL, otherwise false.
-   */
-  const isUrl = (string) => /^(https?|ftps?):\/\//i.test(string);
-
-  /**
-   * Checks if a value should render as a big-number scalar.
-   * @param {*} value - The value to check.
-   * @param {Object} options - Renderer options.
-   * @return {boolean} True if the value is a supported big number, otherwise false.
-   */
-  const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
-
-  /**
-   * Divides an array into smaller chunks.
-   * @param {Array} arr - Array to divide.
-   * @param {number} size - Size of each chunk.
-   * @return {Array<Array>} The divided array.
-   */
-  const chunkArr = (arr, size) => {
-    const chunks = [];
-    for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
-    return chunks;
-  };
 
   /**
    * Applies defaults and validates renderer options.
@@ -81,76 +47,42 @@
     return normalized;
   };
 
+  /* --- VALUE HELPERS --- */
   /**
-   * Cancels an unfinished render on the given element.
-   * @param {HTMLElement} element - Renderer element.
-   * @returns {void}
+   * Checks if a value is a non-empty collapsible object or array.
+   * @param {*} arg - The value to check.
+   * @return {boolean} True if the value is collapsible, otherwise false.
    */
-  const cancelExistingRender = (element) => {
-    const token = renderTokens.get(element);
-    if (!token) return;
-    token.cancel = true;
-    token.timers.forEach((timer) => clearTimeout(timer));
-    token.timers.clear();
-  };
+  const isCollapsible = (arg) => arg !== null && typeof arg === "object" && Object.keys(arg).length > 0;
 
   /**
-   * Schedules work for the current render.
-   * @param {Object} token - Render token.
-   * @param {Function} callback - Work to execute.
-   * @param {number} delay - Delay in milliseconds.
-   * @returns {void}
+   * Checks if a string starts with a supported URL protocol.
+   * @param {string} string - The string to check.
+   * @return {boolean} True if the string looks like a URL, otherwise false.
    */
-  const schedule = (token, callback, delay) => {
-    if (token.cancel) return;
-    const timer = setTimeout(() => {
-      token.timers.delete(timer);
-      if (!token.cancel) callback();
-    }, delay);
-    // Track timers so stale renders can be cleared
-    token.timers.add(timer);
-  };
+  const isUrl = (string) => /^(https?|ftps?):\/\//i.test(string);
 
   /**
-   * Sets the collapsed state of a toggle and its related elements.
-   * @param {HTMLElement} toggle - Toggle element.
-   * @param {boolean} collapsed - Desired state.
-   * @returns {void}
+   * Checks if a value should render as a big-number scalar.
+   * @param {*} value - The value to check.
+   * @param {Object} options - Renderer options.
+   * @return {boolean} True if the value is a supported big number, otherwise false.
    */
-  const setToggleState = (toggle, collapsed) => {
-    toggle.classList.toggle("collapsed", collapsed);
-    toggle.setAttribute("aria-expanded", String(!collapsed));
-    const parent = toggle.parentElement;
-    parent?.querySelector(":scope > .byJSONnest")?.classList.toggle("collapsed", collapsed);
-    parent?.querySelector(":scope > .byJSONplaceholder")?.classList.toggle("collapsed", collapsed);
-  };
+  const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
 
   /**
-   * Makes a placeholder trigger its sibling toggle.
-   * @param {HTMLElement} element - Placeholder element.
-   * @returns {void}
+   * Divides an array into smaller chunks.
+   * @param {Array} arr - Array to divide.
+   * @param {number} size - Size of each chunk.
+   * @return {Array<Array>} The divided array.
    */
-  const addPlaceholderListener = (element) => {
-    element.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.currentTarget.parentElement?.querySelector(":scope > .byJSONtoggle")?.click();
-    });
+  const chunkArr = (arr, size) => {
+    const chunks = [];
+    for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+    return chunks;
   };
 
-  /**
-   * Adds collapse/expand behavior to a toggle.
-   * @param {HTMLElement} element - Toggle element.
-   * @returns {void}
-   */
-  const addToggleListener = (element) => {
-    element.setAttribute("aria-expanded", "true");
-    element.addEventListener("click", (event) => {
-      event.preventDefault();
-      const toggle = event.currentTarget;
-      setToggleState(toggle, !toggle.classList.contains("collapsed"));
-    });
-  };
-
+  /* --- RENDERING --- */
   /**
    * Creates and appends an <a> element.
    * @param {HTMLElement} parent - Parent element.
@@ -220,7 +152,8 @@
   };
 
   /**
-   * Converts JSON-compatible data into its DOM representation.
+   * Appends a value and schedules its descendants in chunks using the same cancellation token.
+   * Collapsed branches still render; disclosure changes visibility, not data ownership.
    * @param {HTMLElement} element - Parent element.
    * @param {*} json - JSON-compatible value.
    * @param {Object} options - Renderer options.
@@ -303,6 +236,47 @@
 
   /* --- CONTROLS --- */
   /**
+   * Sets the collapsed state of a toggle and its related elements.
+   * @param {HTMLElement} toggle - Toggle element.
+   * @param {boolean} collapsed - Desired state.
+   * @returns {void}
+   */
+  const setToggleState = (toggle, collapsed) => {
+    toggle.classList.toggle("collapsed", collapsed);
+    toggle.setAttribute("aria-expanded", String(!collapsed));
+    const parent = toggle.parentElement;
+    parent?.querySelector(":scope > .byJSONnest")?.classList.toggle("collapsed", collapsed);
+    parent?.querySelector(":scope > .byJSONplaceholder")?.classList.toggle("collapsed", collapsed);
+  };
+
+  /**
+   * Makes a placeholder trigger its sibling toggle.
+   * @param {HTMLElement} element - Placeholder element.
+   * @returns {void}
+   */
+  const addPlaceholderListener = (element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.currentTarget.parentElement?.querySelector(":scope > .byJSONtoggle")?.click();
+    });
+  };
+
+  /**
+   * Adds collapse/expand behavior to a toggle.
+   * @param {HTMLElement} element - Toggle element.
+   * @returns {void}
+   */
+  const addToggleListener = (element) => {
+    element.setAttribute("aria-expanded", "true");
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      const toggle = event.currentTarget;
+      setToggleState(toggle, !toggle.classList.contains("collapsed"));
+    });
+  };
+
+  // Mirrored across the family so each viewer can run without a shared runtime.
+  /**
    * Adds container light/dark controls, retaining legacy stylesheet links as a fallback.
    * @param {HTMLElement} element Viewer container and theme owner.
    * @param {HTMLElement} controls Toolbar control group.
@@ -325,7 +299,8 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "byVIEWthemeToggle";
-    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
     const sync = () => {
       const next = getTheme() === "dark" ? "light" : "dark";
       const toggles = !localTheme(element) && legacyTheme() ? [button, ...document.querySelectorAll(".byJSONdocument > .byVIEWtoolbar > .byVIEWcontrols > .byVIEWthemeToggle")] : [button];
@@ -484,6 +459,7 @@
     if (options.credits !== false) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);
     if (options.fontSizeControls) appendFontSizeControls(element, controls);
+    // Serialize the supplied value, never the partially rendered or collapsed DOM.
     if (options.copyButton) appendCopyButton(controls, () => JSON.stringify(source, (_, value) => (typeof value === "bigint" || isBigNumber(value, options) ? value.toString() : value), 2) ?? "null", "Copy JSON");
     if (controls.childNodes.length) toolbar.appendChild(controls);
     if (options.toolbar === false || !toolbar.childNodes.length) {
@@ -494,9 +470,41 @@
     else element.prepend(toolbar);
   };
 
+  /* --- LIFECYCLE --- */
+  /**
+   * Cancels an unfinished render on the given element.
+   * @param {HTMLElement} element - Renderer element.
+   * @returns {void}
+   */
+  const cancelExistingRender = (element) => {
+    const token = renderTokens.get(element);
+    if (!token) return;
+    token.cancel = true;
+    token.timers.forEach((timer) => clearTimeout(timer));
+    token.timers.clear();
+  };
+
+  /**
+   * Schedule a chunk owned by this render. Cancellation clears every nested timer.
+   * @param {Object} token - Render token.
+   * @param {Function} callback - Work to execute.
+   * @param {number} delay - Delay in milliseconds.
+   * @returns {void}
+   */
+  const schedule = (token, callback, delay) => {
+    if (token.cancel) return;
+    const timer = setTimeout(() => {
+      token.timers.delete(timer);
+      if (!token.cancel) callback();
+    }, delay);
+    // Track timers so stale renders can be cleared
+    token.timers.add(timer);
+  };
+
   /* --- PUBLIC API --- */
   /**
-   * Renders JSON-compatible data into an HTML element with collapsible nodes.
+   * Replace a target with a chunked JSON tree. Returns immediately; descendants finish on timers.
+   * The caller retains the value; Copy serializes that value rather than the displayed DOM.
    * @param {HTMLElement} element - DOM element where the JSON will be rendered.
    * @param {*} json - JSON-compatible data to render.
    * @param {Object} [options] - Configuration options.
@@ -524,6 +532,7 @@
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
     // Cancel unfinished work before rendering again on the same element
     cancelExistingRender(element);
+    // Every nested chunk shares this token, so replacement cancels the entire pending tree.
     const token = { cancel: false, timers: new Set() };
     renderTokens.set(element, token);
     const normalizedOptions = normalizeOptions(options);

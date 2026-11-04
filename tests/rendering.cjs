@@ -1131,8 +1131,8 @@ test("family customization, navigation and monospace controls", async () => {
       }), true, "Size and position controls share one evenly divided row");
     }
     assert.deepEqual(await page.locator(".accordion-button").allTextContents().then((labels) => labels.map((label) => label.trim()).slice(0, 3)), ["Preview appearance", "Viewer controls", "Rendering"]);
-    assert.deepEqual(await page.locator("#options-json").evaluate((editor) => Object.keys(JSON.parse(editor.value)).slice(0, 18)), [
-      "theme", "palette", "fontFamily", "fontSize", "lineHeight", "controlsFont", "backgroundColor", "textColor", "customThemeCSS", "forceMonospace",
+    assert.deepEqual(await page.locator("#options-json").evaluate((editor) => Object.keys(JSON.parse(editor.value)).slice(0, 19)), [
+      "theme", "palette", "fontFamily", "fontSize", "lineHeight", "controlsFont", "backgroundColor", "containerBackgroundColor", "textColor", "customThemeCSS", "forceMonospace",
       "toolbar", "credits", "themeToggle", "fontSizeControls", "copyButton", "controlsCompact", "controlsSize", "controlsPosition"
     ]);
     assert.equal(await page.locator(".intro h1 + p").textContent(), "Plain JavaScript. No dependencies. Open source. Free. Forever.");
@@ -1192,7 +1192,7 @@ test("family customization, navigation and monospace controls", async () => {
     await page.locator("#copy-appearance").evaluate((button) => button.click());
     await page.waitForFunction(() => window.lastCopy?.includes("--by-view-controls-font"));
     assert.match(await page.evaluate(() => lastCopy), /\.byJSONdocument/);
-    assert.ok((await page.evaluate(() => lastCopy)).includes("--by-view-bg: #123456"));
+    assert.ok((await page.evaluate(() => lastCopy)).includes("--by-view-document-bg: #123456"));
     await page.locator('[data-options-view="json"]').evaluate((button) => button.click());
     const configuration = JSON.parse(await page.locator("#options-json").inputValue());
     for (const [name, value] of Object.entries({
@@ -1202,6 +1202,7 @@ test("family customization, navigation and monospace controls", async () => {
       lineHeight: 1.8,
       controlsFont: "system-ui, sans-serif",
       backgroundColor: "#123456",
+      containerBackgroundColor: null,
       textColor: "#fedcba"
     })) {
       assert.deepEqual(configuration[name], value, name);
@@ -1413,6 +1414,8 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
     page.on("pageerror", (error) => errors.push(error.message));
     await page.addInitScript(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text) => { window.lastCopy = text; } } }));
     await page.route("**/*", async (route) => {
+      const pickerAsset = new URL(route.request().url()).pathname.match(/\/spa\.js@v20\.6\/((?:css|js)\/pickr\.min\.(?:css|js))$/)?.[1];
+      if (pickerAsset) return route.fulfill({ path: path.join(__dirname, "../../spa.js", pickerAsset), contentType: pickerAsset.endsWith("css") ? "text/css" : "text/javascript" });
       const url = new URL(route.request().url());
       if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.6/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       if (url.origin !== "https://viewer.test") return route.abort();
@@ -1481,6 +1484,29 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
     assert.equal(await background(), initialBackground);
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), hostBackground);
     assert.deepEqual(errors, []);
+    await page.locator("#preview-bg").evaluate((field) => field.closest("details").open = true);
+    await page.locator("#preview-bg").fill("transparent");
+    await page.locator("#preview-bg").dispatchEvent("change");
+    await page.locator('[data-color-picker="preview-container-bg"]').click();
+    const picker = page.locator(".pcr-app.visible");
+    await picker.locator('.pcr-type[data-type="HEXA"]').waitFor();
+    assert.deepEqual(await picker.locator(".pcr-type:visible").evaluateAll((formats) => formats.map((format) => format.dataset.type)), ["HEXA"]);
+    assert.match(await picker.locator(".pcr-result").inputValue(), /^#[0-9a-f]{6}(?:[0-9a-f]{2})?$/i);
+    assert.equal(await page.locator("#preview-container-bg").inputValue(), "", "Opening the picker retains the theme default");
+    await picker.locator(".pcr-result").fill("#345678cc");
+    await picker.locator(".pcr-result").press("Enter");
+    await picker.locator(".pcr-save").click();
+    assert.equal((await page.locator("#preview-container-bg").inputValue()).toLowerCase(), "#345678cc");
+    await page.waitForFunction(() => {
+      const document = window.document.getElementById("preview-frame").contentDocument;
+      return getComputedStyle(document.querySelector(".byVIEWcopy")).backgroundColor === "rgba(52, 86, 120, 0.8)";
+    });
+    assert.equal(await root.evaluate((element) => getComputedStyle(element).backgroundColor), "rgba(0, 0, 0, 0)");
+    await page.locator("#preview-bg").fill("not a color");
+    await page.locator("#preview-bg").dispatchEvent("change");
+    assert.equal(await page.locator("#preview-bg").evaluate((field) => field.checkValidity()), false);
+    await page.locator("#reset-settings").click();
+    assert.equal(await page.locator("#preview-bg").evaluate((field) => field.checkValidity()), true);
   } finally {
     await browser.close();
   }
@@ -1607,25 +1633,13 @@ test("document and content backgrounds stay independent through theme and toolba
       if (changeMode) await root.locator(".byVIEWthemeToggle").click();
       assert.equal(await root.evaluate((element) => getComputedStyle(element).backgroundColor), "rgba(0, 0, 0, 0)");
       assert.equal(await root.locator(".byVIEWpanel").evaluate((element) => getComputedStyle(element).backgroundColor), "rgb(18, 52, 86)");
-      assert.equal(
-        await root
-          .locator(".byVIEWcopy")
-          .first()
-          .evaluate((element) => getComputedStyle(element).backgroundColor),
-        "rgb(18, 52, 86)"
-      );
+      assert.equal(await root.locator(".byVIEWcopy").first().evaluate((element) => getComputedStyle(element).backgroundColor), "rgb(18, 52, 86)");
       assert.equal(await root.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).backgroundColor), "rgba(0, 0, 0, 0)");
     }
     assert.equal(await page.locator("#neighbor").evaluate((element) => getComputedStyle(element).backgroundColor), neighbor);
     await root.evaluate((element) => element.style.removeProperty("--by-view-container-bg"));
     await page.waitForFunction(() => getComputedStyle(document.querySelector("#viewer .byVIEWcopy")).backgroundColor === "rgb(39, 40, 34)");
-    assert.notEqual(
-      await root
-        .locator(".byVIEWcopy")
-        .first()
-        .evaluate((element) => getComputedStyle(element).backgroundColor),
-      "rgba(0, 0, 0, 0)"
-    );
+    assert.notEqual(await root.locator(".byVIEWcopy").first().evaluate((element) => getComputedStyle(element).backgroundColor), "rgba(0, 0, 0, 0)");
     assert.equal(await root.locator(".byVIEWpanel > .byVIEWstatus").textContent(), "Object \u00b7 1 property");
     await root.evaluate((element) => byJSONviewer(element, [1, 2], { statusBar: false }));
     assert.equal(await root.locator(".byVIEWstatus").isVisible(), false);

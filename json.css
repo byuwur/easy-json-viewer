@@ -168,6 +168,19 @@
   border-radius: var(--by-view-radius, 0.65em);
   background: var(--by-view-container-bg, var(--by-view-bg));
 }
+.byJSONdocument.byVIEWplain .byVIEWpanel {
+  border: 0;
+  border-radius: 0;
+}
+.byJSONdocument.byVIEWplain .byVIEWstatus {
+  display: none;
+}
+.byJSONdocument.byVIEWplain .byVIEWpanel > :not(.byVIEWstatus) {
+  padding-inline: 0;
+}
+.byJSONdocument.byVIEWplain .byJSONcontent:has(> .byJSONtoggle) {
+  padding-left: 1.25em;
+}
 .byJSONdocument .byVIEWstatus {
   margin: 0;
   padding: 0.375em 0.625em;

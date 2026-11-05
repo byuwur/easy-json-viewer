@@ -38,6 +38,7 @@
       chunkLatency: 25,
       toolbar: true,
       credits: true,
+      displayContainer: true,
       statusBar: true,
       themeToggle: true,
       fontSizeControls: true,
@@ -550,7 +551,8 @@
    * @param {number} [options.chunkLatency=25] - Milliseconds before and between chunks.
    * @param {boolean} [options.toolbar=true] - Show the viewer header.
    * @param {boolean} [options.credits=true] - Show attribution in the header.
-   * @param {boolean} [options.statusBar=true] - Show the root value type and entry count.
+   * @param {boolean} [options.displayContainer=true] - Show the content frame and allow status information.
+   * @param {boolean} [options.statusBar=true] - Show the root value type and entry count when displayContainer is true.
    * @param {"light"|"dark"} [options.theme] - Initial mode; overrides the container.
    * @param {string} [options.palette] - Named CSS palette for data-theme.
    * @param {number|string} [options.fontSize] - Number in rem or CSS size, bounded to 0.5rem through 3rem.
@@ -576,6 +578,7 @@
     element.textContent = "";
     element.classList.add("byJSONdocument");
     element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
+    element.classList.toggle("byVIEWplain", normalizedOptions.displayContainer === false);
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     const content = document.createElement("div");
     content.className = "byJSONcontent";

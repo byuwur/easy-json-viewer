@@ -69,7 +69,8 @@ Pass options as the third argument:
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                               |
 | `animations`       | `true`      | Brief control/disclosure motion. `true` enables it and `false` disables it, overriding the system motion preference.                |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                  |
-| `statusBar`        | `true`      | Show the root type and number of items or properties in the content frame.                                                          |
+| `displayContainer` | `true`      | Show the content panel frame and inner horizontal padding. `false` also hides status information.                                   |
+| `statusBar`        | `true`      | Show the root type and number of items or properties. Requires `displayContainer: true`.                                            |
 | `credits`          | `true`      | Show attribution in the header.                                                                                                     |
 | `theme`            | Container   | Initial `"light"` or `"dark"` mode class.                                                                                           |
 | `palette`          | Container   | Initial `data-theme` palette, including custom CSS names.                                                                           |

@@ -44,6 +44,7 @@
       copyButton: true,
       controlsSize: "regular",
       controlsCompact: true,
+      animations: true,
       controlsPosition: "top",
       ...source
     };
@@ -99,7 +100,9 @@
     toggle.classList.toggle("collapsed", collapsed);
     toggle.setAttribute("aria-expanded", String(!collapsed));
     const parent = toggle.parentElement;
-    parent?.querySelector(":scope > .byJSONnest")?.classList.toggle("collapsed", collapsed);
+    const nest = parent?.querySelector(":scope > .byJSONnest");
+    nest?.classList.toggle("collapsed", collapsed);
+    if (nest) nest.inert = collapsed;
     parent?.querySelector(":scope > .byJSONplaceholder")?.classList.toggle("collapsed", collapsed);
   };
 
@@ -125,6 +128,7 @@
     element.addEventListener("click", (event) => {
       event.preventDefault();
       const toggle = event.currentTarget;
+      toggle.parentElement.classList.add("byVIEWreveal");
       setToggleState(toggle, !toggle.classList.contains("collapsed"));
     });
   };
@@ -530,6 +534,7 @@
    * @param {boolean} [options.fontSizeControls=true] - Adds viewer-local text size controls.
    * @param {boolean} [options.copyButton=true] - Adds a clipboard copy button.
    * @param {"small"|"regular"|"large"} [options.controlsSize="regular"] - Sets the control size; invalid values use regular.
+   * @param {boolean} [options.animations=true] - Enable brief interaction motion, overriding the system preference.
    * @param {boolean} [options.controlsCompact=true] - Places attribution beside the controls, wrapping as needed.
    * @param {"top"|"bottom"} [options.controlsPosition="top"] - Keeps the toolbar at the scroll area's top or bottom while the viewer is visible; invalid values use top.
    * @returns {void}
@@ -545,6 +550,7 @@
     const normalizedOptions = normalizeOptions(options);
     element.textContent = "";
     element.classList.add("byJSONdocument");
+    element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     const content = document.createElement("div");
     content.className = "byJSONcontent";

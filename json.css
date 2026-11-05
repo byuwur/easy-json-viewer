@@ -131,7 +131,7 @@
   color: var(--by-json-text);
   box-sizing: border-box;
   margin: 0;
-  padding: 0 1rem 1.5rem;
+  padding: 0 1rem 0.75rem;
   border: 0.0625rem solid var(--by-json-border);
   border-radius: var(--by-view-radius, 0.75rem);
   min-height: 6rem;
@@ -153,13 +153,16 @@
   flex: 1 0 auto;
   min-width: 0;
 }
+.byJSONdocument > .byVIEWcontent:first-child {
+  padding-top: 0.75rem;
+}
 .byJSONcontent {
   min-width: 0;
   padding: 0.375em 0.625em;
 }
 .byJSONdocument .byVIEWpanel {
   min-width: 0;
-  margin: 0.375em 0;
+  margin: 0;
   overflow: hidden;
   border: 0.0625rem solid var(--by-json-border);
   border-radius: var(--by-view-radius, 0.65em);
@@ -261,7 +264,6 @@
   font-size: 1.25rem;
 }
 .byJSONdocument.byVIEWbottom {
-  padding-top: 1rem;
   padding-bottom: 0;
 }
 .byJSONdocument.byVIEWcompact > .byVIEWtoolbar {

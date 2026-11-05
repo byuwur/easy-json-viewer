@@ -3,125 +3,6 @@
 /* Monokai is the default. Classes select mode; named data-theme values select a palette.
    data-theme="light" / "dark" remain mode aliases and override mode classes. */
 
-/* --- LIGHT --- */
-.byJSONdocument,
-.byJSONdocument.light:not([data-theme="dark"]),
-.byJSONdocument[data-theme="light"] {
-  color-scheme: light;
-  --by-view-toggle-position: -100%;
-  --by-view-muted: #8a8875;
-  --by-view-bg: #fafaf5;
-  --by-json-text: #272822;
-  --by-json-border: #d8d8c8;
-  --by-json-string: #647d00;
-  --by-json-literal: #7c42b5;
-  --by-json-nest-border: 0.0625rem dotted #d8d8c8;
-  --by-json-toggle: #686856;
-  --by-json-toggle-hover: #272822;
-  --by-json-placeholder: #8a8875;
-}
-
-/* --- DARK --- */
-.byJSONdocument.dark:not([data-theme="light"]),
-.byJSONdocument[data-theme="dark"] {
-  color-scheme: dark;
-  --by-view-toggle-position: 0%;
-  --by-view-muted: #75715e;
-  --by-view-bg: #272822;
-  --by-json-text: #f8f8f2;
-  --by-json-border: #49483e;
-  --by-json-string: #e6db74;
-  --by-json-literal: #ae81ff;
-  --by-json-nest-border: 0.0625rem dotted #49483e;
-  --by-json-toggle: #a6a28c;
-  --by-json-toggle-hover: #f8f8f2;
-  --by-json-placeholder: #75715e;
-}
-
-/* --- GITHUB --- */
-/* Light */
-.byJSONdocument[data-theme="github"]:not(.dark) {
-  --by-view-muted: #59636e;
-  --by-view-bg: #ffffff;
-  --by-json-text: #1f2328;
-  --by-json-border: #8c959f;
-  --by-json-string: #0a3069;
-  --by-json-literal: #8250df;
-  --by-json-nest-border: 0.0625rem dotted #8c959f;
-  --by-json-toggle: #59636e;
-  --by-json-toggle-hover: #1f2328;
-  --by-json-placeholder: #59636e;
-}
-/* Dark */
-.byJSONdocument.dark[data-theme="github"] {
-  --by-view-muted: #9198a1;
-  --by-view-bg: #0d1117;
-  --by-json-text: #f0f6fc;
-  --by-json-border: #6e7681;
-  --by-json-string: #a5d6ff;
-  --by-json-literal: #d2a8ff;
-  --by-json-nest-border: 0.0625rem dotted #6e7681;
-  --by-json-toggle: #9198a1;
-  --by-json-toggle-hover: #f0f6fc;
-  --by-json-placeholder: #9198a1;
-}
-
-/* --- SOLARIZED --- */
-/* Light */
-.byJSONdocument[data-theme="solarized"]:not(.dark) {
-  --by-view-muted: #657b83;
-  --by-view-bg: #fdf6e3;
-  --by-json-text: #586e75;
-  --by-json-border: #93a1a1;
-  --by-json-string: #859900;
-  --by-json-literal: #6c71c4;
-  --by-json-nest-border: 0.0625rem dotted #93a1a1;
-  --by-json-toggle: #657b83;
-  --by-json-toggle-hover: #586e75;
-  --by-json-placeholder: #657b83;
-}
-/* Dark */
-.byJSONdocument.dark[data-theme="solarized"] {
-  --by-view-muted: #839496;
-  --by-view-bg: #002b36;
-  --by-json-text: #93a1a1;
-  --by-json-border: #586e75;
-  --by-json-string: #859900;
-  --by-json-literal: #b58900;
-  --by-json-nest-border: 0.0625rem dotted #586e75;
-  --by-json-toggle: #839496;
-  --by-json-toggle-hover: #93a1a1;
-  --by-json-placeholder: #839496;
-}
-
-/* --- HIGH CONTRAST --- */
-/* Light */
-.byJSONdocument[data-theme="high-contrast"]:not(.dark) {
-  --by-view-muted: #333333;
-  --by-view-bg: #ffffff;
-  --by-json-text: #000000;
-  --by-json-border: #333333;
-  --by-json-string: #005a30;
-  --by-json-literal: #5c0066;
-  --by-json-nest-border: 0.0625rem dotted #333333;
-  --by-json-toggle: #333333;
-  --by-json-toggle-hover: #000000;
-  --by-json-placeholder: #333333;
-}
-/* Dark */
-.byJSONdocument.dark[data-theme="high-contrast"] {
-  --by-view-muted: #dddddd;
-  --by-view-bg: #000000;
-  --by-json-text: #ffffff;
-  --by-json-border: #ffffff;
-  --by-json-string: #ffff00;
-  --by-json-literal: #ffb5ff;
-  --by-json-nest-border: 0.0625rem dotted #ffffff;
-  --by-json-toggle: #dddddd;
-  --by-json-toggle-hover: #ffffff;
-  --by-json-placeholder: #dddddd;
-}
-
 /* --- VIEWER --- */
 .byJSONdocument {
   position: relative;
@@ -527,4 +408,124 @@
 
 .byJSONdocument .byVIEWinfo {
   transition: opacity var(--by-view-motion-duration) ease-out;
+}
+
+/* --- THEMES --- */
+/* --- LIGHT --- */
+.byJSONdocument,
+.byJSONdocument.light:not([data-theme="dark"]),
+.byJSONdocument[data-theme="light"] {
+  color-scheme: light;
+  --by-view-toggle-position: -100%;
+  --by-view-muted: #8a8875;
+  --by-view-bg: #fafaf5;
+  --by-json-text: #272822;
+  --by-json-border: #d8d8c8;
+  --by-json-string: #647d00;
+  --by-json-literal: #7c42b5;
+  --by-json-nest-border: 0.0625rem dotted #d8d8c8;
+  --by-json-toggle: #686856;
+  --by-json-toggle-hover: #272822;
+  --by-json-placeholder: #8a8875;
+}
+
+/* --- DARK --- */
+.byJSONdocument.dark:not([data-theme="light"]),
+.byJSONdocument[data-theme="dark"] {
+  color-scheme: dark;
+  --by-view-toggle-position: 0%;
+  --by-view-muted: #75715e;
+  --by-view-bg: #272822;
+  --by-json-text: #f8f8f2;
+  --by-json-border: #49483e;
+  --by-json-string: #e6db74;
+  --by-json-literal: #ae81ff;
+  --by-json-nest-border: 0.0625rem dotted #49483e;
+  --by-json-toggle: #a6a28c;
+  --by-json-toggle-hover: #f8f8f2;
+  --by-json-placeholder: #75715e;
+}
+
+/* --- GITHUB --- */
+/* Light */
+.byJSONdocument[data-theme="github"]:not(.dark) {
+  --by-view-muted: #59636e;
+  --by-view-bg: #ffffff;
+  --by-json-text: #1f2328;
+  --by-json-border: #8c959f;
+  --by-json-string: #0a3069;
+  --by-json-literal: #8250df;
+  --by-json-nest-border: 0.0625rem dotted #8c959f;
+  --by-json-toggle: #59636e;
+  --by-json-toggle-hover: #1f2328;
+  --by-json-placeholder: #59636e;
+}
+/* Dark */
+.byJSONdocument.dark[data-theme="github"] {
+  --by-view-muted: #9198a1;
+  --by-view-bg: #0d1117;
+  --by-json-text: #f0f6fc;
+  --by-json-border: #6e7681;
+  --by-json-string: #a5d6ff;
+  --by-json-literal: #d2a8ff;
+  --by-json-nest-border: 0.0625rem dotted #6e7681;
+  --by-json-toggle: #9198a1;
+  --by-json-toggle-hover: #f0f6fc;
+  --by-json-placeholder: #9198a1;
+}
+
+/* --- SOLARIZED --- */
+/* Light */
+.byJSONdocument[data-theme="solarized"]:not(.dark) {
+  --by-view-muted: #657b83;
+  --by-view-bg: #fdf6e3;
+  --by-json-text: #586e75;
+  --by-json-border: #93a1a1;
+  --by-json-string: #859900;
+  --by-json-literal: #6c71c4;
+  --by-json-nest-border: 0.0625rem dotted #93a1a1;
+  --by-json-toggle: #657b83;
+  --by-json-toggle-hover: #586e75;
+  --by-json-placeholder: #657b83;
+}
+/* Dark */
+.byJSONdocument.dark[data-theme="solarized"] {
+  --by-view-muted: #839496;
+  --by-view-bg: #002b36;
+  --by-json-text: #93a1a1;
+  --by-json-border: #586e75;
+  --by-json-string: #859900;
+  --by-json-literal: #b58900;
+  --by-json-nest-border: 0.0625rem dotted #586e75;
+  --by-json-toggle: #839496;
+  --by-json-toggle-hover: #93a1a1;
+  --by-json-placeholder: #839496;
+}
+
+/* --- HIGH CONTRAST --- */
+/* Light */
+.byJSONdocument[data-theme="high-contrast"]:not(.dark) {
+  --by-view-muted: #333333;
+  --by-view-bg: #ffffff;
+  --by-json-text: #000000;
+  --by-json-border: #333333;
+  --by-json-string: #005a30;
+  --by-json-literal: #5c0066;
+  --by-json-nest-border: 0.0625rem dotted #333333;
+  --by-json-toggle: #333333;
+  --by-json-toggle-hover: #000000;
+  --by-json-placeholder: #333333;
+}
+/* Dark */
+.byJSONdocument.dark[data-theme="high-contrast"] {
+  --by-view-muted: #dddddd;
+  --by-view-bg: #000000;
+  --by-json-text: #ffffff;
+  --by-json-border: #ffffff;
+  --by-json-string: #ffff00;
+  --by-json-literal: #ffb5ff;
+  --by-json-nest-border: 0.0625rem dotted #ffffff;
+  --by-json-toggle: #dddddd;
+  --by-json-toggle-hover: #ffffff;
+  --by-json-placeholder: #dddddd;
 }

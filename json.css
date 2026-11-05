@@ -323,7 +323,6 @@
   cursor: pointer;
 }
 .byJSONdocument > .byVIEWtoolbar button:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
 }
 .byJSONdocument > .byVIEWtoolbar button:focus-visible {
@@ -336,6 +335,7 @@
   gap: 0.0625em;
   border: 0.0625rem solid var(--by-json-border);
   border-radius: var(--by-view-radius, 0.65em);
+  background: var(--by-view-container-bg, var(--by-view-bg));
 }
 .byJSONdocument > .byVIEWtoolbar .byVIEWfontSize {
   width: 1.875em;

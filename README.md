@@ -56,30 +56,30 @@ Exported HTML starters use default settings, independently of playground changes
 
 Pass options as the third argument:
 
-| Option             | Default     | Meaning                                                                                                              |
-| ------------------ | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| `collapsible`      | `true`      | Show disclosure controls; false keeps every node expanded.                                                           |
-| `collapsed`        | `false`     | Collapse nodes initially.                                                                                            |
-| `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                                                             |
-| `withQuotes`       | `true`      | Quote object keys.                                                                                                   |
-| `withLinks`        | `true`      | Link `http`, `https`, `ftp`, and `ftps` URLs.                                                                        |
-| `bigNumbers`       | `false`     | Use compatible big-number objects' string representation.                                                            |
-| `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                                                      |
-| `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                                                      |
-| `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                |
-| `animations`       | `true`      | Brief control/disclosure motion. `true` enables it and `false` disables it, overriding the system motion preference. |
-| `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                   |
-| `statusBar`        | `true`      | Show the root type and number of items or properties in the content frame.                                           |
-| `credits`          | `true`      | Show attribution in the header.                                                                                      |
-| `theme`            | Container   | Initial `"light"` or `"dark"` mode class.                                                                            |
-| `palette`          | Container   | Initial `data-theme` palette, including custom CSS names.                                                            |
-| `fontSize`         | Container   | Number in rem or a CSS size such as `"1.25em"` or `"20px"`; bounded to `0.5rem`–`3rem`.                              |
-| `themeToggle`      | `true`      | Show the theme toggle.                                                                                               |
-| `fontSizeControls` | `true`      | Show text-size controls.                                                                                             |
-| `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.                                          |
-| `controlsSize`     | `"regular"` | `"small"`, `"regular"`, or `"large"`; invalid values use `"regular"`.                                                |
-| `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.                                                  |
-| `controlsPosition` | `"top"`     | Sticky `"top"` or `"bottom"` toolbar; invalid values use `"top"`.                                                    |
+| Option             | Default     | Meaning                                                                                                                             |
+| ------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `collapsible`      | `true`      | Show disclosure controls; false keeps every node expanded.                                                                          |
+| `collapsed`        | `false`     | Collapse nodes initially.                                                                                                           |
+| `rootCollapsible`  | `true`      | Allow the root object/array to collapse.                                                                                            |
+| `withQuotes`       | `true`      | Quote object keys.                                                                                                                  |
+| `withLinks`        | `true`      | Link `http`, `https`, `ftp`, and `ftps` URLs.                                                                                       |
+| `bigNumbers`       | `false`     | Use compatible big-number objects' string representation.                                                                           |
+| `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                                                                     |
+| `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                                                                     |
+| `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                               |
+| `animations`       | `true`      | Brief control/disclosure motion. `true` enables it and `false` disables it, overriding the system motion preference.                |
+| `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                  |
+| `statusBar`        | `true`      | Show the root type and number of items or properties in the content frame.                                                          |
+| `credits`          | `true`      | Show attribution in the header.                                                                                                     |
+| `theme`            | Container   | Initial `"light"` or `"dark"` mode class.                                                                                           |
+| `palette`          | Container   | Initial `data-theme` palette, including custom CSS names.                                                                           |
+| `fontSize`         | Container   | Number in rem or a CSS size such as `"1.25em"` or `"20px"`; bounded to `0.5rem`–`3rem`.                                             |
+| `themeToggle`      | `true`      | Show the theme toggle.                                                                                                              |
+| `fontSizeControls` | `true`      | Show text-size controls.                                                                                                            |
+| `copyButton`       | `true`      | Show a button to copy the complete JSON, including collapsed/pending nodes.                                                         |
+| `controlsSize`     | `"regular"` | `"xs"` (0.5rem), `"small"` (0.7rem), `"regular"` (0.875rem), `"large"` (1rem), or `"xl"` (1.25rem); invalid values use `"regular"`. |
+| `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.                                                                 |
+| `controlsPosition` | `"top"`     | Sticky `"top"` or `"bottom"` toolbar; invalid values use `"top"`.                                                                   |
 
 Smaller chunks improve responsiveness; lower latency starts the next chunk sooner. Re-rendering a target cancels its pending chunks.
 

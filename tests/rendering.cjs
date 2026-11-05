@@ -592,7 +592,7 @@ test("JSON rendering", async (t) => {
             [640, ""]
           ]) {
             root.style.width = `${width}px`;
-            for (const controlsSize of ["small", "regular", "large"]) {
+            for (const controlsSize of ["xs", "small", "regular", "large", "xl"]) {
               for (const controlsCompact of [false, true]) {
                 for (const controlsPosition of ["top", "bottom"]) {
                   byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", { fontSizeControls: true, controlsSize, controlsCompact, controlsPosition });
@@ -632,7 +632,7 @@ test("JSON rendering", async (t) => {
             }
           }
           root.style.fontSize = "48px";
-          const fixedButtonSize = root.querySelector(".byVIEWfontSize").getBoundingClientRect().width === sizes.large;
+          const fixedButtonSize = root.querySelector(".byVIEWfontSize").getBoundingClientRect().width === sizes.xl;
           byJSONviewer(root, "A longer string that wraps and stays clear of the toolbar.", {
             controlsSize: "small",
             controlsCompact: true,
@@ -660,7 +660,7 @@ test("JSON rendering", async (t) => {
           return { failures, sizes, fixedButtonSize, hidden, fallback, reset, wrapped, restored };
         });
         assert.deepEqual(results.failures, []);
-        assert.ok(results.sizes.small < results.sizes.regular && results.sizes.regular < results.sizes.large);
+        assert.ok(results.sizes.xs < results.sizes.small && results.sizes.small < results.sizes.regular && results.sizes.regular < results.sizes.large && results.sizes.large < results.sizes.xl);
         assert.equal(results.fixedButtonSize, true);
         assert.equal(results.hidden, true);
         assert.equal(results.fallback, true);
@@ -682,7 +682,7 @@ test("JSON rendering", async (t) => {
           const failures = [];
           for (const dimension of ["height", "min-height"]) {
             root.style.cssText = `${dimension}: 320px; overflow: auto;`;
-            for (const controlsSize of ["small", "regular", "large"]) {
+            for (const controlsSize of ["xs", "small", "regular", "large", "xl"]) {
               for (const controlsCompact of [false, true]) {
                 const options = { controlsPosition: "bottom", controlsSize, controlsCompact };
                 for (const width of [640, 240, 640]) {
@@ -1087,12 +1087,15 @@ test("viewer defaults, optional tools, and copy feedback", async () => {
     assert.equal(await page.locator(".byVIEWactions :is(input, select, button):visible").count(), 0);
     assert.equal(await page.locator(".byVIEWstatus:visible").count(), 1);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+
     await page.evaluate(() => renderUI({ fontSizeControls: false, statusBar: false }));
     assert.equal(await page.locator(".byVIEWfontSizes").count(), 0);
     assert.equal(await page.locator(".byVIEWstatus:visible").count(), 0);
     await page.evaluate(() => renderUI());
+    await page.evaluate(() => renderUI({ controlsSize: "invalid" }));
+    assert.equal(await page.locator(".byVIEWtoolbar").getAttribute("data-size"), "regular");
     for (const scale of [1, 1.5]) {
-      for (const controlsSize of ["small", "regular", "large"]) {
+      for (const controlsSize of ["xs", "small", "regular", "large", "xl"]) {
         for (const font of ["ui-monospace, monospace", "Georgia, serif"]) {
           for (const mode of ["light", "dark"]) {
             const errors = await page.evaluate(
@@ -1114,7 +1117,9 @@ test("viewer defaults, optional tools, and copy feedback", async () => {
                 const centerY = rect.top + parseFloat(style.borderTopWidth) + position(thumb.top, innerHeight) + transform.m42 + parseFloat(thumb.height) / 2;
                 const icons = [...button.querySelectorAll("svg")];
                 const icon = icons[mode === "dark" ? 1 : 0].getBoundingClientRect();
-                return [Math.abs(centerX - icon.x - icon.width / 2), Math.abs(centerY - icon.y - icon.height / 2), Math.abs(centerY - rect.y - rect.height / 2)];
+                const toolbarSize = parseFloat(getComputedStyle(host.querySelector(".byVIEWtoolbar")).fontSize);
+                const expectedSize = { xs: 0.5, small: 0.7, regular: 0.875, large: 1, xl: 1.25 }[controlsSize] * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                return [Math.abs(centerX - icon.x - icon.width / 2), Math.abs(centerY - icon.y - icon.height / 2), Math.abs(centerY - rect.y - rect.height / 2), Math.abs(toolbarSize - expectedSize)];
               },
               { scale, controlsSize, font, mode }
             );

@@ -1293,23 +1293,37 @@
           document.getElementById("options-json").value = settingsJSON(state.options);
           const cdn = state.install === "cdn";
           const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/" : "./";
-          const html = dedent(/* HTML */ `
-            <!doctype html>
-            <html lang="en">
-              <head>
-                <meta charset="utf-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>easy-json-viewer</title>
-                <link rel="stylesheet" href="${base}json.css" />
-                ${`<script src="${base}json.js" defer><\/script>`}
-              </head>
-              <body>
-                <pre id="viewer" data-theme="dark"></pre>
-                ${'<script id="viewer-data" type="application/json">'} { "project": "easy-json-viewer", "description": "A little less noise. A lot more JSON.", "openSource": true, "dependencies": 0 } ${"<\/script>"} ${"<script>"}
-                document.addEventListener("DOMContentLoaded", () => { const data = JSON.parse(document.getElementById("viewer-data").textContent); byJSONviewer(document.getElementById("viewer"), data); }); ${"<\/script>"}
-              </body>
-            </html>
-          `);
+          const endScript = "</" + "script>";
+          // Explicit lines preserve export indentation when the page is formatted.
+          const html = [
+            "<!doctype html>",
+            '<html lang="en">',
+            "  <head>",
+            '    <meta charset="utf-8" />',
+            '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
+            "    <title>easy-json-viewer</title>",
+            `    <link rel="stylesheet" href="${base}json.css" />`,
+            `    <script src="${base}json.js" defer>${endScript}`,
+            "  </head>",
+            "  <body>",
+            '    <pre id="viewer" data-theme="dark"></pre>',
+            '    <script id="viewer-data" type="application/json">',
+            "      {",
+            '        "project": "easy-json-viewer",',
+            '        "description": "A little less noise. A lot more JSON.",',
+            '        "openSource": true,',
+            '        "dependencies": 0',
+            "      }",
+            `    ${endScript}`,
+            "    <script>",
+            '      document.addEventListener("DOMContentLoaded", () => {',
+            '        const data = JSON.parse(document.getElementById("viewer-data").textContent);',
+            '        byJSONviewer(document.getElementById("viewer"), data);',
+            "      });",
+            `    ${endScript}`,
+            "  </body>",
+            "</html>"
+          ].join("\n");
           renderIntegration(html);
           document.getElementById("install-note").textContent = cdn ? "CDN follows the latest release; updates may take time to reach caches." : "Place the HTML beside json.js and json.css.";
           return html;

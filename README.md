@@ -67,7 +67,8 @@ Pass options as the third argument:
 | `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                                                                     |
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                                                                     |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                               |
-| `animations`       | `true`      | Brief control/disclosure motion. `true` enables it and `false` disables it, overriding the system motion preference.                |
+| `animations` | `true` | Brief control/disclosure motion and background fades; overrides the system motion preference. |
+| `appearAnimation` | `false` | Fade and gently move the viewer in when `animations` is enabled. Initial rendering remains immediate by default. |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                  |
 | `displayContainer` | `true`      | Show the content panel frame and inner horizontal padding. `false` also hides status information.                                   |
 | `statusBar`        | `true`      | Show the root type and number of items or properties. Requires `displayContainer: true`.                                            |
@@ -92,6 +93,8 @@ Read the library version with `byJSONviewer.VERSION`.
 
 Controls stick to the selected edge of the page or nearest scrolling container.
 
+The playground disables header-only settings while Viewer header is off, preserving their values. Appearing animation is disabled while Animations is off.
+
 Use `toolbar: false` to hide the header, or disable `credits`, `themeToggle`, `fontSizeControls`, and `copyButton` individually.
 
 Controls use monospace by default; override `--by-view-controls-font` to change it.
@@ -110,7 +113,7 @@ byJSONviewer(target, value, {
 
 `theme` sets the mode class; `palette` sets `data-theme`. `fontSize` numbers use rem (`1` = the root text size); CSS sizes such as `"1.25em"`, `"1.25rem"`, and `"20px"` are also accepted. All sizes stay between `0.5rem` and `3rem`. Explicit options override markup; omitted or `null` values retain the container's settings. A named palette preserves its existing mode, including the `data-theme="light"` / `"dark"` aliases. Invalid appearance values throw `RangeError` before replacing the current document. Text-size Reset returns to the configured size, including after re-rendering.
 
-Initial content appears immediately. Animations affect controls and deliberate show/hide actions; rows, tokens, and typing are not animated. Disclosure size/exit transitions progressively enhance browsers that support them.
+Initial content appears immediately unless `appearAnimation: true` is requested with animations enabled. Theme backgrounds fade briefly on shared surfaces; font size, rows, and syntax tokens change immediately. High Contrast and forced-color backgrounds switch immediately. Animations also affect controls and deliberate show/hide actions. Disclosure size/exit transitions progressively enhance browsers that support them.
 
 The outer document and inner surfaces have independent CSS backgrounds. Both follow the selected theme unless overridden. Set `--by-view-document-bg: #0000` to reveal the host page while keeping content panels and individual controls readable. `--by-view-container-bg` sets the shared background of those panels and controls; it also accepts alpha colors or `transparent`. The toolbar and credits have no background. These overrides survive theme changes.
 

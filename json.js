@@ -46,6 +46,7 @@
       controlsSize: "regular",
       controlsCompact: true,
       animations: true,
+      appearAnimation: false,
       controlsPosition: "top",
       ...source
     };
@@ -527,6 +528,7 @@
     const token = renderTokens.get(element);
     if (!token) return;
     token.cancel = true;
+    cancelAnimationFrame(token.motionFrame);
     token.timers.forEach((timer) => clearTimeout(timer));
     token.timers.clear();
   };
@@ -593,6 +595,14 @@
     element.textContent = "";
     element.classList.add("byJSONdocument");
     element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
+    element.classList.toggle("byVIEWappear", normalizedOptions.animations !== false && normalizedOptions.appearAnimation === true);
+    if (!element.classList.contains("byVIEWready")) {
+      token.motionFrame = requestAnimationFrame(() => {
+        token.motionFrame = requestAnimationFrame(() => {
+          if (!token.cancel) element.classList.add("byVIEWready");
+        });
+      });
+    }
     element.classList.toggle("byVIEWplain", normalizedOptions.displayContainer === false);
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     const content = document.createElement("div");

@@ -310,6 +310,10 @@
                           >
                         </div>
                         <div class="form-switch d-flex align-items-center gap-3 ps-0 m-0">
+                          <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="appearAnimation" type="checkbox" role="switch" />
+                          <label class="form-check-label flex-grow-1 py-2" for="appearAnimation">Appearing animation</label>
+                        </div>
+                        <div class="form-switch d-flex align-items-center gap-3 ps-0 m-0">
                           <input class="form-check-input order-2 float-none flex-shrink-0 ms-0 my-0" id="displayContainer" type="checkbox" role="switch" checked /><label class="form-check-label flex-grow-1 py-2" for="displayContainer"
                             >Display container</label
                           >
@@ -945,6 +949,7 @@
           controlsSize: "regular",
           controlsCompact: true,
           animations: true,
+          appearAnimation: false,
           controlsPosition: "top",
           withLinks: true,
           collapsible: true,
@@ -1172,7 +1177,8 @@
             <html lang="en">
               <head>
                 <base href="${base}" />
-                <link rel="stylesheet" href="json.css" /><link rel="stylesheet" href="json.themes.css" />
+                <link rel="stylesheet" href="json.css" />
+                <link rel="stylesheet" href="json.themes.css" />
                 <style>
                   body {
                     margin: 0;
@@ -1295,7 +1301,7 @@
 
         function settingsJSON(options) {
           const field = (id) => (id === "preview-controls-font" ? document.querySelector('[name="preview-controls-font"]:checked')?.value : document.getElementById(id)?.value) || null;
-          const { forceMonospace, toolbar, credits, themeToggle, fontSizeControls, copyButton, controlsCompact, animations, controlsSize, controlsPosition, ...rendering } = options;
+          const { forceMonospace, toolbar, credits, themeToggle, fontSizeControls, copyButton, controlsCompact, animations, appearAnimation, controlsSize, controlsPosition, ...rendering } = options;
           return JSON.stringify(
             {
               theme: document.querySelector('[name="previewTheme"]:checked').value,
@@ -1316,6 +1322,7 @@
               copyButton,
               controlsCompact,
               animations,
+              appearAnimation,
               controlsSize,
               controlsPosition,
               ...rendering
@@ -1343,6 +1350,8 @@
 
         function updateCode() {
           document.body.classList.toggle("byVIEWmotion", state.options.animations !== false);
+          for (const control of document.querySelectorAll('#credits, #themeToggle, #fontSizeControls, #copyButton, #controlsCompact, [name="controlsSize"], [name="controlsPosition"]')) control.disabled = state.options.toolbar === false;
+          document.getElementById("appearAnimation").disabled = state.options.animations === false;
           document.getElementById("statusBar").disabled = state.options.displayContainer === false;
           document.getElementById("options-json").value = settingsJSON(state.options);
           const cdn = state.install === "cdn";

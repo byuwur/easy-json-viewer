@@ -55,13 +55,13 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
     await playground.route("**/*", async (route) => {
       if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       const url = new URL(route.request().url());
-      if (["https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.css", "https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.js"].includes(url.href)) {
+      if (["https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.min.css", "https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.min.js"].includes(url.href)) {
         const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
         assert.ok(response.ok, "Unable to load pinned CODE asset");
         return route.fulfill({ body: await response.text(), contentType: url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
       }
       if (url.origin !== "https://viewer.test") return route.abort();
-      const file = path.basename(url.pathname);
+      const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
       const body = await fs.readFile(path.join(__dirname, "..", file));
       await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
@@ -102,9 +102,9 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
     );
     await playground.locator("#site-theme").click();
     const readme = require("node:fs").readFileSync(path.join(__dirname, "../README.md"), "utf8");
-    for (const extension of ["css", "js"]) assert.ok(readme.includes(`${cdnBase}json.${extension}`), "README assets must match the CDN starter");
+    for (const extension of ["css", "js"]) assert.ok(readme.includes(`${cdnBase}json.min.${extension}`), "README assets must match the CDN starter");
     assert.equal(await playground.locator("#install-note").textContent(), "CDN follows the latest release; updates may take time to reach caches.");
-    assert.ok((await readStarter(playground)).includes(`href="${cdnBase}json.css"`));
+    assert.ok((await readStarter(playground)).includes(`href="${cdnBase}json.min.css"`));
     assert.equal(await playground.locator('[data-install="cdn"]').getAttribute("aria-pressed"), "true");
     await playground.locator('[data-install="cdn"]').click();
     const cdnCode = await readStarter(playground);
@@ -208,7 +208,7 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
     const exported = await browser.newPage();
     exported.on("pageerror", (error) => errors.push(error.message));
     await exported.route("https://cdn.jsdelivr.net/**", async (route) => {
-      const file = path.basename(new URL(route.request().url()).pathname);
+      const file = path.basename(new URL(route.request().url()).pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       const body = await fs.readFile(path.join(__dirname, "..", file));
       if (file.endsWith(".js")) await new Promise((resolve) => setTimeout(resolve, 75));
       await route.fulfill({ body, contentType: file.endsWith(".js") ? "text/javascript" : "text/css" });
@@ -245,7 +245,8 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
         assert.equal(await exported.locator("#viewer").getAttribute("data-theme"), "dark");
         assert.equal(await exported.locator("#byVIEWtheme").count(), 0);
         assert.equal(await exported.locator('head link[rel="stylesheet"]').count(), 1);
-        assert.doesNotMatch(html, /\.(light|dark)\.css|\.min\.(css|js)/);
+        assert.doesNotMatch(html, /\.(light|dark)\.css/);
+        for (const extension of ["css", "js"]) assert.ok(html.includes(`json${mode === "cdn" ? ".min" : ""}.${extension}`));
         const background = await exported.locator("#viewer").evaluate((element) => getComputedStyle(element).backgroundColor);
         await exported.locator(".byVIEWthemeToggle").click();
         await exported.waitForFunction((before) => getComputedStyle(document.getElementById("viewer")).backgroundColor !== before, background);
@@ -295,7 +296,7 @@ test("family customization, navigation and monospace controls", async () => {
       if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       const url = new URL(route.request().url());
       if (url.origin !== "https://viewer.test") return route.abort();
-      const file = path.basename(url.pathname);
+      const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
       return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
     });
@@ -556,7 +557,7 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
       if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/pickr.min.js") return route.fulfill({ body: pickerJS, contentType: "text/javascript" });
       if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       if (url.origin !== "https://viewer.test") return route.abort();
-      const file = path.basename(url.pathname);
+      const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
     });
     await page.goto("https://viewer.test/index.html");
@@ -565,7 +566,11 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
     const root = frame.locator(".byJSONdocument");
     const editor = page.locator("#custom-theme-css");
     const palette = page.locator("#preview-palette");
-    const background = () => root.evaluate((element) => { for (const animation of element.getAnimations()) if (animation.transitionProperty === "background-color") animation.finish(); return getComputedStyle(element).backgroundColor; });
+    const background = () =>
+      root.evaluate((element) => {
+        for (const animation of element.getAnimations()) if (animation.transitionProperty === "background-color") animation.finish();
+        return getComputedStyle(element).backgroundColor;
+      });
     const headerSettings = page.locator('#credits, #themeToggle, #fontSizeControls, #copyButton, #controlsCompact, [name="controlsSize"], [name="controlsPosition"]');
     const selectedSettings = await headerSettings.evaluateAll((controls) => controls.map((control) => [control.value, control.checked]));
     await page.locator("#toolbar").uncheck();

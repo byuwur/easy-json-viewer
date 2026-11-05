@@ -28,7 +28,7 @@
     <meta name="twitter:description" content="Explore JSON with collapsible nodes, clickable links, copy controls, and accessible themes. A free, dependency-free JavaScript JSON viewer by BONYUR." />
     <meta name="twitter:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" />
     <meta name="twitter:image:alt" content="easy-json-viewer by BONYUR: JSON playground, options, source editor, and live preview." />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/shards.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/shards.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/pickr.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/fontawesome.min.css" />
@@ -36,8 +36,8 @@
     <script src="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/popper.min.js" defer=""></script>
     <script src="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/bootstrap.min.js" defer=""></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/animate.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.css" />
-    <script src="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.js" defer></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.min.js" defer></script>
   </head>
 
   <body class="byVIEWmotion">
@@ -1355,6 +1355,7 @@
           document.getElementById("statusBar").disabled = state.options.displayContainer === false;
           document.getElementById("options-json").value = settingsJSON(state.options);
           const cdn = state.install === "cdn";
+          const min = cdn ? ".min" : "";
           const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/" : "./";
           const endScript = "</" + "script>";
           // Explicit lines preserve export indentation when the page is formatted.
@@ -1365,8 +1366,8 @@
             '    <meta charset="utf-8" />',
             '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
             "    <title>easy-json-viewer</title>",
-            `    <link rel="stylesheet" href="${base}json.css" />`,
-            `    <script src="${base}json.js" defer>${endScript}`,
+            `    <link rel="stylesheet" href="${base}json${min}.css" />`,
+            `    <script src="${base}json${min}.js" defer>${endScript}`,
             "  </head>",
             "  <body>",
             '    <pre id="viewer" data-theme="dark"></pre>',
@@ -1729,7 +1730,11 @@
           const loadPalette = () => {
             clearTimeout(themeTimer);
             if (!target()) return;
-            if (!["monokai", "github", "solarized", "high-contrast", "custom"].includes(palette.value) && !themesWarned && frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue("--by-json-themes-loaded").trim() !== "1") {
+            if (
+              !["monokai", "github", "solarized", "high-contrast", "custom"].includes(palette.value) &&
+              !themesWarned &&
+              frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue("--by-json-themes-loaded").trim() !== "1"
+            ) {
               themesWarned = true;
               console.warn(`easy-json-viewer: Import json.themes.css after json.css to use "${palette.value}".`);
             }

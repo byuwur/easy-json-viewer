@@ -173,18 +173,19 @@ Legacy integrations can use `#byVIEWtheme` or a detected `json.light.css` / `jso
 
 Theme tests cover both modes, container isolation, legacy links, custom CSS, and High Contrast.
 
-Landing tests fetch the pinned Bootstrap stylesheet unless `BOOTSTRAP_CSS_PATH` points to a cached copy.
+Playground tests fetch the pinned Bootstrap stylesheet and Pickr assets. `BOOTSTRAP_CSS_PATH` can point to a cached Bootstrap copy; Pickr requires internet access.
 
 Install Playwright outside the repository and set `NODE_PATH` to its `node_modules` directory:
 
 ```sh
 node --check json.js
-node --test tests/rendering.cjs
+node --test tests/rendering.cjs   # Library
+node --test tests/playground.cjs  # Playground
 ```
 
 `CHROMIUM_EXECUTABLE_PATH` selects a Chromium executable for every test. Otherwise, install Playwright Chromium; `BROWSER_CHANNEL=chrome` applies only to the suites that support it.
 
-[GitHub Actions](.github/workflows/rendering.yml) runs `tests/rendering.cjs` against local `json.js` in Chromium, covering values, escaping, links, controls, chunk ordering/cancellation, `test.json`, and playground exports.
+[GitHub Actions](.github/workflows/rendering.yml) reports Library and Playground as independent jobs; a failed suite does not cancel the other. Library checks load the renderer directly; playground checks cover the landing page, configuration, and exports.
 
 ## The easy viewers
 

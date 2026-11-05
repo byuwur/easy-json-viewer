@@ -12,6 +12,12 @@ const test = require("node:test");
 const { pathToFileURL } = require("node:url");
 const { chromium } = require("playwright");
 
+// Read the displayed source without line numbers or status text.
+const readStarter = async (page) => {
+  await page.locator('#integration-code[aria-busy="false"]').waitFor();
+  return (await page.locator("#integration-code .byCODEtext").allTextContents()).join("\n");
+};
+
 /* --- THEME FIXTURES --- */
 // Caller-provided legacy stylesheets reuse the canonical palettes without distribution files.
 const legacyThemeCSS = (theme) => {
@@ -49,6 +55,11 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
     await playground.route("**/*", async (route) => {
       if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       const url = new URL(route.request().url());
+      if (["https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.css", "https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.5/code.js"].includes(url.href)) {
+        const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+        assert.ok(response.ok, "Unable to load pinned CODE asset");
+        return route.fulfill({ body: await response.text(), contentType: url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
+      }
       if (url.origin !== "https://viewer.test") return route.abort();
       const file = path.basename(url.pathname);
       if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
@@ -62,13 +73,41 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
       .evaluate(() => byJSONviewer.VERSION);
     assert.ok((await playground.frameLocator("#preview-frame").locator(".byVIEWinfo").textContent()).includes(` v${release} `), "Credits must match the runtime release");
     const cdnBase = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/";
+    const starterViewer = playground.locator("#integration-code.byCODEdocument");
+    assert.equal(await playground.evaluate(() => byCODEviewer.VERSION), "1.5");
+    assert.equal(await starterViewer.getAttribute("data-theme"), "dark");
+    await starterViewer.locator(".byCODEtext").first().waitFor();
+    assert.ok((await starterViewer.locator(".byCODElineNumber").count()) > 0);
+    assert.equal(await starterViewer.locator(".byVIEWtoolbar, button, input, select").count(), 0);
+    assert.equal(await starterViewer.locator(".byVIEWstatus:visible").count(), 0);
+    assert.deepEqual(await starterViewer.evaluate((element) => [element, element.querySelector(".byVIEWpanel"), element.querySelector(".byCODElineNumber")].map((node) => getComputedStyle(node).backgroundColor)), [
+      "rgba(0, 0, 0, 0)",
+      "rgba(0, 0, 0, 0)",
+      "rgba(0, 0, 0, 0)"
+    ]);
+    assert.ok((await starterViewer.locator(".byCODEtag").count()) > 0);
+    assert.equal(await playground.locator("#integration-code script").count(), 0);
+    const starterTagColor = await starterViewer
+      .locator(".byCODEtag")
+      .first()
+      .evaluate((token) => getComputedStyle(token).color);
+    await playground.locator("#site-theme").click();
+    assert.equal(await starterViewer.getAttribute("data-theme"), "light");
+    assert.notEqual(
+      await starterViewer
+        .locator(".byCODEtag")
+        .first()
+        .evaluate((token) => getComputedStyle(token).color),
+      starterTagColor
+    );
+    await playground.locator("#site-theme").click();
     const readme = require("node:fs").readFileSync(path.join(__dirname, "../README.md"), "utf8");
     for (const extension of ["css", "js"]) assert.ok(readme.includes(`${cdnBase}json.${extension}`), "README assets must match the CDN starter");
     assert.equal(await playground.locator("#install-note").textContent(), "CDN follows the latest release; updates may take time to reach caches.");
-    assert.ok((await playground.locator("#integration-code").inputValue()).includes(`href="${cdnBase}json.css"`));
+    assert.ok((await readStarter(playground)).includes(`href="${cdnBase}json.css"`));
     assert.equal(await playground.locator('[data-install="cdn"]').getAttribute("aria-pressed"), "true");
     await playground.locator('[data-install="cdn"]').click();
-    const cdnCode = await playground.locator("#integration-code").inputValue();
+    const cdnCode = await readStarter(playground);
     assert.ok(cdnCode.includes(cdnBase));
     const renderer = playground.frameLocator("#preview-frame").locator("#byJSONrenderer");
     await renderer.locator(".byJSONstring").first().waitFor();
@@ -143,15 +182,15 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
     assert.equal(JSON.parse(await playground.locator("#options-json").inputValue()).forceMonospace, false);
     assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontFamily), "serif");
     assert.equal(await renderer.evaluate((root) => getComputedStyle(root).fontSize), defaultSize);
-    assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
+    assert.equal(await readStarter(playground), cdnCode);
     const source = '{"message":"</script><script>window.injected=true</script>","__proto__":{"kept":true},"items":[1,true,null]}';
     await playground.locator("#json-source").fill(source);
     await playground.locator("#withLinks").uncheck();
     await playground.locator('label[for="theme-light"]').click();
     assert.equal(await renderer.locator(".byVIEWthemeToggle svg").count(), 2);
-    assert.equal(await playground.locator("#integration-code").inputValue(), cdnCode);
+    assert.equal(await readStarter(playground), cdnCode);
     await playground.locator('[data-install="local"]').click();
-    const code = await playground.locator("#integration-code").inputValue();
+    const code = await readStarter(playground);
     assert.ok(code.includes('document.addEventListener("DOMContentLoaded"'));
     assert.ok(!code.includes('"withLinks": false'));
     assert.ok(code.includes('src="./json.js" defer'));
@@ -178,7 +217,7 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
           await playground.locator("#json-source").fill('{"balance":"-900719925474099312349","unit":"edited","extra":42}');
         }
         await playground.locator(`[data-install="${mode}"]`).click();
-        const displayed = await playground.locator("#integration-code").inputValue();
+        const displayed = await readStarter(playground);
         assert.equal(displayed, mode === "cdn" ? cdnCode : code);
         await playground.locator("#copy-code").click();
         assert.equal(await playground.evaluate(() => window.copiedHTML), displayed);
@@ -222,7 +261,7 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
       element.dispatchEvent(new Event("change", { bubbles: true }));
     });
     assert.equal(await playground.locator("#configuration").evaluate((element) => element.checkValidity()), false);
-    assert.equal(await playground.locator("#integration-code").inputValue(), code);
+    assert.equal(await readStarter(playground), code);
     await playground.locator("#copy-code").click();
     assert.equal(await playground.evaluate(() => window.copiedHTML), code);
     assert.deepEqual(errors, []);

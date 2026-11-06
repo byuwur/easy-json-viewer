@@ -391,8 +391,7 @@
     controls.setAttribute("aria-label", "Viewer controls");
     const info = document.createElement("small");
     info.className = "byVIEWinfo";
-    info.innerHTML = // HTML
-     `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
+    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
     if (options.credits !== false) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);

@@ -960,48 +960,14 @@
           chunkLatency: 25,
           bigNumbers: false
         };
+        // prettier-ignore
         const samples = {
-          basic: {
-            project: "easy-json-viewer",
-            description: "A little less noise. A lot more JSON.",
-            openSource: true,
-            dependencies: 0,
-            features: ["Collapsible nodes", "Light & dark", "Progressive rendering"],
-            author: { name: "BONYUR @byUwUr", philosophy: "Simple is complicated enough." },
-            source: "https://github.com/byuwur/easy-json-viewer",
-            nextBigThing: null
-          },
-          nested: {
-            workspace: {
-              name: "Weekend projects",
-              projects: [
-                { name: "easy-json-viewer", releases: [{ version: "2.8", files: ["json.js", "json.css"] }] },
-                { name: "stream.html", tools: { controller: { inputs: ["Gamepad", "Keyboard"] }, popup: { enabled: true } } }
-              ],
-              emptyShelf: [],
-              preferences: {}
-            }
-          },
-          mixed: ["A string", 42, -3.5, true, false, null, [], {}, { list: [1, "two", null] }],
-          urls: {
-            repository: "https://github.com/byuwur/easy-json-viewer",
-            website: "https://byuwur.github.io/easy-json-viewer/",
-            query: "https://example.com/search?q=JSON&lang=en",
-            ftp: "ftp://example.com/public/data.json",
-            plainText: "example.com has no protocol, so it stays text.",
-            unsafeProtocol: "javascript:alert('This is text, too.')"
-          },
-          characters: {
-            greeting: "¡Hola! こんにちは 👋",
-            quotation: 'He said "simple is complicated enough."',
-            path: "C:\\projects\\easy-json-viewer",
-            whitespace: "First line\nSecond line\tTabbed",
-            html: /* HTML */ `<img src="missing" onerror="alert(1)" />`,
-            script: `<script>alert('Still just a string.')<\/script>`,
-            link: "https://github.com/byuwur/easy-json-viewer",
-            nested: { symbols: "< > & \" '", escaped: "\\u0041 is a literal escape here." }
-          },
-          bigNumbers: { balance: "900719925474099312345", unit: "tiny units", ordinaryNumber: 42 }
+          basic: {"name": "Default showcase", "source": "{\n  \"project\": \"easy-json-viewer\",\n  \"description\": \"A little less noise. A lot more JSON.\",\n  \"openSource\": true,\n  \"dependencies\": 0,\n  \"features\": [\n    \"Collapsible nodes\",\n    \"Light & dark\",\n    \"Progressive rendering\"\n  ],\n  \"author\": {\n    \"name\": \"BONYUR @byUwUr\",\n    \"philosophy\": \"Simple is complicated enough.\"\n  },\n  \"source\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"nextBigThing\": null\n}"},
+          nested: {"name": "Nested objects", "source": "{\n  \"workspace\": {\n    \"name\": \"Weekend projects\",\n    \"projects\": [\n      {\n        \"name\": \"easy-json-viewer\",\n        \"releases\": [\n          {\n            \"version\": \"2.8\",\n            \"files\": [\n              \"json.js\",\n              \"json.css\"\n            ]\n          }\n        ]\n      },\n      {\n        \"name\": \"stream.html\",\n        \"tools\": {\n          \"controller\": {\n            \"inputs\": [\n              \"Gamepad\",\n              \"Keyboard\"\n            ]\n          },\n          \"popup\": {\n            \"enabled\": true\n          }\n        }\n      }\n    ],\n    \"emptyShelf\": [],\n    \"preferences\": {}\n  }\n}"},
+          mixed: {"name": "Mixed values", "source": "[\n  \"A string\",\n  42,\n  -3.5,\n  true,\n  false,\n  null,\n  [],\n  {},\n  {\n    \"list\": [\n      1,\n      \"two\",\n      null\n    ]\n  }\n]"},
+          urls: {"name": "Links", "source": "{\n  \"repository\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"website\": \"https://byuwur.github.io/easy-json-viewer/\",\n  \"query\": \"https://example.com/search?q=JSON&lang=en\",\n  \"ftp\": \"ftp://example.com/public/data.json\",\n  \"plainText\": \"example.com has no protocol, so it stays text.\",\n  \"unsafeProtocol\": \"javascript:alert('This is text, too.')\"\n}"},
+          characters: {"name": "Escaped characters", "source": "{\n  \"greeting\": \"¡Hola! こんにちは 👋\",\n  \"quotation\": \"He said \\\"simple is complicated enough.\\\"\",\n  \"path\": \"C:\\\\projects\\\\easy-json-viewer\",\n  \"whitespace\": \"First line\\nSecond line\\tTabbed\",\n  \"html\": \"\u003cimg src=\\\"missing\\\" onerror=\\\"alert(1)\\\" />\",\n  \"script\": \"\u003cscript>alert('Still just a string.')\u003c/script>\",\n  \"link\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"nested\": {\n    \"symbols\": \"\u003c > & \\\" '\",\n    \"escaped\": \"\\\\u0041 is a literal escape here.\"\n  }\n}"},
+          bigNumbers: {"name": "Big numbers", "source": "{\n  \"balance\": \"900719925474099312345\",\n  \"unit\": \"tiny units\",\n  \"ordinaryNumber\": 42\n}"},
         };
         const state = {
           source: "basic",
@@ -1283,7 +1249,7 @@
             editor.disabled = false;
             state.request = null;
           } else if (name !== "custom") {
-            editor.value = JSON.stringify(samples[name], null, 2);
+            editor.value = samples[name].source;
           }
           editor.scrollTop = 0;
           renderSource();

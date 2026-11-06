@@ -7,17 +7,17 @@
  * https://github.com/byuwur/easy-json-viewer
  */
 (function (global) {
-  /* --- INITIALIZATION --- */
+  // --- INITIALIZATION ---
   if (global.byJSONviewer?.initialized) return;
 
-  /* --- METADATA --- */
+  // --- METADATA ---
   byJSONviewer.VERSION = "3.5"; // 2026-11-05
 
   // Keep render state tied to each target element
-  /* --- STATE --- */
+  // --- STATE ---
   const renderTokens = new WeakMap();
 
-  /* --- HELPERS --- */
+  // --- HELPERS ---
 
   /**
    * Applies defaults and validates renderer options.
@@ -91,7 +91,7 @@
     return chunks;
   };
 
-  /* --- APPEARANCE --- */
+  // --- APPEARANCE ---
   const extraPalettes = new Set([
     "dracula",
     "darcula",
@@ -147,7 +147,7 @@
     console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/easy-json-viewer/`);
   };
 
-  /** Explicit appearance options override markup; omitted values preserve the container's state. */
+  // Explicit appearance options override markup; omitted values preserve the container's state.
   const applyAppearance = (element, options) => {
     const { theme, palette, fontSize } = options;
     if (theme != null && !["light", "dark"].includes(theme)) throw new RangeError("Theme must be light or dark.");
@@ -168,7 +168,7 @@
     }
   };
 
-  /* --- CONTROLS --- */
+  // --- CONTROLS ---
   /**
    * Sets the collapsed state of a toggle and its related elements.
    * @param {HTMLElement} toggle - Toggle element.
@@ -391,7 +391,8 @@
     controls.setAttribute("aria-label", "Viewer controls");
     const info = document.createElement("small");
     info.className = "byVIEWinfo";
-    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
+    info.innerHTML = // HTML
+     `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
     if (options.credits !== false) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);
@@ -407,7 +408,7 @@
     else element.prepend(toolbar);
   };
 
-  /* --- RENDERING --- */
+  // --- RENDERING ---
   /**
    * Creates and appends an <a> element.
    * @param {HTMLElement} parent - Parent element.
@@ -559,7 +560,7 @@
     return appendSPAN(element, "null");
   };
 
-  /* --- LIFECYCLE --- */
+  // --- LIFECYCLE ---
   /**
    * Cancels an unfinished render on the given element.
    * @param {HTMLElement} element - Renderer element.
@@ -591,7 +592,7 @@
     token.timers.add(timer);
   };
 
-  /* --- PUBLIC API --- */
+  // --- PUBLIC API ---
   /**
    * Replace a target with a chunked JSON tree. Returns immediately; descendants finish on timers.
    * The caller retains the value; Copy serializes that value rather than the displayed DOM.
@@ -680,7 +681,7 @@
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
     appendViewerControls(element, normalizedOptions, "json", json);
   }
-  /* --- EXPORT --- */
+  // --- EXPORT ---
   global.byJSONviewer = byJSONviewer;
   byJSONviewer.initialized = true;
 })(typeof window !== "undefined" ? window : this);

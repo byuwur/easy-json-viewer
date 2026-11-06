@@ -996,7 +996,8 @@
             quotation: 'He said "simple is complicated enough."',
             path: "C:\\projects\\easy-json-viewer",
             whitespace: "First line\nSecond line\tTabbed",
-            html: /*HTML */ `<img src="missing" onerror="alert(1)">`,
+            html: // HTML
+             `<img src="missing" onerror="alert(1)">`,
             script: `<script>alert('Still just a string.')<\/script>`,
             link: "https://github.com/byuwur/easy-json-viewer",
             nested: { symbols: "< > & \" '", escaped: "\\u0041 is a literal escape here." }
@@ -1172,7 +1173,8 @@
             { once: true }
           );
           // Interpolate scripts so escaped closing tags do not confuse HTML highlighting.
-          frame.srcdoc = dedent(/* HTML */ `
+          frame.srcdoc = dedent(// HTML
+           `
             <!doctype html>
             <html lang="en">
               <head>

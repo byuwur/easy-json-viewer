@@ -67,11 +67,18 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
       await route.fulfill({ body, contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
     });
     await playground.goto("https://viewer.test/index.html");
+    assert.equal(await playground.locator(".playground-toolbar #open-file").count(), 1);
+    assert.equal(await playground.locator('[aria-label="JSON examples"] [data-feature]').count(), 6);
+    assert.equal(await playground.locator("#source-panel #apply-source").count(), 1);
+    assert.equal(await playground.locator("#run-benchmark, #playground > .discovery").count(), 0);
     const release = await playground
       .frameLocator("#preview-frame")
       .locator(".byVIEWtoolbar")
       .evaluate(() => byJSONviewer.VERSION);
     assert.ok((await playground.frameLocator("#preview-frame").locator(".byVIEWinfo").textContent()).includes(` v${release} `), "Credits must match the runtime release");
+    assert.equal(await playground.locator("#theme-light").isChecked(), true);
+    assert.equal(await playground.locator("#theme-dark").isChecked(), false);
+    assert.equal(await playground.frameLocator("#preview-frame").locator("#byJSONrenderer").getAttribute("data-theme"), "light");
     const cdnBase = "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/";
     const starterViewer = playground.locator("#integration-code.byCODEdocument");
     assert.equal(await playground.evaluate(() => byCODEviewer.VERSION), "1.7");
@@ -242,7 +249,7 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
         });
         assert.equal(await exported.locator("head script[src][defer]").count(), 1);
         assert.equal(await exported.locator("body script[src], body link[rel='stylesheet']").count(), 0);
-        assert.equal(await exported.locator("#viewer").getAttribute("data-theme"), "dark");
+        assert.equal(await exported.locator("#viewer").getAttribute("data-theme"), "light");
         assert.equal(await exported.locator("#byVIEWtheme").count(), 0);
         assert.equal(await exported.locator('head link[rel="stylesheet"]').count(), 1);
         assert.doesNotMatch(html, /\.(light|dark)\.css/);
@@ -277,6 +284,10 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
 
 // --- CONFIGURATION AND FAMILY NAVIGATION ---
 test("family customization, navigation and monospace controls", async () => {
+  const bootstrapJS = await fetch("https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/bootstrap.min.js").then((response) => {
+    assert.ok(response.ok, "Unable to load pinned Bootstrap JS");
+    return response.text();
+  });
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined, channel: process.env.BROWSER_CHANNEL || undefined });
   try {
     const page = await browser.newPage();
@@ -294,6 +305,7 @@ test("family customization, navigation and monospace controls", async () => {
     );
     await page.route("**/*", async (route) => {
       if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
+      if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/bootstrap.min.js") return route.fulfill({ body: bootstrapJS, contentType: "text/javascript" });
       const url = new URL(route.request().url());
       if (url.origin !== "https://viewer.test") return route.abort();
       const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
@@ -469,7 +481,7 @@ test("family customization, navigation and monospace controls", async () => {
     await page.locator('[data-options-view="json"]').evaluate((button) => button.click());
     const configuration = JSON.parse(await page.locator("#options-json").inputValue());
     for (const [name, value] of Object.entries({
-      theme: "dark",
+      theme: "light",
       fontFamily: "Georgia, serif",
       fontSize: 1.5,
       lineHeight: 1.8,
@@ -519,7 +531,76 @@ test("family customization, navigation and monospace controls", async () => {
     assert.equal(await frame.locator(".byVIEWpanel > .byVIEWstatus:visible").count(), 1);
     await page.locator("#reset-settings").evaluate((button) => button.click());
     assert.deepEqual(await root.evaluate((element) => ({ font: element.style.fontFamily, size: element.style.fontSize, bg: element.style.getPropertyValue("--by-view-bg") })), initial);
+    assert.equal(await page.locator("#theme-light").isChecked(), true);
+    assert.equal(await root.getAttribute("data-theme"), "light");
     assert.match(await frame.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).fontFamily), /monospace/);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    const jsonSource = page.locator("#json-source");
+    const largeSource = JSON.stringify({ message: "Imported live", padding: "x".repeat(70000) });
+    await page.locator("#local-file").setInputFiles({ name: "large.json", mimeType: "application/json", buffer: Buffer.from(largeSource) });
+    await frame.waitForFunction(() => document.querySelector("#byJSONrenderer").textContent.includes("Imported live"));
+    assert.equal(await jsonSource.inputValue(), largeSource);
+    assert.equal(await page.locator("#source-preset").inputValue(), "custom");
+    await jsonSource.fill(largeSource.replace("Imported live", "Superseded edit"));
+    await jsonSource.fill(largeSource.replace("Imported live", "Latest live edit"));
+    await frame.waitForFunction(() => document.querySelector("#byJSONrenderer").textContent.includes("Latest live edit"));
+    assert.equal(await frame.locator("#byJSONrenderer").evaluate((element) => element.textContent.includes("Superseded edit")), false);
+    await jsonSource.fill('{"incomplete":');
+    await page.waitForFunction(() => document.getElementById("json-source").getAttribute("aria-invalid") === "true");
+    assert.equal(await frame.locator("#byJSONrenderer").evaluate((element) => element.textContent.includes("Latest live edit")), true);
+    await page.evaluate(() => {
+      for (const [name, value] of [
+        ["chunkSize", 1],
+        ["chunkLatency", 10]
+      ]) {
+        const input = document.getElementById(name);
+        input.value = value;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    });
+    const chunkedSource = JSON.stringify(Array.from({ length: 80 }, (_, index) => `Obsolete chunk ${index} ` + "x".repeat(1000)));
+    await jsonSource.fill(chunkedSource);
+    await frame.waitForFunction(() => document.querySelector("#byJSONrenderer").getAttribute("aria-busy") === "true" && document.querySelector("#byJSONrenderer").textContent.includes("Obsolete chunk 0"));
+    await jsonSource.fill(largeSource.replace("Imported live", "Replacement during rendering"));
+    await frame.waitForFunction(() => document.querySelector("#byJSONrenderer").getAttribute("aria-busy") === "false" && document.querySelector("#byJSONrenderer").textContent.includes("Replacement during rendering"));
+    assert.equal(await frame.locator("#byJSONrenderer li").count(), 2);
+    assert.equal(await frame.locator("#byJSONrenderer").evaluate((element) => element.textContent.includes("Obsolete chunk")), false);
+    await page.locator("#source-preset").selectOption("benchmark");
+    await page.waitForFunction(() => document.getElementById("preview-status").textContent.startsWith("Rendered"));
+    const benchmark = await jsonSource.inputValue();
+    const changedBenchmark = JSON.stringify({ ...JSON.parse(benchmark), liveEdit: "Benchmark edits stay live" });
+    await jsonSource.fill(changedBenchmark);
+    await frame.waitForFunction(() => document.querySelector("#byJSONrenderer").textContent.includes("Benchmark edits stay live"));
+    await page.evaluate(() => {
+      window.originalFileText = File.prototype.text;
+      File.prototype.text = () =>
+        new Promise((resolve) => {
+          window.finishFileRead = resolve;
+        });
+    });
+    try {
+      for (const action of ["edit", "sample", "restore", "format"]) {
+        await jsonSource.fill(largeSource);
+        await page.locator("#local-file").setInputFiles({ name: "pending.json", mimeType: "application/json", buffer: Buffer.from('{"obsolete":true}') });
+        if (action === "edit") await jsonSource.fill('{"newer":"edit"}');
+        else if (action === "sample") await page.locator("#source-preset").selectOption("nested");
+        else if (action === "restore") await page.locator("#restore-source").click();
+        else await page.locator("#format-source").click();
+        const expected = await jsonSource.inputValue();
+        await page.evaluate(() => window.finishFileRead('{"obsolete":true}'));
+        await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        assert.equal(await jsonSource.inputValue(), expected, "Late imports preserve newer edits and source actions");
+      }
+    } finally {
+      await page.evaluate(() => {
+        File.prototype.text = window.originalFileText;
+      });
+    }
+    for (const example of ["nested", "mixed", "urls", "characters", "bigNumbers", "progressive"]) {
+      await page.locator(`#features [data-feature="${example}"]`).click();
+      await page.waitForFunction((expected) => document.getElementById("source-preset").value === expected && document.getElementById("preview-status").textContent.startsWith("Rendered"), example === "progressive" ? "basic" : example);
+      assert.equal(await page.locator("#json-source").getAttribute("aria-invalid"), "false");
+    }
     assert.deepEqual(errors, []);
   } finally {
     await browser.close();

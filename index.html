@@ -71,28 +71,34 @@
         <div class="playground border">
           <div class="playground-toolbar bg-body-tertiary px-4 py-3 border-bottom d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h2 id="playground-title" class="h6 m-0 fw-semibold">Playground</h2>
-            <div class="source-picker">
-              <label class="small font-monospace text-body-secondary d-block mb-1" for="source-preset">Sample</label>
-              <select class="form-select" id="source-preset">
-                <option value="basic">The basics</option>
-                <option value="nested">Nested objects &amp; arrays</option>
-                <option value="mixed">Mixed types</option>
-                <option value="urls">URLs &amp; links</option>
-                <option value="characters">Unicode, escapes &amp; HTML text</option>
-                <option value="bigNumbers">Big numbers = JavaScript adapter</option>
-                <option value="benchmark">Repository benchmark = test.json</option>
-                <option value="custom">Custom JSON</option>
-              </select>
+            <div class="d-flex flex-column flex-sm-row align-items-sm-end justify-content-sm-end gap-3 mw-100">
+              <div class="source-picker">
+                <label class="visually-hidden" for="source-preset">Sample</label>
+                <select class="form-select" id="source-preset">
+                  <option value="basic">The basics sample</option>
+                  <option value="nested">Nested objects &amp; arrays sample</option>
+                  <option value="mixed">Mixed types sample</option>
+                  <option value="urls">URLs &amp; links sample</option>
+                  <option value="characters">Unicode, escapes &amp; HTML text sample</option>
+                  <option value="bigNumbers">Big numbers = JavaScript adapter sample</option>
+                  <option value="benchmark">Repository benchmark = test.json sample</option>
+                  <option value="custom">Custom JSON</option>
+                </select>
+              </div>
+              <button id="open-file" class="btn btn-outline-secondary fw-semibold flex-shrink-0" type="button"><i class="fa-solid fa-folder-open me-1" aria-hidden="true"></i> Upload your file</button>
+              <input id="local-file" type="file" accept=".json,application/json,text/plain" hidden="" />
             </div>
           </div>
 
-          <!-- <div id="features" class="discovery border-bottom px-3 py-2 d-flex flex-wrap align-items-center gap-1" aria-label="JSON examples">
+          <div id="features" class="discovery border-bottom px-3 py-2 d-flex flex-wrap align-items-center gap-1" aria-label="JSON examples">
             <span class="small font-monospace text-body-secondary me-2">Try it!</span>
-            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="theme">Light / dark</button>
             <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="nested">Nested data</button>
-            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="characters">Text &amp; URLs</button>
-            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="progressive">Watch the chunks</button>
-          </div> -->
+            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="mixed">Mixed values</button>
+            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="urls">Links</button>
+            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="characters">Escapes &amp; Unicode</button>
+            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="bigNumbers">Big numbers</button>
+            <button class="feature-chip btn btn-sm font-monospace" type="button" data-feature="progressive">Progressive rendering</button>
+          </div>
 
           <div class="mobile-tabs nav nav-pills d-md-none border-bottom p-2 gap-2 nav-justified bg-body-tertiary small" role="tablist" aria-label="Playground panels">
             <button id="config-tab" class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#config-panel" data-panel="config" role="tab" aria-controls="config-panel" aria-selected="false">
@@ -134,9 +140,9 @@
                         <fieldset>
                           <legend class="fs-6 mb-2 form-label">Document theme</legend>
                           <div class="btn-group w-100" role="group" aria-label="Document theme">
-                            <input class="btn-check" id="theme-light" name="previewTheme" type="radio" value="light" />
+                            <input class="btn-check" id="theme-light" name="previewTheme" type="radio" value="light" checked="" />
                             <label class="btn flex-fill btn-outline-secondary fw-semibold" for="theme-light"><span class="me-1" aria-hidden="true">&#x2600;&#xFE0E;</span>Light</label>
-                            <input class="btn-check" id="theme-dark" name="previewTheme" type="radio" value="dark" checked="" />
+                            <input class="btn-check" id="theme-dark" name="previewTheme" type="radio" value="dark" />
                             <label class="btn flex-fill btn-outline-secondary fw-semibold" for="theme-dark"><span class="me-1" aria-hidden="true">&#x263E;&#xFE0E;</span>Dark</label>
                           </div>
                           <p class="mt-2 mb-0 form-text">Every palette includes Light and Dark.</p>
@@ -418,11 +424,12 @@
             </section>
 
             <section class="tab-pane panel flex-column d-md-flex source-panel col-12 col-md-6 col-xl-4" id="source-panel" aria-labelledby="source-title">
-              <div class="panel-heading border-bottom d-flex flex-wrap flex-md-nowrap align-items-center justify-content-between gap-2 px-3 px-xxl-4 py-3">
+              <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-xxl-4 py-3">
                 <h3 id="source-title" class="h6 m-0 fw-semibold">
                   <label for="json-source"><span class="small font-monospace text-body-secondary me-2">02</span> JSON source</label>
                 </h3>
-                <div class="d-flex gap-1 flex-shrink-0">
+                <div class="d-flex flex-wrap gap-1">
+                  <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="apply-source" type="button"><i class="fa-solid fa-play me-1" aria-hidden="true"></i> Render</button>
                   <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="restore-source" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Restore</button>
                   <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="format-source" type="button" aria-label="Format JSON" title="Format JSON">
                     <i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> <span class="d-none d-xxl-inline">Format</span>
@@ -444,7 +451,6 @@
               </div>
               <div class="panel-footer d-flex align-items-center justify-content-between gap-2 border-top px-4 py-2 small font-monospace text-body-secondary">
                 <div id="source-status" role="status" aria-live="polite" class="text-break">Loading sample…</div>
-                <button class="btn flex-shrink-0 btn-outline-secondary fw-semibold" id="apply-source" type="button">Render</button>
               </div>
             </section>
 
@@ -453,7 +459,7 @@
                 <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">03</span> Live preview</h3>
                 <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
               </div>
-              <div class="panel-body preview-scroll overflow-hidden flex-grow-1" id="preview-scroll" data-theme="dark" tabindex="0" aria-label="Scrollable JSON preview">
+              <div class="panel-body preview-scroll overflow-hidden flex-grow-1" id="preview-scroll" data-theme="light" tabindex="0" aria-label="Scrollable JSON preview">
                 <iframe id="preview-frame" title="Live JSON document" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" class="d-block w-100 h-100 border-0"></iframe>
               </div>
             </section>
@@ -477,11 +483,6 @@
               <dd class="m-0 font-monospace" id="metric-dom">—</dd>
             </div>
           </dl>
-        </div>
-
-        <div class="discovery py-4 border-bottom d-flex flex-wrap align-items-center gap-2">
-          <span class="small font-monospace text-body-secondary me-2">Try it!</span>
-          <button class="btn btn-outline-secondary fw-semibold" id="run-benchmark" type="button"><i class="fa-solid fa-gauge-high me-1" aria-hidden="true"></i> Run repository benchmark</button>
         </div>
 
         <p class="alert alert-secondary small mt-3 mb-0" id="sample-note" hidden=""></p>
@@ -773,7 +774,7 @@
         --by-view-container-bg: #0000;
         border: 0;
         border-radius: 0;
-        height: 28rem;
+        height: 30.8rem;
         white-space: pre-wrap;
         overflow-wrap: anywhere;
       }
@@ -975,9 +976,8 @@
           text: "",
           data: null,
           valid: false,
-          manual: false,
           options: { ...defaults },
-          theme: "dark",
+          theme: "light",
           install: "cdn",
           loading: false,
           request: null,
@@ -995,7 +995,6 @@
         const preset = document.getElementById("source-preset");
         const sourceStatus = document.getElementById("source-status");
         const previewStatus = document.getElementById("preview-status");
-        const applyButton = document.getElementById("apply-source");
         const sampleNote = document.getElementById("sample-note");
         const monospaceHelp = document.getElementById("monospace-help");
         const monospacePopover = window.bootstrap?.Popover && typeof window.Popper?.createPopper === "function" ? bootstrap.Popover.getOrCreateInstance(monospaceHelp, { trigger: "focus", container: "body", animation: false }) : null;
@@ -1017,7 +1016,7 @@
         // --- PLAYGROUND STATE ---
         function showPanel(id, focus = false) {
           bootstrap.Tab.getOrCreateInstance(document.querySelector(`[data-bs-target="#${id}"]`)).show();
-          if (focus) document.getElementById(id === "source-panel" ? "json-source" : id === "config-panel" ? "theme-dark" : "preview-scroll").focus({ preventScroll: true });
+          if (focus) document.getElementById(id === "source-panel" ? "json-source" : id === "config-panel" ? `theme-${state.theme}` : "preview-scroll").focus({ preventScroll: true });
         }
 
         function reportSource(message, kind = "pending") {
@@ -1052,7 +1051,6 @@
         function readOptions() {
           if (!configuration.checkValidity()) {
             document.getElementById("config-status").textContent = "Use a whole chunk size ≥ 1 and a delay ≥ 0.";
-            applyButton.disabled = true;
             document.getElementById("copy-options").disabled = true;
             return false;
           }
@@ -1061,7 +1059,6 @@
             state.options[name] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
           }
           document.getElementById("config-status").textContent = "";
-          applyButton.disabled = state.loading;
           document.getElementById("copy-options").disabled = false;
           updateCode();
           return true;
@@ -1072,8 +1069,6 @@
           state.valid = false;
           state.text = editor.value;
           state.bytes = new Blob([state.text]).size;
-          state.manual = state.source === "benchmark" || state.bytes > 65536;
-          applyButton.textContent = state.source === "benchmark" ? "Run" : "Render";
           document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
           document.getElementById("metric-parse").textContent = "—";
           document.getElementById("precision-note").hidden = true;
@@ -1108,7 +1103,7 @@
             state.valid = true;
             editor.setAttribute("aria-invalid", "false");
             document.getElementById("precision-note").hidden = !unsafeNumber;
-            reportSource(state.manual ? "Valid JSON = press Run / Render to apply" : "Valid JSON", "valid");
+            reportSource("Valid JSON", "valid");
             updateCode();
             return true;
           } catch (error) {
@@ -1157,16 +1152,15 @@
                 ${'<script src="json.js"><\/script>'}
               </head>
               <body>
-                <pre data-theme="dark" id="byJSONrenderer" aria-label="Rendered JSON"></pre>
+                <pre data-theme="light" id="byJSONrenderer" aria-label="Rendered JSON"></pre>
               </body>
             </html>
           `);
         }
 
-        function renderSource(explicit = false) {
+        function renderSource() {
           clearTimeout(state.editTimer);
           if (!readOptions() || state.loading || !validateSource()) return;
-          if (state.manual && !explicit) return;
           if (!renderer) return;
           if (typeof frame.contentWindow.byJSONviewer !== "function") {
             previewStatus.textContent = "Could not load json.js. Check that the library files are beside index.html.";
@@ -1218,12 +1212,11 @@
           editor.setAttribute("aria-invalid", "false");
           sampleNote.hidden = !["benchmark", "bigNumbers"].includes(name);
           sampleNote.textContent =
-            name === "bigNumbers" ? "Enable Big-number objects to render the exact balance. The preview uses a JavaScript adapter." : "Repository test.json. Press Run to render changes. Loading this file requires HTTP(S).";
+            name === "bigNumbers" ? "Enable Big-number objects to render the exact balance. The preview uses a JavaScript adapter." : "Repository test.json. Edits update the preview live. Loading this file requires HTTP(S).";
           if (name === "benchmark") {
             state.loading = true;
             editor.disabled = true;
             editor.value = "";
-            applyButton.disabled = true;
             reportSource("Loading ./test.json…");
             updateCode();
             try {
@@ -1242,7 +1235,6 @@
               editor.disabled = false;
               state.request = null;
               reportSource(`test.json could not load: ${error.message}. Restore retries.`, "error");
-              applyButton.disabled = true;
               return;
             }
             state.loading = false;
@@ -1336,7 +1328,7 @@
             `    <script src="${base}json${min}.js" defer>${endScript}`,
             "  </head>",
             "  <body>",
-            '    <pre id="viewer" data-theme="dark"></pre>',
+            '    <pre id="viewer" data-theme="light"></pre>',
             '    <script id="viewer-data" type="application/json">',
             "      {",
             '        "project": "easy-json-viewer",',
@@ -1427,7 +1419,7 @@
           state.options = { ...defaults };
           configuration.reset();
           if (renderer) renderer.style.fontSize = renderer.dataset.byViewDefaultFontSize ?? "";
-          setTheme("dark");
+          setTheme("light");
           markPending();
           renderSource();
         });
@@ -1439,35 +1431,57 @@
           renderSource();
         });
         preset.addEventListener("change", () => selectSource(preset.value));
+        const localFile = document.getElementById("local-file");
+        document.getElementById("open-file").addEventListener("click", () => localFile.click());
+        localFile.addEventListener("change", async () => {
+          const file = localFile.files[0];
+          localFile.value = "";
+          if (!file) return;
+          if (file.size > 1048576) {
+            reportSource("Choose a JSON file no larger than 1 MiB.", "error");
+            return;
+          }
+          const version = ++state.sourceVersion;
+          state.request?.abort();
+          state.request = null;
+          state.loading = false;
+          editor.disabled = false;
+          clearTimeout(state.editTimer);
+          try {
+            const text = await file.text();
+            if (version !== state.sourceVersion) return;
+            editor.value = text;
+            selectSource("custom");
+          } catch {
+            if (version === state.sourceVersion) reportSource("Could not read this file. Try opening it again.", "error");
+          }
+        });
         editor.addEventListener("input", () => {
+          ++state.sourceVersion;
           if (!["bigNumbers", "benchmark"].includes(state.source)) state.source = preset.value = "custom";
           sampleNote.hidden = !["bigNumbers", "benchmark"].includes(state.source);
           state.valid = false;
           state.text = editor.value;
           state.bytes = new Blob([state.text]).size;
-          state.manual = state.source === "benchmark" || state.bytes > 65536;
           document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
           document.getElementById("metric-parse").textContent = "—";
-          applyButton.disabled = !configuration.checkValidity();
           markPending();
-          reportSource(state.manual ? "Edited = press Render to validate and apply" : "Checking JSON…");
+          reportSource("Checking JSON...");
           updateCode();
           clearTimeout(state.editTimer);
-          if (!state.manual) state.editTimer = setTimeout(() => renderSource(), 300);
+          state.editTimer = setTimeout(renderSource, 300);
         });
         editor.addEventListener("keydown", (event) => {
           if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
             event.preventDefault();
-            renderSource(true);
+            renderSource();
           }
         });
-        applyButton.addEventListener("click", () => {
-          renderSource(true);
-          if (state.valid && !applyButton.disabled) showPanel("preview-panel", true);
-        });
+        document.getElementById("apply-source").addEventListener("click", renderSource);
         document.getElementById("restore-source").addEventListener("click", () => selectSource(state.sample));
         document.getElementById("format-source").addEventListener("click", () => {
           if (state.loading || !validateSource()) return;
+          ++state.sourceVersion;
           editor.value = JSON.stringify(JSON.parse(state.text), null, 2);
           markPending();
           renderSource();
@@ -1499,14 +1513,6 @@
             showPanel("preview-panel", true);
           })
         );
-        document.getElementById("run-benchmark").addEventListener("click", async () => {
-          const loading = selectSource("benchmark");
-          const version = state.sourceVersion;
-          await loading;
-          if (version !== state.sourceVersion || !state.valid) return;
-          renderSource(true);
-          showPanel("preview-panel", true);
-        });
         document.querySelectorAll("[data-install]").forEach((button) =>
           button.addEventListener("click", () => {
             state.install = button.dataset.install;

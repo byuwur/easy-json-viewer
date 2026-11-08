@@ -155,6 +155,7 @@
     warnMissingThemes(element, palette ?? element.dataset.theme);
     const size = typeof fontSize === "number" ? `${Math.max(0.5, Math.min(3, fontSize))}rem` : typeof fontSize === "string" ? `clamp(0.5rem, ${fontSize}, 3rem)` : "";
     if (fontSize != null && (typeof fontSize === "number" ? !Number.isFinite(fontSize) : typeof fontSize !== "string" || !CSS.supports("font-size", size))) throw new RangeError("Font size must be a finite multiplier or a CSS size.");
+    // Keep palette identity in data-theme while light/dark classes select its mode.
     if (theme != null || palette != null) {
       const mode = theme ?? (["light", "dark"].includes(element.dataset.theme) ? element.dataset.theme : element.classList.contains("dark") ? "dark" : "light");
       element.classList.toggle("light", mode === "light");
@@ -181,6 +182,7 @@
     toggle.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${toggle.dataset.label}`);
     const parent = toggle.parentElement;
     const nest = parent?.querySelector(":scope > .byJSONnest");
+    // Move focus before inert removes the active descendant from keyboard navigation.
     if (collapsed && nest?.contains(document.activeElement)) toggle.focus();
     nest?.classList.toggle("collapsed", collapsed);
     if (nest) nest.inert = collapsed;
@@ -197,6 +199,7 @@
    */
   const appendPlaceholder = (parent, count) => {
     const toggle = parent.querySelector(":scope > .byJSONtoggle");
+    // Keep noninteractive item counts for custom styles when this collection has no disclosure.
     const element = document.createElement(toggle ? "button" : "span");
     element.className = "byJSONplaceholder";
     element.textContent = `${count} item${count === 1 ? "" : "s"}`;
@@ -220,6 +223,7 @@
    */
   const addToggleListener = (element) => {
     setToggleState(element, false);
+    // Native buttons translate Enter and Space into one click without a separate key handler.
     element.addEventListener("click", (event) => {
       event.preventDefault();
       const toggle = event.currentTarget;
@@ -297,6 +301,7 @@
    * @return {HTMLElement} The text size button group.
    */
   const appendFontSizeControls = (element, controls) => {
+    // Remember the caller's initial size so Reset also works after this toolbar is recreated.
     element.dataset.byViewDefaultFontSize ??= element.style.fontSize;
     const sizes = document.createElement("div");
     sizes.className = "byVIEWfontSizes";
@@ -484,6 +489,7 @@
       toggle = document.createElement("button");
       toggle.type = "button";
       toggle.className = "byJSONtoggle";
+      // Name nested controls from the visible key or a one-based array position.
       toggle.dataset.label = isObj ? key : `item ${parent.children.length + 1}`;
       li.appendChild(toggle);
       addToggleListener(toggle);
@@ -514,6 +520,7 @@
     if (typeof json === "string") {
       // JSON.stringify handles JSON escaping; textContent handles HTML safely
       const serialized = JSON.stringify(json);
+      // Only the supported URL schemes become anchors; all other strings remain inert text.
       if (options.withLinks && isUrl(json)) return appendA(element, "byJSONstring", serialized, json, true);
       return appendSPAN(element, serialized, "byJSONstring");
     }
@@ -532,6 +539,7 @@
           () => {
             const offset = chunkIndex * options.chunkSize;
             chunk.forEach((item, itemIndex) => {
+              // Use the original array position for commas even though each chunk is rendered later.
               const index = offset + itemIndex;
               appendLI(ol, item, options, token, index === json.length - 1);
             });
@@ -602,6 +610,7 @@
   const schedule = (token, callback, delay) => {
     if (token.cancel) return;
     const timer = setTimeout(() => {
+      // Remove fired timers so cancellation tracks only work that is still pending.
       token.timers.delete(timer);
       if (!token.cancel) callback();
     }, delay);
@@ -644,6 +653,7 @@
    */
   function byJSONviewer(element, json, options = {}) {
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
+    // Validate options before canceling the current tree so rejected input cannot interrupt its pending chunks.
     const normalizedOptions = normalizeOptions(options);
     applyAppearance(element, normalizedOptions);
     // Cancel unfinished work before rendering again on the same element
@@ -655,6 +665,7 @@
     element.classList.add("byJSONdocument");
     element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
     element.classList.toggle("byVIEWappear", normalizedOptions.animations !== false && normalizedOptions.appearAnimation === true);
+    // Two frames establish the initial paint before CSS background transitions become eligible.
     if (!element.classList.contains("byVIEWready")) {
       token.motionFrame = requestAnimationFrame(() => {
         token.motionFrame = requestAnimationFrame(() => {

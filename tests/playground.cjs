@@ -601,17 +601,16 @@ test("family customization, navigation and monospace controls", async () => {
         });
     });
     try {
-      for (const action of ["edit", "sample", "restore", "format"]) {
+      for (const action of ["edit", "sample", "restore"]) {
         await jsonSource.fill(largeSource);
         await page.locator("#local-file").setInputFiles({ name: "pending.json", mimeType: "application/json", buffer: Buffer.from('{"obsolete":true}') });
         if (action === "edit") await jsonSource.fill('{"newer":"edit"}');
         else if (action === "sample") await page.locator("#source-preset").selectOption("nested");
         else if (action === "restore") await page.locator("#restore-source").click();
-        else await page.locator("#format-source").click();
         const expected = await jsonSource.inputValue();
         await page.evaluate(() => window.finishFileRead('{"obsolete":true}'));
         await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-        assert.equal(await jsonSource.inputValue(), expected, "Late imports preserve newer edits and source actions");
+        assert.equal(await jsonSource.inputValue(), expected, `Late imports must not replace the source after ${action}`);
       }
     } finally {
       await page.evaluate(() => {

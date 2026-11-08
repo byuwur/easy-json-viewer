@@ -431,9 +431,6 @@
                 <div class="d-flex flex-wrap gap-1">
                   <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="apply-source" type="button"><i class="fa-solid fa-play me-1" aria-hidden="true"></i> Render</button>
                   <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="restore-source" type="button"><i class="fa-solid fa-rotate-left me-1" aria-hidden="true"></i> Restore</button>
-                  <button class="btn btn-sm text-nowrap btn-outline-secondary fw-semibold" id="format-source" type="button" aria-label="Format JSON" title="Format JSON">
-                    <i class="fa-solid fa-align-left me-1" aria-hidden="true"></i> <span class="d-none d-xxl-inline">Format</span>
-                  </button>
                   <button class="btn btn-sm copy-button text-nowrap btn-outline-secondary fw-semibold" id="copy-source" type="button"><i class="fa-solid fa-copy me-1" aria-hidden="true"></i> <span aria-live="polite">Copy</span></button>
                 </div>
               </div>
@@ -1479,13 +1476,6 @@
         });
         document.getElementById("apply-source").addEventListener("click", renderSource);
         document.getElementById("restore-source").addEventListener("click", () => selectSource(state.sample));
-        document.getElementById("format-source").addEventListener("click", () => {
-          if (state.loading || !validateSource()) return;
-          ++state.sourceVersion;
-          editor.value = JSON.stringify(JSON.parse(state.text), null, 2);
-          markPending();
-          renderSource();
-        });
         document.getElementById("copy-source").addEventListener("click", (event) => copyText(editor.value, editor, event.currentTarget));
 
         document.querySelectorAll("[data-feature]").forEach((button) =>

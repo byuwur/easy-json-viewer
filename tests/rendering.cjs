@@ -91,7 +91,7 @@ test("JSON rendering", async (t) => {
           async () => {
             const object = await render({});
             const array = await render([]);
-            return object.textContent === "{}" && array.textContent === "[]" && !object.querySelector("a") && !array.querySelector("a");
+            return object.textContent === "{}" && array.textContent === "[]" && !object.querySelector("a, button") && !array.querySelector("a, button");
           }
         ],
         [
@@ -761,7 +761,7 @@ test("JSON rendering", async (t) => {
                           };
                     const sameRow = info.top < controls.bottom && info.bottom > controls.top;
                     const creditsOrdered = controlsPosition !== "bottom" || sameRow || info.top >= controls.bottom - 1;
-                    const clickable = [...root.querySelectorAll("button")].every((button) => {
+                    const clickable = [...root.querySelectorAll(".byVIEWtoolbar button")].every((button) => {
                       const rect = button.getBoundingClientRect();
                       return button.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
                     });
@@ -1584,6 +1584,65 @@ test("appearance options override markup and preserve independent viewer state",
     }
 
     assert.equal(await page.locator("#neighbor").evaluate((element) => element.outerHTML), neighbor);
+  } finally {
+    await browser.close();
+  }
+});
+
+// --- DISCLOSURE ACCESSIBILITY ---
+test("JSON disclosures use named buttons, native keys, and stable focus", async () => {
+  const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || undefined, executablePath: process.env.CHROMIUM_EXECUTABLE_PATH || undefined });
+  try {
+    const page = await browser.newPage();
+    // A form host catches accidental submissions from disclosure controls.
+    await page.setContent('<form><div id="viewer"></div><button id="after">After</button></form>');
+    await page.addStyleTag({ path: path.join(__dirname, "../json.css") });
+    await page.addScriptTag({ path: path.join(__dirname, "../json.js") });
+    await page.evaluate(() => {
+      window.submissions = 0;
+      document.querySelector("form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        submissions++;
+      });
+      byJSONviewer(document.getElementById("viewer"), { child: ["https://example.com", { leaf: true }] }, { toolbar: false, animations: false, chunkLatency: 0 });
+    });
+    await page.waitForFunction(() => document.querySelectorAll("li").length === 4);
+    const root = page.getByRole("button", { name: /^(Collapse|Expand) root$/ });
+    const child = page.getByRole("button", { name: /^(Collapse|Expand) "child"$/ });
+    assert.equal(await root.getAttribute("type"), "button");
+    assert.equal(await root.getAttribute("aria-expanded"), "true");
+    assert.equal(await page.locator(".byJSONcontent a").count(), 1, "Only URL values remain links");
+    // Collapsing the root must remove descendants from visibility and sequential keyboard navigation.
+    await root.focus();
+    await page.keyboard.press("Space");
+    assert.equal(await root.getAttribute("aria-expanded"), "false");
+    assert.equal(await root.getAttribute("aria-label"), "Expand root");
+    assert.equal(await child.isVisible(), false);
+    assert.equal(await page.locator(".byJSONcontent > .byJSONnest").evaluate((element) => element.inert), true);
+    await page.keyboard.press("Tab");
+    const count = page.getByRole("button", { name: "Expand root: 1 item", exact: true });
+    assert.equal(await count.getAttribute("aria-expanded"), "false");
+    assert.equal(await count.evaluate((element) => element === document.activeElement), true);
+    await page.keyboard.press("Tab");
+    assert.equal(await page.locator("#after").evaluate((element) => element === document.activeElement), true, "Collapsed descendants leave the tab order");
+    // Expanding the item count hides that button, so focus must move to the visible disclosure.
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Enter");
+    assert.equal(await root.getAttribute("aria-expanded"), "true");
+    assert.equal(await root.evaluate((element) => element === document.activeElement), true, "Expanding the count retains visible focus");
+    assert.equal(await root.evaluate((element) => getComputedStyle(element).outlineStyle), "solid");
+    await page.keyboard.press("Tab");
+    assert.equal(await child.evaluate((element) => element === document.activeElement), true);
+    await page.keyboard.press("Enter");
+    assert.equal(await child.getAttribute("aria-expanded"), "false");
+    await page.keyboard.press("Space");
+    assert.equal(await child.getAttribute("aria-expanded"), "true");
+    assert.equal(await page.evaluate(() => submissions), 0);
+    // Disabling disclosures must override the initial collapsed option.
+    await page.evaluate(() => byJSONviewer(document.getElementById("viewer"), { child: [1] }, { toolbar: false, collapsible: false, collapsed: true, chunkLatency: 0 }));
+    await page.waitForFunction(() => document.querySelectorAll("li").length === 2);
+    assert.equal(await page.locator(".byJSONtoggle").count(), 0);
+    assert.equal(await page.locator(".byJSONnest.collapsed").count(), 0);
   } finally {
     await browser.close();
   }

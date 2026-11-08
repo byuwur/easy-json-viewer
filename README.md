@@ -52,6 +52,8 @@ Use acyclic, JSON-shaped data. Only own enumerable object properties are shown; 
 
 Exported HTML starters use default settings, independently of playground changes.
 
+Non-empty collections use named native buttons with `aria-expanded`. Tab moves between visible controls; Enter and Space toggle a collection. The collapsed item count also expands it and returns focus to the disclosure button. `collapsible: false` keeps collections expanded without disclosure controls.
+
 ## Options
 
 Pass options as the third argument:

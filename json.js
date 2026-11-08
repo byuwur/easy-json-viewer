@@ -178,22 +178,38 @@
   const setToggleState = (toggle, collapsed) => {
     toggle.classList.toggle("collapsed", collapsed);
     toggle.setAttribute("aria-expanded", String(!collapsed));
+    toggle.setAttribute("aria-label", `${collapsed ? "Expand" : "Collapse"} ${toggle.dataset.label}`);
     const parent = toggle.parentElement;
     const nest = parent?.querySelector(":scope > .byJSONnest");
+    if (collapsed && nest?.contains(document.activeElement)) toggle.focus();
     nest?.classList.toggle("collapsed", collapsed);
     if (nest) nest.inert = collapsed;
-    parent?.querySelector(":scope > .byJSONplaceholder")?.classList.toggle("collapsed", collapsed);
+    const placeholder = parent?.querySelector(":scope > .byJSONplaceholder");
+    placeholder?.classList.toggle("collapsed", collapsed);
+    placeholder?.setAttribute("aria-expanded", String(!collapsed));
   };
 
   /**
-   * Makes a placeholder trigger its sibling toggle.
-   * @param {HTMLElement} element - Placeholder element.
+   * Appends an item count that expands its sibling disclosure.
+   * @param {HTMLElement} parent - Collection container.
+   * @param {number} count - Collection size.
    * @returns {void}
    */
-  const addPlaceholderListener = (element) => {
+  const appendPlaceholder = (parent, count) => {
+    const toggle = parent.querySelector(":scope > .byJSONtoggle");
+    const element = document.createElement(toggle ? "button" : "span");
+    element.className = "byJSONplaceholder";
+    element.textContent = `${count} item${count === 1 ? "" : "s"}`;
+    parent.appendChild(element);
+    if (!toggle) return;
+    element.type = "button";
+    element.setAttribute("aria-label", `Expand ${toggle.dataset.label}: ${element.textContent}`);
+    element.setAttribute("aria-expanded", toggle.getAttribute("aria-expanded"));
     element.addEventListener("click", (event) => {
       event.preventDefault();
-      event.currentTarget.parentElement?.querySelector(":scope > .byJSONtoggle")?.click();
+      toggle.click();
+      // The count disappears when expanded; keep keyboard focus on its disclosure.
+      toggle.focus();
     });
   };
 
@@ -203,7 +219,7 @@
    * @returns {void}
    */
   const addToggleListener = (element) => {
-    element.setAttribute("aria-expanded", "true");
+    setToggleState(element, false);
     element.addEventListener("click", (event) => {
       event.preventDefault();
       const toggle = event.currentTarget;
@@ -465,7 +481,11 @@
     let toggle = null;
     // Only non-empty structures need a toggle
     if (options.collapsible !== false && isCollapsible(item) && !isBigNumber(item, options)) {
-      toggle = appendA(li, "byJSONtoggle");
+      toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "byJSONtoggle";
+      toggle.dataset.label = isObj ? key : `item ${parent.children.length + 1}`;
+      li.appendChild(toggle);
       addToggleListener(toggle);
     }
     if (isObj) li.appendChild(document.createTextNode(`${key}: `));
@@ -520,8 +540,7 @@
         );
       });
       // Show item count while collapsed
-      const placeholder = appendA(element, "byJSONplaceholder", `${json.length} item${json.length === 1 ? "" : "s"}`);
-      addPlaceholderListener(placeholder);
+      appendPlaceholder(element, json.length);
       return element.appendChild(document.createTextNode("]"));
     }
     // Render objects
@@ -551,8 +570,7 @@
         );
       });
       // Show item count while collapsed
-      const placeholder = appendA(element, "byJSONplaceholder", `${entries.length} item${entries.length === 1 ? "" : "s"}`);
-      addPlaceholderListener(placeholder);
+      appendPlaceholder(element, entries.length);
       return element.appendChild(document.createTextNode("}"));
     }
     // Parsed JSON shouldn't reach this, but fail safely if it does
@@ -672,7 +690,11 @@
     // Add the root toggle when applicable
     let rootToggle = null;
     if (normalizedOptions.collapsible !== false && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
-      rootToggle = appendA(content, "byJSONtoggle");
+      rootToggle = document.createElement("button");
+      rootToggle.type = "button";
+      rootToggle.className = "byJSONtoggle";
+      rootToggle.dataset.label = "root";
+      content.appendChild(rootToggle);
       addToggleListener(rootToggle);
     }
     // Render JSON and apply the initial root state

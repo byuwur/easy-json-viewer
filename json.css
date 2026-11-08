@@ -120,6 +120,8 @@
   content: "\25BC";
   color: var(--by-json-toggle);
   position: absolute;
+  /* Native buttons otherwise center the icon's static position inside the row. */
+  top: 0;
   left: 0;
   width: 1em;
   line-height: 1.25em;

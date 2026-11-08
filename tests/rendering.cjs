@@ -428,6 +428,61 @@ test("JSON rendering", async (t) => {
         }
       }
     });
+    await t.test("disclosure icons stay centered in their buttons through nested and root collapse", async () => {
+      for (const tag of ["pre", "div"]) {
+        const root = await page.evaluateHandle((tag) => {
+          const root = document.createElement(tag);
+          document.body.appendChild(root);
+          byJSONviewer(root, { items: [1, { active: true }], tail: false }, { animations: false, chunkLatency: 0 });
+          return root;
+        }, tag);
+        try {
+          await page.waitForFunction((root) => root.querySelectorAll("li").length === 5, root);
+          const measurements = await root.evaluate((root) => {
+            const results = [];
+            const toggles = [...root.querySelectorAll(".byJSONtoggle")];
+            for (const fontFamily of ["", "monospace", "serif", "sans-serif"]) {
+              for (const fontSize of [13, 24, 48]) {
+                root.style.fontFamily = fontFamily;
+                root.style.fontSize = `${fontSize}px`;
+                const states = [
+                  ["expanded", null, 3],
+                  ["nested collapsed", toggles[1], 2],
+                  ["root collapsed", toggles[0], 1],
+                  ["root reopened", toggles[0], 2],
+                  ["nested reopened", toggles[1], 3]
+                ];
+                for (const [state, control, expectedVisible] of states) {
+                  control?.click();
+                  const icons = toggles.flatMap((button) => {
+                    const bounds = button.getBoundingClientRect();
+                    if (!bounds.height) return [];
+                    // Compare the pseudo-element's used geometry with the native click target.
+                    const icon = getComputedStyle(button, "::before");
+                    const top = bounds.top + parseFloat(icon.top);
+                    const height = parseFloat(icon.height);
+                    return [{ offset: top + height / 2 - (bounds.top + bounds.height / 2), contained: top >= bounds.top - 0.5 && top + height <= bounds.bottom + 0.5 }];
+                  });
+                  results.push({ fontFamily, fontSize, state, expectedVisible, icons });
+                }
+              }
+            }
+            return results;
+          });
+          for (const { fontFamily, fontSize, state, expectedVisible, icons } of measurements) {
+            const context = `${tag} with ${fontFamily || "inherited font"} at ${fontSize}px, ${state}`;
+            assert.equal(icons.length, expectedVisible, context);
+            for (const icon of icons) {
+              assert.ok(Math.abs(icon.offset) < 1, `${context}: icon center is displaced by ${icon.offset}px`);
+              assert.equal(icon.contained, true, `${context}: icon extends outside its button`);
+            }
+          }
+        } finally {
+          await root.evaluate((root) => root.remove());
+          await root.dispose();
+        }
+      }
+    });
     await t.test("text size controls preserve position and keep the root disclosure inside its inset", async () => {
       const result = await page.evaluate(() => {
         const root = document.createElement("pre");

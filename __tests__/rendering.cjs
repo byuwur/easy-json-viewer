@@ -405,20 +405,23 @@ test("JSON rendering", async (t) => {
           // Disclosure rows must keep even spacing across inherited and platform font metrics.
           for (const fontFamily of ["", "monospace", "serif", "sans-serif"]) {
             for (const fontSize of [13, 24]) {
-              const spacing = await root.evaluate((root, { fontFamily, fontSize }) => {
-                root.style.fontFamily = fontFamily;
-                root.style.fontSize = `${fontSize}px`;
-                const textTop = (node) => {
-                  const range = document.createRange();
-                  range.selectNodeContents(node);
-                  return range.getBoundingClientRect().top;
-                };
-                return [...root.querySelectorAll("li > .byJSONnest")].map((list) => {
-                  const [first, second] = list.children;
-                  const top = textTop(first.firstChild);
-                  return { first: top - textTop(list.previousSibling), following: textTop(second.firstChild) - top };
-                });
-              }, { fontFamily, fontSize });
+              const spacing = await root.evaluate(
+                (root, { fontFamily, fontSize }) => {
+                  root.style.fontFamily = fontFamily;
+                  root.style.fontSize = `${fontSize}px`;
+                  const textTop = (node) => {
+                    const range = document.createRange();
+                    range.selectNodeContents(node);
+                    return range.getBoundingClientRect().top;
+                  };
+                  return [...root.querySelectorAll("li > .byJSONnest")].map((list) => {
+                    const [first, second] = list.children;
+                    const top = textTop(first.firstChild);
+                    return { first: top - textTop(list.previousSibling), following: textTop(second.firstChild) - top };
+                  });
+                },
+                { fontFamily, fontSize }
+              );
               for (const gap of spacing) assert.ok(Math.abs(gap.first - gap.following) < 1, `${tag} with ${fontFamily || "inherited font"} at ${fontSize}px should space the first nested entry evenly: ${JSON.stringify(gap)}`);
             }
           }

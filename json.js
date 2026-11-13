@@ -144,7 +144,8 @@
     const document = element.ownerDocument;
     if (document.defaultView.getComputedStyle(document.documentElement).getPropertyValue("--by-json-themes-loaded").trim() === "1") return;
     warnedPalettes.add(palette);
-    console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/easy-json-viewer/`);
+    // console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/easy-json-viewer/`);
+    console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://json.byuwur.co/`);
   };
 
   // Explicit appearance options override markup; omitted values preserve the container's state.

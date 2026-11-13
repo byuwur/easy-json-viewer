@@ -77,6 +77,8 @@ test("displayed, copied, and downloaded starters match with CDN or local assets"
         return route.fulfill({ body: await response.text(), contentType: url.pathname.endsWith(".js") ? "text/javascript" : "text/css" });
       }
       if (url.origin !== "https://viewer.test") return route.abort();
+
+      if (url.pathname.endsWith("/assets/favicon.png")) return route.fulfill({ path: path.join(__dirname, "../assets/favicon.png"), contentType: "image/png" });
       const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
       const body = await fs.readFile(path.join(__dirname, "..", file));
@@ -325,6 +327,8 @@ test("family customization, navigation and monospace controls", async () => {
       if (route.request().url() === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/bootstrap.min.js") return route.fulfill({ body: bootstrapJS, contentType: "text/javascript" });
       const url = new URL(route.request().url());
       if (url.origin !== "https://viewer.test") return route.abort();
+
+      if (url.pathname.endsWith("/assets/favicon.png")) return route.fulfill({ path: path.join(__dirname, "../assets/favicon.png"), contentType: "image/png" });
       const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       if (/^json\.(light|dark)\.css$/.test(file)) return route.fulfill({ body: legacyThemeCSS(file.includes(".dark.css") ? "dark" : "light"), contentType: "text/css" });
       return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
@@ -453,7 +457,8 @@ test("family customization, navigation and monospace controls", async () => {
     const initial = await root.evaluate((element) => ({ font: element.style.fontFamily, size: element.style.fontSize, bg: element.style.getPropertyValue("--by-view-bg") }));
     assert.match(await frame.locator(".byVIEWtoolbar").evaluate((element) => getComputedStyle(element).fontFamily), /monospace/);
     assert.equal(await page.locator('[aria-label="Viewer suite"] a').count(), 9);
-    assert.equal(await page.locator(".viewer-suite").getByRole("link", { name: "MD.edit", exact: true }).getAttribute("href"), "https://byuwur.github.io/easy-md-editor/");
+    // assert.equal(await page.locator(".viewer-suite").getByRole("link", { name: "MD.edit", exact: true }).getAttribute("href"), "https://byuwur.github.io/easy-md-editor/");
+    assert.equal(await page.locator(".viewer-suite").getByRole("link", { name: "MD.edit", exact: true }).getAttribute("href"), "https://mdedit.byuwur.co/");
     assert.equal(await page.locator('[aria-label="Viewer suite"]').getByRole("link", { name: "JSON", exact: true }).getAttribute("aria-current"), "page");
     assert.equal(await page.locator(".site-footer .fa-heart").count(), 1);
     assert.equal(await page.locator("header .fa-github").count(), 1);
@@ -659,6 +664,8 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
       if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/js/pickr.min.js") return route.fulfill({ body: pickerJS, contentType: "text/javascript" });
       if (url.href === "https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.7/css/bootstrap.min.css") return route.fulfill({ body: await getBootstrapCSS(), contentType: "text/css" });
       if (url.origin !== "https://viewer.test") return route.abort();
+
+      if (url.pathname.endsWith("/assets/favicon.png")) return route.fulfill({ path: path.join(__dirname, "../assets/favicon.png"), contentType: "image/png" });
       const file = path.basename(url.pathname).replace(/\.min(?=\.(?:css|js)$)/, "");
       return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".html") ? "text/html" : file.endsWith(".js") ? "text/javascript" : "text/css" });
     });

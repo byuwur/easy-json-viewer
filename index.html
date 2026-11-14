@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>easy-json-viewer | JSON, structure at a glance.</title>
     <meta name="description" content="Explore JSON with collapsible nodes, clickable links, copy controls, and accessible themes. A free, dependency-free JavaScript JSON viewer by BONYUR." />
@@ -1333,7 +1333,7 @@
             "<!doctype html>",
             '<html lang="en">',
             "  <head>",
-            '    <meta charset="utf-8" />',
+            '    <meta charset="UTF-8" />',
             '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
             "    <title>easy-json-viewer</title>",
             `    <link rel="stylesheet" href="${base}json${min}.css" />`,
@@ -1365,7 +1365,7 @@
 
         function downloadHTML() {
           const html = updateCode();
-          const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=utf-8" }));
+          const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=UTF-8" }));
           const link = document.createElement("a");
           link.href = url;
           link.download = "easy-json-viewer.html";

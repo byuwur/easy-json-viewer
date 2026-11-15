@@ -26,31 +26,51 @@
    */
   const normalizeOptions = (options) => {
     const source = options && typeof options === "object" ? options : {};
+    const {
+      collapsible = true,
+      collapsed = false,
+      rootCollapsible = true,
+      withQuotes = true,
+      withLinks = true,
+      bigNumbers = false,
+      forceMonospace = false,
+      toolbar = true,
+      credits = true,
+      displayContainer = true,
+      statusBar = true,
+      themeToggle = true,
+      fontSizeControls = true,
+      copyButton = true,
+      controlsCompact = true,
+      animations = true,
+      appearAnimation = false,
+      ...otherOptions
+    } = source;
     const normalized = {
-      collapsible: true,
-      collapsed: false,
-      rootCollapsible: true,
-      withQuotes: true,
-      withLinks: true,
-      bigNumbers: false,
-      forceMonospace: false,
       chunkSize: 1000,
       chunkLatency: 25,
-      toolbar: true,
-      credits: true,
-      displayContainer: true,
-      statusBar: true,
-      themeToggle: true,
-      fontSizeControls: true,
-      copyButton: true,
       controlsSize: "regular",
-      controlsCompact: true,
-      animations: true,
-      appearAnimation: false,
       controlsPosition: "top",
-      ...source
+      ...otherOptions,
+      collapsible,
+      collapsed,
+      rootCollapsible,
+      withQuotes,
+      withLinks,
+      bigNumbers,
+      forceMonospace,
+      toolbar,
+      credits,
+      displayContainer,
+      statusBar,
+      themeToggle,
+      fontSizeControls,
+      copyButton,
+      controlsCompact,
+      animations,
+      appearAnimation
     };
-    if (normalized.collapsible === false) normalized.collapsed = false;
+    if (!normalized.collapsible) normalized.collapsed = false;
     // Keep chunk values valid before scheduling renders
     normalized.chunkSize = Number.isFinite(normalized.chunkSize) && normalized.chunkSize >= 1 ? Math.floor(normalized.chunkSize) : 1000;
     normalized.chunkLatency = Number.isFinite(normalized.chunkLatency) && normalized.chunkLatency >= 0 ? normalized.chunkLatency : 25;
@@ -405,7 +425,7 @@
     const toolbar = document.createElement("div");
     toolbar.className = "byVIEWtoolbar";
     toolbar.dataset.size = ["xs", "small", "regular", "large", "xl"].includes(options.controlsSize) ? options.controlsSize : "regular";
-    element.classList.toggle("byVIEWcompact", options.controlsCompact !== false);
+    element.classList.toggle("byVIEWcompact", options.controlsCompact);
     element.classList.toggle("byVIEWbottom", options.controlsPosition === "bottom");
     const controls = document.createElement("div");
     controls.className = "byVIEWcontrols";
@@ -415,13 +435,13 @@
     info.className = "byVIEWinfo";
     info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
-    if (options.credits !== false) toolbar.appendChild(info);
+    if (options.credits) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);
     if (options.fontSizeControls) appendFontSizeControls(element, controls);
     // Serialize the supplied value, never the partially rendered or collapsed DOM.
     if (options.copyButton) appendCopyButton(controls, () => JSON.stringify(source, (_, value) => (typeof value === "bigint" || isBigNumber(value, options) ? value.toString() : value), 2) ?? "null", "Copy JSON");
     if (controls.childNodes.length) toolbar.appendChild(controls);
-    if (options.toolbar === false || !toolbar.childNodes.length) {
+    if (!options.toolbar || !toolbar.childNodes.length) {
       element.classList.remove("byVIEWbottom");
       return;
     }
@@ -486,7 +506,7 @@
     const li = document.createElement("li");
     let toggle = null;
     // Only non-empty structures need a toggle
-    if (options.collapsible !== false && isCollapsible(item) && !isBigNumber(item, options)) {
+    if (options.collapsible && isCollapsible(item) && !isBigNumber(item, options)) {
       toggle = document.createElement("button");
       toggle.type = "button";
       toggle.className = "byJSONtoggle";
@@ -664,8 +684,8 @@
     renderTokens.set(element, token);
     element.textContent = "";
     element.classList.add("byJSONdocument");
-    element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
-    const appear = normalizedOptions.animations !== false && normalizedOptions.appearAnimation === true;
+    element.classList.toggle("byVIEWmotion", normalizedOptions.animations);
+    const appear = normalizedOptions.animations && normalizedOptions.appearAnimation;
     element.classList.toggle("byVIEWappear", appear);
     // Paint opacity 0 before starting each requested fade.
     if (appear) element.classList.remove("byVIEWready");
@@ -676,7 +696,7 @@
         });
       });
     }
-    element.classList.toggle("byVIEWplain", normalizedOptions.displayContainer === false);
+    element.classList.toggle("byVIEWplain", !normalizedOptions.displayContainer);
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
     const content = document.createElement("div");
     content.className = "byJSONcontent";
@@ -697,13 +717,13 @@
     else if (typeof json === "boolean") type = "Boolean";
     else if ((typeof json === "number" && Number.isFinite(json)) || typeof json === "bigint" || isBigNumber(json, normalizedOptions)) type = "Number";
     status.textContent = collection ? `${type} · ${count} ${array ? (count === 1 ? "item" : "items") : count === 1 ? "property" : "properties"}` : type;
-    status.hidden = normalizedOptions.statusBar === false;
+    status.hidden = !normalizedOptions.statusBar;
     panel.append(status, content);
     body.appendChild(panel);
     element.appendChild(body);
     // Add the root toggle when applicable
     let rootToggle = null;
-    if (normalizedOptions.collapsible !== false && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
+    if (normalizedOptions.collapsible && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
       rootToggle = document.createElement("button");
       rootToggle.type = "button";
       rootToggle.className = "byJSONtoggle";

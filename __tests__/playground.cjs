@@ -862,3 +862,55 @@ test("playground palettes and editable two-mode custom themes stay synchronized"
     await browser.close();
   }
 });
+
+// --- RENDER MEASUREMENT ---
+test("initial render timing excludes iframe startup setup", async () => {
+  const browser = await launchBrowser();
+  try {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.addInitScript(() => {
+      if (window !== window.top) return;
+      document.addEventListener("DOMContentLoaded", async () => {
+        // DOMContentLoaded does not wait for dynamically loaded SPA styles and scripts.
+        await spaReady;
+        const frame = document.getElementById("preview-frame");
+        window.renderSetupFinished = false;
+        window.renderStartupCalls = [];
+        frame.addEventListener("load", () => {
+          const viewer = frame.contentWindow.byJSONviewer;
+          frame.contentWindow.byJSONviewer = Object.assign((...args) => {
+            window.renderStartupCalls.push(window.renderSetupFinished);
+            return viewer(...args);
+          }, viewer);
+        });
+        // Register after the playground's other startup handlers.
+        queueMicrotask(() =>
+          frame.addEventListener("load", () => {
+            window.renderSetupFinished = true;
+          })
+        );
+      });
+    });
+    await page.route("**/*", async (route) => {
+      const url = new URL(route.request().url());
+      if (url.origin === "https://cdn.jsdelivr.net") return route.fulfill(await getSPAAsset(url.href));
+      if (url.origin !== "https://viewer.test") return route.abort();
+      const file = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
+      return route.fulfill({ path: path.join(__dirname, "..", file), contentType: file.endsWith(".js") ? "text/javascript" : file.endsWith(".css") ? "text/css" : file.endsWith(".png") ? "image/png" : "text/html" });
+    });
+    for (const navigate of [() => page.goto("https://viewer.test/index.html"), () => page.reload()]) {
+      await navigate();
+      await page.waitForFunction(() => document.getElementById("preview-status").textContent.startsWith("Rendered"));
+      assert.deepEqual(await page.evaluate(() => window.renderStartupCalls), [true], "Initial rendering waits for every iframe setup handler, including after reload");
+    }
+    await page.locator("#apply-source").evaluate((button) => button.click());
+    await page.waitForFunction(() => document.getElementById("preview-status").textContent.startsWith("Rendered"));
+    assert.deepEqual(await page.evaluate(() => window.renderStartupCalls), [true, true], "Manual rendering uses the same initialized preview");
+    assert.match(await page.locator("#metric-render").textContent(), /^\d+\.\d{2} ms$/);
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser.close();
+  }
+});

@@ -1201,12 +1201,12 @@
           renderer.setAttribute("aria-busy", "true");
           previewStatus.textContent = `Rendering = ${state.options.chunkSize} entries / chunk = ${state.options.chunkLatency} ms delay`;
           let inserted = 0;
-          const started = performance.now();
           const complete = () => {
+            const duration = performance.now() - started;
             state.observer?.disconnect();
             state.observer = null;
             renderer?.setAttribute("aria-busy", "false");
-            document.getElementById("metric-render").textContent = `${(performance.now() - started).toFixed(2)} ms`;
+            document.getElementById("metric-render").textContent = `${duration.toFixed(2)} ms`;
             document.getElementById("metric-dom").textContent = renderer.querySelectorAll("*").length.toLocaleString();
             previewStatus.textContent = `Rendered = ${state.entryCount.toLocaleString()} entries`;
           };
@@ -1222,6 +1222,7 @@
           });
           state.observer.observe(renderer, { childList: true, subtree: true });
           // Rendering the same target lets json.js cancel its own obsolete chunks.
+          const started = performance.now();
           frame.contentWindow.byJSONviewer(renderer, state.data, state.options);
           if (state.entryCount === 0) complete();
         }
@@ -1680,7 +1681,7 @@
           let customDraft = null;
           let themesWarned = false;
           let themeTimer;
-          const target = () => frame.contentDocument?.querySelector(selector);
+          const target = () => frame.contentDocument?.getElementById("byJSONrenderer");
           // Read both modes on temporary containers so exporting CSS never changes the live viewer.
           const themeCSS = (selected) => {
             const document = frame.contentDocument;

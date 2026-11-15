@@ -468,14 +468,14 @@
                   wrap="off"></textarea>
               </div>
               <div class="panel-footer d-flex align-items-center justify-content-between gap-2 border-top px-4 py-2 small font-monospace text-body-secondary">
-                <div id="source-status" role="status" aria-live="polite" class="text-break">Loading sample…</div>
+                <div id="source-status" role="status" aria-live="polite" class="text-break">Loading sample...</div>
               </div>
             </section>
 
             <section class="tab-pane active panel flex-column d-md-flex preview-panel col-12 col-md-6 col-xl-5" id="preview-panel" aria-labelledby="preview-title">
               <div class="panel-heading border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2 px-3 px-xxl-4 py-3">
                 <h3 id="preview-title" class="h6 m-0 fw-semibold flex-shrink-0"><span class="small font-monospace text-body-secondary me-2">03</span> Live preview</h3>
-                <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer…</span>
+                <span class="small text-body-secondary" id="preview-status" role="status" aria-live="polite">Preparing viewer...</span>
               </div>
               <div class="panel-body preview-scroll overflow-hidden flex-grow-1" id="preview-scroll" data-theme="light" tabindex="0" aria-label="Scrollable JSON preview">
                 <iframe id="preview-frame" title="Live JSON document" allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" class="d-block w-100 h-100 border-0"></iframe>
@@ -486,19 +486,19 @@
           <dl class="metric-strip bg-body-tertiary m-0 border-top row g-0" aria-label="Measurements for the current render">
             <div class="metric p-3 col-6 col-md-3">
               <dt class="small fw-normal font-monospace text-body-secondary mb-2">Source size</dt>
-              <dd class="m-0 font-monospace" id="metric-size">—</dd>
+              <dd class="m-0 font-monospace" id="metric-size">-</dd>
             </div>
             <div class="metric p-3 col-6 col-md-3">
               <dt class="small fw-normal font-monospace text-body-secondary mb-2">JSON.parse</dt>
-              <dd class="m-0 font-monospace" id="metric-parse">—</dd>
+              <dd class="m-0 font-monospace" id="metric-parse">-</dd>
             </div>
             <div class="metric p-3 col-6 col-md-3">
               <dt class="small fw-normal font-monospace text-body-secondary mb-2" title="Through the final entry insertion, including chunk delays; excludes browser paint">Render DOM</dt>
-              <dd class="m-0 font-monospace" id="metric-render">—</dd>
+              <dd class="m-0 font-monospace" id="metric-render">-</dd>
             </div>
             <div class="metric p-3 col-6 col-md-3">
               <dt class="small fw-normal font-monospace text-body-secondary mb-2">DOM elements</dt>
-              <dd class="m-0 font-monospace" id="metric-dom">—</dd>
+              <dd class="m-0 font-monospace" id="metric-dom">-</dd>
             </div>
           </dl>
         </div>
@@ -1061,8 +1061,8 @@
           state.observer = null;
           renderer?.setAttribute("aria-busy", "false");
           previewStatus.textContent = "Previous preview = changes pending";
-          document.getElementById("metric-render").textContent = "—";
-          document.getElementById("metric-dom").textContent = "—";
+          document.getElementById("metric-render").textContent = "-";
+          document.getElementById("metric-dom").textContent = "-";
         }
 
         function setTheme(theme) {
@@ -1100,7 +1100,7 @@
           state.text = editor.value;
           state.bytes = new Blob([state.text]).size;
           document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
-          document.getElementById("metric-parse").textContent = "—";
+          document.getElementById("metric-parse").textContent = "-";
           document.getElementById("precision-note").hidden = true;
           try {
             if (state.bytes > 1048576) throw new Error("Playground limit: 1 MiB of source. Nothing was truncated.");
@@ -1249,7 +1249,7 @@
             state.loading = true;
             editor.disabled = true;
             editor.value = "";
-            reportSource("Loading ./test.json…");
+            reportSource("Loading ./test.json...");
             updateCode();
             try {
               if (state.benchmarkText === null) {
@@ -1496,7 +1496,7 @@
           state.text = editor.value;
           state.bytes = new Blob([state.text]).size;
           document.getElementById("metric-size").textContent = state.bytes < 1024 ? `${state.bytes} B` : `${(state.bytes / 1024).toFixed(1)} KiB`;
-          document.getElementById("metric-parse").textContent = "—";
+          document.getElementById("metric-parse").textContent = "-";
           markPending();
           reportSource("Checking JSON...");
           updateCode();

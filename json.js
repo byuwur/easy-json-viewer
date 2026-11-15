@@ -665,8 +665,10 @@
     element.textContent = "";
     element.classList.add("byJSONdocument");
     element.classList.toggle("byVIEWmotion", normalizedOptions.animations !== false);
-    element.classList.toggle("byVIEWappear", normalizedOptions.animations !== false && normalizedOptions.appearAnimation === true);
-    // Two frames establish the initial paint before CSS background transitions become eligible.
+    const appear = normalizedOptions.animations !== false && normalizedOptions.appearAnimation === true;
+    element.classList.toggle("byVIEWappear", appear);
+    // Paint opacity 0 before starting each requested fade.
+    if (appear) element.classList.remove("byVIEWready");
     if (!element.classList.contains("byVIEWready")) {
       token.motionFrame = requestAnimationFrame(() => {
         token.motionFrame = requestAnimationFrame(() => {

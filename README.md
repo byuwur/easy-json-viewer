@@ -78,7 +78,7 @@ Pass options as the third argument:
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                                                                     |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                               |
 | `animations`       | `true`      | Brief control/disclosure motion and background fades; overrides the system motion preference.                                       |
-| `appearAnimation`  | `false`     | Fade and gently move the viewer in when `animations` is enabled. Initial rendering remains immediate by default.                    |
+| `appearAnimation`  | `false`     | Fade the viewer in on each render when `animations` is enabled. Initial rendering remains immediate by default.                     |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                  |
 | `displayContainer` | `true`      | Show the content panel frame and inner horizontal padding. `false` also hides status information.                                   |
 | `statusBar`        | `true`      | Show the root type and number of items or properties. Requires `displayContainer: true`.                                            |

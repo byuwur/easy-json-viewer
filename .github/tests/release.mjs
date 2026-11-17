@@ -14,6 +14,7 @@ const manifest = JSON.parse(await fs.readFile(path.join(directory, "manifest.jso
 
 test("checksums cover the complete inventory and the exact source commit", async () => {
   assert.equal(manifest.changelog.commit, git("rev-parse", "HEAD"));
+  for (const archive of manifest.packages) assert.equal(archive.file, `${config.repository.split("/")[1]}.${manifest.tag}${archive.variant === "regular" ? "" : `.${archive.variant}`}.zip`);
   const files = [...manifest.assets.map((asset) => asset.file), "manifest.json"].sort();
   const checksums = (await fs.readFile(path.join(directory, "SHA256SUMS"), "utf8")).trim().split("\n");
   assert.deepEqual(checksums.map((line) => line.split("  ")[1]).sort(), files);
@@ -96,6 +97,6 @@ test("release notes link short hashes, escape subjects, and display the actual t
 test("regular and minified downloads use concise links without a table", () => {
   const notes = releaseNotes(manifest);
   assert.ok(!notes.includes("| File |"));
-  assert.ok(notes.includes("- [Regular ZIP]"));
+  assert.ok(notes.includes("- [ZIP]"));
   assert.ok(notes.includes("- [Minified ZIP]"));
 });

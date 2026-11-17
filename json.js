@@ -11,7 +11,7 @@
   if (global.byJSONviewer?.initialized) return;
 
   // --- METADATA ---
-  byJSONviewer.VERSION = "3.7"; // 2026-11-15
+  byJSONviewer.VERSION = "3.8"; // 2026-11-16
 
   // Keep render state tied to each target element
   // --- STATE ---

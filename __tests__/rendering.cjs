@@ -28,6 +28,38 @@ test("JSON library", { timeout: 30000 }, async (t) => {
     window.root = document.getElementById("viewer");
   });
 
+  await t.test("initial palette is immediate under host transitions and later theme changes still fade", async () => {
+    // A painted host container has a previous background; newly created content does not.
+    const hostStyle = await page.addStyleTag({ content: "* { transition: background-color var(--by-view-motion-duration, 1s) linear, opacity var(--by-view-motion-duration, 1s) linear !important; }" });
+    try {
+      const initial = await page.evaluate(() => {
+        getComputedStyle(root).backgroundColor;
+        byJSONviewer(root, { message: "First paint" });
+        return {
+          background: getComputedStyle(root).backgroundColor,
+          panelBackground: getComputedStyle(root.querySelector(".byVIEWpanel")).backgroundColor,
+          transitions: root.getAnimations().length,
+          opacity: getComputedStyle(root).opacity
+        };
+      });
+      assert.equal(initial.background, initial.panelBackground);
+      assert.equal(initial.transitions, 0);
+      assert.equal(initial.opacity, "1");
+      await page.waitForFunction(() => root.classList.contains("byVIEWready"));
+      const duration = await page.evaluate(() => {
+        root.querySelector(".byVIEWthemeToggle").click();
+        getComputedStyle(root).backgroundColor;
+        return root
+          .getAnimations()
+          .find((animation) => animation instanceof CSSTransition && animation.transitionProperty === "background-color")
+          ?.effect.getTiming().duration;
+      });
+      assert.equal(duration, 200);
+    } finally {
+      await hostStyle.evaluate((element) => element.remove());
+    }
+  });
+
   await t.test("renders nested values and supports disclosure", async () => {
     await page.evaluate(() => byJSONviewer(root, { name: "core", values: [0, false, null] }, { collapsed: true, animations: false }));
     await page.waitForFunction(() => document.querySelectorAll("#viewer li").length === 5);

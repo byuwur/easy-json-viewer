@@ -1,5 +1,5 @@
 {
-  "name": "easy-json-viewer-release",
+  "name": "json.view",
   "private": true,
   "engines": {
     "node": ">=22"

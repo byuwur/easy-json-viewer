@@ -31,9 +31,9 @@ test("JSON playground loads, updates, and copies a starter", { timeout: 30000 },
   // Use real local companions behind the page's declared URLs, without contacting the CDN.
   const projects = {
     "spa.js": process.env.SPA_ASSETS_ROOT || path.join(root, "../spa.js"),
-    "easy-code-viewer": path.join(root, "../easy-code-viewer"),
-    "easy-md-viewer": path.join(root, "../easy-md-viewer"),
-    "easy-json-viewer": root
+    "code.view": path.join(root, "../code.view"),
+    "md.view": path.join(root, "../md.view"),
+    "json.view": root
   };
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());

@@ -3,38 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>easy-json-viewer | JSON, structure at a glance.</title>
+    <title>JSON.view | JSON, structure at a glance.</title>
     <meta name="description" content="Explore JSON with collapsible nodes, clickable links, copy controls, and accessible themes. A free, dependency-free JavaScript JSON viewer by BONYUR." />
     <meta name="author" content="Andrés Trujillo [Mateus] byUwUr" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#141618" />
-    <!-- <link rel="canonical" href="https://byuwur.github.io/easy-json-viewer/" /> -->
+    <!-- <link rel="canonical" href="https://byuwur.github.io/json.view/" /> -->
     <link rel="canonical" href="https://json.byuwur.co/" />
-    <!-- <link rel="icon" type="image/png" href="https://byuwur.github.io/easy-json-viewer/assets/favicon.png" /> -->
+    <!-- <link rel="icon" type="image/png" href="https://byuwur.github.io/json.view/assets/favicon.png" /> -->
     <link rel="icon" type="image/png" href="./assets/favicon.png" />
     <!-- SEO -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="easy-json-viewer" />
+    <meta property="og:site_name" content="JSON.view" />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:title" content="easy-json-viewer | JSON, structure at a glance." />
+    <meta property="og:title" content="JSON.view | JSON, structure at a glance." />
     <meta property="og:description" content="Explore JSON with collapsible nodes, clickable links, copy controls, and accessible themes. A free, dependency-free JavaScript JSON viewer by BONYUR." />
-    <!-- <meta property="og:url" content="https://byuwur.github.io/easy-json-viewer/" /> -->
+    <!-- <meta property="og:url" content="https://byuwur.github.io/json.view/" /> -->
     <meta property="og:url" content="https://json.byuwur.co/" />
-    <!-- <meta property="og:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" /> -->
+    <!-- <meta property="og:image" content="https://byuwur.github.io/json.view/prev.jpg" /> -->
     <meta property="og:image" content="https://json.byuwur.co/prev.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1920" />
     <meta property="og:image:height" content="1080" />
-    <meta property="og:image:alt" content="easy-json-viewer by BONYUR: JSON playground, options, source editor, and live preview." />
+    <meta property="og:image:alt" content="JSON.view by BONYUR: JSON playground, options, source editor, and live preview." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@byUwUr" />
-    <meta name="twitter:title" content="easy-json-viewer | JSON, structure at a glance." />
+    <meta name="twitter:title" content="JSON.view | JSON, structure at a glance." />
     <meta name="twitter:description" content="Explore JSON with collapsible nodes, clickable links, copy controls, and accessible themes. A free, dependency-free JavaScript JSON viewer by BONYUR." />
-    <!-- <meta name="twitter:image" content="https://byuwur.github.io/easy-json-viewer/prev.jpg" /> -->
+    <!-- <meta name="twitter:image" content="https://byuwur.github.io/json.view/prev.jpg" /> -->
     <meta name="twitter:image" content="https://json.byuwur.co/prev.jpg" />
-    <meta name="twitter:image:alt" content="easy-json-viewer by BONYUR: JSON playground, options, source editor, and live preview." />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.9/code.min.css" />
-    <script src="https://cdn.jsdelivr.net/gh/byuwur/easy-code-viewer@v1.9/code.min.js" defer></script>
+    <meta name="twitter:image:alt" content="JSON.view by BONYUR: JSON playground, options, source editor, and live preview." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/byuwur/code.view@v1.9/code.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/byuwur/code.view@v1.9/code.min.js" defer></script>
     <script id="spa-loader" src="https://cdn.jsdelivr.net/gh/byuwur/spa.js@v20.13/_load.min.js"></script>
     <script>
       "use strict";
@@ -66,7 +66,7 @@
     <a class="visually-hidden-focusable position-absolute top-0 start-0 p-3 z-3 bg-body-tertiary link-body-emphasis" href="#playground">Skip to playground</a>
     <header class="border-bottom">
       <nav class="navbar navbar-expand-md site-width container-fluid" aria-label="Main navigation">
-        <a class="navbar-brand fs-6 fw-semibold" href="#"><span class="brand-mark d-inline-flex align-items-center justify-content-center me-2 font-monospace fs-6 fw-bold" aria-hidden="true">{ }</span>easy-json-viewer</a>
+        <a class="navbar-brand fs-6 fw-semibold" href="#"><span class="brand-mark d-inline-flex align-items-center justify-content-center me-2 font-monospace fs-6 fw-bold" aria-hidden="true">{ }</span>JSON.view</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#site-menu" aria-controls="site-menu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -74,8 +74,8 @@
           <div class="navbar-nav ms-auto align-items-md-center gap-md-2">
             <a class="nav-link" href="#playground">Playground</a>
             <a class="nav-link" href="#get-started">Get started</a>
-            <a class="nav-link" href="https://github.com/byuwur/easy-json-viewer#readme">Docs <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
-            <a class="btn px-3 btn-outline-secondary fw-semibold" href="https://github.com/byuwur/easy-json-viewer"><i class="fa-brands fa-github me-1" aria-hidden="true"></i> GitHub</a>
+            <a class="nav-link" href="https://github.com/byuwur/json.view#readme">Docs <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
+            <a class="btn px-3 btn-outline-secondary fw-semibold" href="https://github.com/byuwur/json.view"><i class="fa-brands fa-github me-1" aria-hidden="true"></i> GitHub</a>
             <button id="site-theme" class="btn px-3 btn-outline-secondary fw-semibold" type="button" aria-label="Switch website to light theme"><i class="fa-solid fa-sun me-1" aria-hidden="true"></i> <span>Light</span></button>
           </div>
         </div>
@@ -511,7 +511,7 @@
         <noscript>
           <p class="alert alert-secondary small mt-3">
             Enable JavaScript to use the playground. The
-            <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/easy-json-viewer#readme">README</a> includes installation and usage examples.
+            <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/json.view#readme">README</a> includes installation and usage examples.
           </p>
         </noscript>
       </section>
@@ -523,7 +523,7 @@
           <p class="text-body-secondary small">CDN starters require internet access. Local starters need the viewer files beside the HTML.</p>
           <p class="text-body-secondary small">Playground powered by <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/spa.js" target="_blank" rel="noopener">SPA.js</a>.</p>
           <p id="install-note" class="text-body-secondary small mb-2">CDN follows the latest release; updates may take time to reach caches.</p>
-          <a class="small link-body-emphasis link-offset-2" href="https://github.com/byuwur/easy-json-viewer#readme" target="_blank" rel="noopener"
+          <a class="small link-body-emphasis link-offset-2" href="https://github.com/byuwur/json.view#readme" target="_blank" rel="noopener"
             >Read the full API <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i
           ></a>
         </div>
@@ -546,53 +546,53 @@
       </section>
     </main>
 
-    <nav class="viewer-suite site-width py-4 container-fluid" aria-label="Viewer suite">
+    <nav class="viewer-suite site-width py-4 container-fluid" aria-label="Viewer/Editor family">
       <p class="small text-body-secondary mb-3">Need another format, maybe an editor?</p>
       <div class="d-flex flex-wrap align-items-center gap-3">
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-md-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/md.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://md.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #d8cdf5; --logo-dark: #c4b5fd" aria-hidden="true">md↓</span>
-          <span class="text-decoration-underline">MD</span>
+          <span class="text-decoration-underline">MD.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-md-editor/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/md.edit/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://mdedit.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #d8cdf5; --logo-dark: #c4b5fd" aria-hidden="true">md↑</span>
           <span class="text-decoration-underline">MD.edit</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-code-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/code.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://code.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #cad8f4; --logo-dark: #aec5ef" aria-hidden="true">{ }</span>
-          <span class="text-decoration-underline">CODE</span>
+          <span class="text-decoration-underline">CODE.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-json-viewer/" aria-current="page"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/json.view/" aria-current="page"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="./" aria-current="page">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #f3e4b4; --logo-dark: #f2d98d" aria-hidden="true">{ }</span>
-          <span class="text-decoration-underline">JSON</span>
+          <span class="text-decoration-underline">JSON.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-csv-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/csv.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://csv.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #c0dfca; --logo-dark: #a9d6b8" aria-hidden="true">csv</span>
-          <span class="text-decoration-underline">CSV</span>
+          <span class="text-decoration-underline">CSV.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-diff-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/diff.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://diff.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #f4c7cf; --logo-dark: #eeadb8" aria-hidden="true">±</span>
-          <span class="text-decoration-underline">DIFF</span>
+          <span class="text-decoration-underline">DIFF.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-log-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/log.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://log.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #f6d2bd; --logo-dark: #f3bfa0" aria-hidden="true">log</span>
-          <span class="text-decoration-underline">LOG</span>
+          <span class="text-decoration-underline">LOG.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-xml-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/xml.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://xml.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #c0e2ee; --logo-dark: #a3d5e8" aria-hidden="true">&lt;/&gt;</span>
-          <span class="text-decoration-underline">XML</span>
+          <span class="text-decoration-underline">XML.view</span>
         </a>
-        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/easy-yaml-viewer/"> -->
+        <!-- <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://byuwur.github.io/yaml.view/"> -->
         <a class="small font-monospace link-body-emphasis link-offset-2 text-decoration-none d-inline-flex align-items-center gap-2 py-1" href="https://yaml.byuwur.co/">
           <span class="brand-mark d-inline-flex align-items-center justify-content-center fw-bold" style="--logo-light: #e5cce3; --logo-dark: #dab6d7" aria-hidden="true">yml</span>
-          <span class="text-decoration-underline">YAML</span>
+          <span class="text-decoration-underline">YAML.view</span>
         </a>
       </div>
     </nav>
@@ -603,8 +603,8 @@
           <a class="link-body-emphasis link-offset-2" href="https://byuwur.co" target="_blank" rel="noopener">BONYUR @byUwUr</a>
         </p>
         <div class="d-flex flex-wrap gap-3">
-          <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/easy-json-viewer/blob/main/LICENSE">MIT license</a>
-          <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/easy-json-viewer">Source &amp; contributions <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
+          <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/json.view/blob/main/LICENSE">MIT license</a>
+          <a class="link-body-emphasis link-offset-2" href="https://github.com/byuwur/json.view">Source &amp; contributions <i class="fa-solid fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i></a>
           <a class="link-body-emphasis link-offset-2" href="https://ko-fi.com/byuwur">Buy me a Pandebono <i class="fa-brands fa-ko-fi ms-1" aria-hidden="true"></i></a>
         </div>
       </div>
@@ -957,12 +957,12 @@
         };
         // prettier-ignore
         const samples = {
-          basic: {"name": "Default showcase", "source": "{\n  \"project\": \"easy-json-viewer\",\n  \"description\": \"A little less noise. A lot more JSON.\",\n  \"openSource\": true,\n  \"dependencies\": 0,\n  \"features\": [\n    \"Collapsible nodes\",\n    \"Light & dark\",\n    \"Progressive rendering\"\n  ],\n  \"author\": {\n    \"name\": \"BONYUR @byUwUr\",\n    \"philosophy\": \"Simple is complicated enough.\"\n  },\n  \"source\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"nextBigThing\": null\n}"},
-          nested: {"name": "Nested objects", "source": "{\n  \"workspace\": {\n    \"name\": \"Weekend projects\",\n    \"projects\": [\n      {\n        \"name\": \"easy-json-viewer\",\n        \"releases\": [\n          {\n            \"version\": \"2.8\",\n            \"files\": [\n              \"json.js\",\n              \"json.css\"\n            ]\n          }\n        ]\n      },\n      {\n        \"name\": \"stream.html\",\n        \"tools\": {\n          \"controller\": {\n            \"inputs\": [\n              \"Gamepad\",\n              \"Keyboard\"\n            ]\n          },\n          \"popup\": {\n            \"enabled\": true\n          }\n        }\n      }\n    ],\n    \"emptyShelf\": [],\n    \"preferences\": {}\n  }\n}"},
+          basic: {"name": "Default showcase", "source": "{\n  \"project\": \"JSON.view\",\n  \"description\": \"A little less noise. A lot more JSON.\",\n  \"openSource\": true,\n  \"dependencies\": 0,\n  \"features\": [\n    \"Collapsible nodes\",\n    \"Light & dark\",\n    \"Progressive rendering\"\n  ],\n  \"author\": {\n    \"name\": \"BONYUR @byUwUr\",\n    \"philosophy\": \"Simple is complicated enough.\"\n  },\n  \"source\": \"https://github.com/byuwur/json.view\",\n  \"nextBigThing\": null\n}"},
+          nested: {"name": "Nested objects", "source": "{\n  \"workspace\": {\n    \"name\": \"Weekend projects\",\n    \"projects\": [\n      {\n        \"name\": \"JSON.view\",\n        \"releases\": [\n          {\n            \"version\": \"2.8\",\n            \"files\": [\n              \"json.js\",\n              \"json.css\"\n            ]\n          }\n        ]\n      },\n      {\n        \"name\": \"stream.html\",\n        \"tools\": {\n          \"controller\": {\n            \"inputs\": [\n              \"Gamepad\",\n              \"Keyboard\"\n            ]\n          },\n          \"popup\": {\n            \"enabled\": true\n          }\n        }\n      }\n    ],\n    \"emptyShelf\": [],\n    \"preferences\": {}\n  }\n}"},
           mixed: {"name": "Mixed values", "source": "[\n  \"A string\",\n  42,\n  -3.5,\n  true,\n  false,\n  null,\n  [],\n  {},\n  {\n    \"list\": [\n      1,\n      \"two\",\n      null\n    ]\n  }\n]"},
-          // urls: {"name": "Links", "source": "{\n  \"repository\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"website\": \"https://byuwur.github.io/easy-json-viewer/\",\n  \"query\": \"https://example.com/search?q=JSON&lang=en\",\n  \"ftp\": \"ftp://example.com/public/data.json\",\n  \"plainText\": \"example.com has no protocol, so it stays text.\",\n  \"unsafeProtocol\": \"javascript:alert('This is text, too.')\"\n}"},
-          urls: {"name": "Links", "source": "{\n  \"repository\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"website\": \"https://json.byuwur.co/\",\n  \"query\": \"https://example.com/search?q=JSON&lang=en\",\n  \"ftp\": \"ftp://example.com/public/data.json\",\n  \"plainText\": \"example.com has no protocol, so it stays text.\",\n  \"unsafeProtocol\": \"javascript:alert('This is text, too.')\"\n}"},
-          characters: {"name": "Escaped characters", "source": "{\n  \"greeting\": \"¡Hola! こんにちは 👋\",\n  \"quotation\": \"He said \\\"simple is complicated enough.\\\"\",\n  \"path\": \"C:\\\\projects\\\\easy-json-viewer\",\n  \"whitespace\": \"First line\\nSecond line\\tTabbed\",\n  \"html\": \"\u003cimg src=\\\"missing\\\" onerror=\\\"alert(1)\\\" />\",\n  \"script\": \"\u003cscript>alert('Still just a string.')\u003c/script>\",\n  \"link\": \"https://github.com/byuwur/easy-json-viewer\",\n  \"nested\": {\n    \"symbols\": \"\u003c > & \\\" '\",\n    \"escaped\": \"\\\\u0041 is a literal escape here.\"\n  }\n}"},
+          // urls: {"name": "Links", "source": "{\n  \"repository\": \"https://github.com/byuwur/json.view\",\n  \"website\": \"https://byuwur.github.io/json.view/\",\n  \"query\": \"https://example.com/search?q=JSON&lang=en\",\n  \"ftp\": \"ftp://example.com/public/data.json\",\n  \"plainText\": \"example.com has no protocol, so it stays text.\",\n  \"unsafeProtocol\": \"javascript:alert('This is text, too.')\"\n}"},
+          urls: {"name": "Links", "source": "{\n  \"repository\": \"https://github.com/byuwur/json.view\",\n  \"website\": \"https://json.byuwur.co/\",\n  \"query\": \"https://example.com/search?q=JSON&lang=en\",\n  \"ftp\": \"ftp://example.com/public/data.json\",\n  \"plainText\": \"example.com has no protocol, so it stays text.\",\n  \"unsafeProtocol\": \"javascript:alert('This is text, too.')\"\n}"},
+          characters: {"name": "Escaped characters", "source": "{\n  \"greeting\": \"¡Hola! こんにちは 👋\",\n  \"quotation\": \"He said \\\"simple is complicated enough.\\\"\",\n  \"path\": \"C:\\\\projects\\\\JSON.view\",\n  \"whitespace\": \"First line\\nSecond line\\tTabbed\",\n  \"html\": \"\u003cimg src=\\\"missing\\\" onerror=\\\"alert(1)\\\" />\",\n  \"script\": \"\u003cscript>alert('Still just a string.')\u003c/script>\",\n  \"link\": \"https://github.com/byuwur/json.view\",\n  \"nested\": {\n    \"symbols\": \"\u003c > & \\\" '\",\n    \"escaped\": \"\\\\u0041 is a literal escape here.\"\n  }\n}"},
           bigNumbers: {"name": "Big numbers", "source": "{\n  \"balance\": \"900719925474099312345\",\n  \"unit\": \"tiny units\",\n  \"ordinaryNumber\": 42\n}"},
         };
         const state = {
@@ -1311,7 +1311,7 @@
           document.getElementById("options-json").value = settingsJSON(state.options);
           const cdn = state.install === "cdn";
           const min = cdn ? ".min" : "";
-          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/easy-json-viewer@latest/" : "./";
+          const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/json.view@latest/" : "./";
           const endScript = "</" + "script>";
           // Explicit lines preserve export indentation when the page is formatted.
           const html = [
@@ -1320,7 +1320,7 @@
             "  <head>",
             '    <meta charset="UTF-8" />',
             '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
-            "    <title>easy-json-viewer</title>",
+            "    <title>JSON.view</title>",
             `    <link rel="stylesheet" href="${base}json${min}.css" />`,
             `    <script src="${base}json${min}.js" defer>${endScript}`,
             "  </head>",
@@ -1328,7 +1328,7 @@
             '    <pre id="viewer" data-theme="light"></pre>',
             '    <script id="viewer-data" type="application/json">',
             "      {",
-            '        "project": "easy-json-viewer",',
+            '        "project": "JSON.view",',
             '        "description": "A little less noise. A lot more JSON.",',
             '        "openSource": true,',
             '        "dependencies": 0',
@@ -1353,7 +1353,7 @@
           const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=UTF-8" }));
           const link = document.createElement("a");
           link.href = url;
-          link.download = "easy-json-viewer.html";
+          link.download = "json.view.html";
           document.body.append(link);
           link.click();
           link.remove();
@@ -1700,7 +1700,7 @@
               frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue("--by-json-themes-loaded").trim() !== "1"
             ) {
               themesWarned = true;
-              console.warn(`easy-json-viewer: Import json.themes.css after json.css to use "${palette.value}".`);
+              console.warn(`JSON.view: Import json.themes.css after json.css to use "${palette.value}".`);
             }
             const css = palette.value === "custom" ? (customDraft ?? themeCSS("monokai")) : themeCSS(palette.value);
             if (editor.value !== css) editor.value = css;

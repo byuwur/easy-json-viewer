@@ -1,5 +1,5 @@
 {
-  "repository": "byuwur/easy-json-viewer",
+  "repository": "byuwur/json.view",
   "branch": "main",
   "kind": "easy",
   "runtime": ["json.js", "json.css", "json.themes.css"],

@@ -27,14 +27,14 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: easy-json-viewer
+        working-directory: json.view
     env:
       RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_type == 'tag' && github.ref_name || 'v0.0.0-ci' }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: easy-json-viewer
+          path: json.view
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: tested-release
-          path: easy-json-viewer/dist/assets/
+          path: json.view/dist/assets/
           if-no-files-found: error
           retention-days: 7
 

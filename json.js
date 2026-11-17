@@ -1,10 +1,10 @@
 "use strict";
 /*
  * File: json.js
- * Desc: Contains the heart of easy JSON viewer.
+ * Desc: Contains the heart of JSON.view.
  * Deps: none
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
- * https://github.com/byuwur/easy-json-viewer
+ * https://github.com/byuwur/json.view
  */
 (function (global) {
   // --- INITIALIZATION ---
@@ -164,8 +164,8 @@
     const document = element.ownerDocument;
     if (document.defaultView.getComputedStyle(document.documentElement).getPropertyValue("--by-json-themes-loaded").trim() === "1") return;
     warnedPalettes.add(palette);
-    // console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/easy-json-viewer/`);
-    console.warn(`easy-json-viewer: Palette "${palette}" requires json.themes.css. Import it after json.css. https://json.byuwur.co/`);
+    // console.warn(`JSON.view: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/json.view/`);
+    console.warn(`JSON.view: Palette "${palette}" requires json.themes.css. Import it after json.css. https://json.byuwur.co/`);
   };
 
   // Explicit appearance options override markup; omitted values preserve the container's state.
@@ -433,7 +433,7 @@
     controls.setAttribute("aria-label", "Viewer controls");
     const info = document.createElement("small");
     info.className = "byVIEWinfo";
-    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/easy-json-viewer" target="_blank" rel="noopener noreferrer">easy-json-viewer</a> · v${byJSONviewer.VERSION} ·
+    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/json.view" target="_blank" rel="noopener noreferrer">JSON.view</a> · v${byJSONviewer.VERSION} ·
       <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
     if (options.credits) toolbar.appendChild(info);
     if (options.themeToggle) appendThemeToggle(element, controls, filename);

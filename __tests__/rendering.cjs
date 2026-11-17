@@ -28,9 +28,9 @@ test("JSON library", { timeout: 30000 }, async (t) => {
     window.root = document.getElementById("viewer");
   });
 
-  await t.test("initial palette is immediate under host transitions and later theme changes still fade", async () => {
+  await t.test("host transitions cannot delay the initial palette or text resizing", async () => {
     // A painted host container has a previous background; newly created content does not.
-    const hostStyle = await page.addStyleTag({ content: "* { transition: background-color var(--by-view-motion-duration, 1s) linear, opacity var(--by-view-motion-duration, 1s) linear !important; }" });
+    const hostStyle = await page.addStyleTag({ content: "* { transition: width 1s linear, height 1s linear, transform 1s linear, margin 1s linear, padding 1s linear, background-color 1s linear, opacity 1s linear !important; }" });
     try {
       const initial = await page.evaluate(() => {
         getComputedStyle(root).backgroundColor;
@@ -46,6 +46,29 @@ test("JSON library", { timeout: 30000 }, async (t) => {
       assert.equal(initial.transitions, 0);
       assert.equal(initial.opacity, "1");
       await page.waitForFunction(() => root.classList.contains("byVIEWready"));
+      const resized = await page.evaluate(() => {
+        const row = root.querySelector("li");
+        Object.assign(row.style, { width: "10em", height: "2em", margin: "1em", padding: "1em", transform: "translateX(0px)" });
+        getComputedStyle(row).width;
+        root.querySelector('[aria-label="Increase text size"]').click();
+        row.style.transform = "translateX(40px)";
+        const style = getComputedStyle(row);
+        return {
+          fontSize: parseFloat(style.fontSize),
+          width: parseFloat(style.width),
+          height: parseFloat(style.height),
+          margin: parseFloat(style.marginLeft),
+          padding: parseFloat(style.paddingLeft),
+          transform: style.transform,
+          transitions: row.getAnimations().length
+        };
+      });
+      assert.ok(Math.abs(resized.width - resized.fontSize * 10) < 0.1);
+      assert.ok(Math.abs(resized.height - resized.fontSize * 2) < 0.1);
+      assert.ok(Math.abs(resized.margin - resized.fontSize) < 0.1);
+      assert.ok(Math.abs(resized.padding - resized.fontSize) < 0.1);
+      assert.equal(resized.transform, "matrix(1, 0, 0, 1, 40, 0)");
+      assert.equal(resized.transitions, 0);
       const duration = await page.evaluate(() => {
         root.querySelector(".byVIEWthemeToggle").click();
         getComputedStyle(root).backgroundColor;

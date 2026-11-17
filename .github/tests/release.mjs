@@ -94,9 +94,9 @@ test("release notes link short hashes, escape subjects, and display the actual t
   for (const tag of ["main", "../v1.0", "v01.0", "v1.0-01"]) assert.throws(() => validateTag(tag));
 });
 
-test("regular and minified downloads use concise links without a table", () => {
+test("downloads start with a concise table and omit redundant regular/minified prose", () => {
   const notes = releaseNotes(manifest);
-  assert.ok(!notes.includes("| File |"));
-  assert.ok(notes.includes("- [ZIP]"));
-  assert.ok(notes.includes("- [Minified ZIP]"));
+  assert.ok(notes.includes("## Downloads\n\n| File | Contents |"));
+  for (const asset of manifest.assets.filter((item) => item.file.endsWith(".zip"))) assert.ok(notes.includes(`| [${asset.file}]`));
+  assert.ok(!notes.includes("**Regular ZIP:**"));
 });

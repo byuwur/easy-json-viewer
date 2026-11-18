@@ -84,6 +84,21 @@ test("JSON library", { timeout: 30000 }, async (t) => {
     }
   });
 
+  await t.test("big-number adapters preserve ordinary records carrying the same marker", async () => {
+    await page.evaluate(() => {
+      byJSONviewer(
+        root,
+        [
+          { isLosslessNumber: true, description: "ordinary record" },
+          { isLosslessNumber: true, toString: () => "9007199254740993" }
+        ],
+        { bigNumbers: true, chunkLatency: 0 }
+      );
+    });
+    await page.waitForFunction(() => root.textContent.includes("ordinary record"));
+    assert.match(await page.locator(".byJSONcontent").textContent(), /9007199254740993/);
+  });
+
   await t.test("renders nested values and supports disclosure", async () => {
     await page.evaluate(() => byJSONviewer(root, { name: "core", values: [0, false, null] }, { collapsed: true, animations: false }));
     await page.waitForFunction(() => document.querySelectorAll("#viewer li").length === 5);

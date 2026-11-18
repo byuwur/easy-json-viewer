@@ -97,7 +97,16 @@
    * @param {Object} options - Renderer options.
    * @return {boolean} True if the value is a supported big number, otherwise false.
    */
-  const isBigNumber = (value, options) => Boolean(options.bigNumbers && value && typeof value === "object" && (typeof value.toExponential === "function" || value.isLosslessNumber));
+  const isBigNumber = (value, options) => {
+    if (!options.bigNumbers || !value || typeof value !== "object" || (typeof value.toExponential !== "function" && value.isLosslessNumber !== true)) return false;
+    if (typeof value.toString !== "function" || value.toString === Object.prototype.toString) return false;
+    try {
+      const text = value.toString();
+      return typeof text === "string" && /^[+-]?(?:(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|Infinity|NaN)$/i.test(text);
+    } catch {
+      return false;
+    }
+  };
 
   /**
    * Divides an array into smaller chunks.

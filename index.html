@@ -1098,7 +1098,7 @@
               const { value, depth } = pending.pop();
               if (typeof value === "number" && (!Number.isFinite(value) || (Number.isInteger(value) && !Number.isSafeInteger(value)))) unsafeNumber = true;
               if (!value || typeof value !== "object") continue;
-              if (state.options.bigNumbers && (typeof value.toExponential === "function" || value.isLosslessNumber)) continue;
+              if (state.options.bigNumbers && state.source === "bigNumbers" && value === state.data.balance) continue;
               if (depth > 80) throw new Error("Playground limit: 80 nesting levels. The previous preview is kept.");
               const children = Object.values(value);
               count += children.length;

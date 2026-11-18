@@ -2,8 +2,6 @@
 
 ![JSON.view preview](prev.jpg)
 
-Development version: **v4** (unreleased). The [latest release](https://github.com/byuwur/json.view/releases/latest) supplies the published files.
-
 **JSON, structure at a glance.**
 
 Turn JavaScript values into a collapsible tree.

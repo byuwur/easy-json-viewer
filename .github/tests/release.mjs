@@ -14,7 +14,7 @@ const manifest = JSON.parse(await fs.readFile(path.join(directory, "manifest.jso
 
 test("checksums cover the complete inventory and the exact source commit", async () => {
   assert.equal(manifest.changelog.commit, git("rev-parse", "HEAD"));
-  for (const archive of manifest.packages) assert.equal(archive.file, `${config.repository.split("/")[1]}.${manifest.tag}${archive.variant === "regular" ? "" : `.${archive.variant}`}.zip`);
+  for (const archive of manifest.packages) assert.equal(archive.file, `${config.repository.split("/")[1]}${archive.variant === "regular" ? "" : `.${archive.variant}`}.zip`);
   const files = [...manifest.assets.map((asset) => asset.file), "manifest.json"].sort();
   const checksums = (await fs.readFile(path.join(directory, "SHA256SUMS"), "utf8")).trim().split("\n");
   assert.deepEqual(checksums.map((line) => line.split("  ")[1]).sort(), files);
@@ -99,4 +99,16 @@ test("downloads start with a concise table and omit redundant regular/minified p
   assert.ok(notes.includes("## Downloads\n\n| File | Contents |"));
   for (const asset of manifest.assets.filter((item) => item.file.endsWith(".zip"))) assert.ok(notes.includes(`| [${asset.file}]`));
   assert.ok(!notes.includes("**Regular ZIP:**"));
+});
+
+test("download links stay stable across release versions", () => {
+  const files = [...manifest.assets.filter((asset) => asset.file !== "RELEASE_NOTES.md").map((asset) => asset.file), "manifest.json", "SHA256SUMS"];
+  const expected = new Set(files.map((file) => `https://github.com/${config.repository}/releases/latest/download/${file}`));
+  for (const tag of ["v1.0", "v2.0"]) {
+    const notes = releaseNotes({ ...manifest, tag });
+    const links = [...notes.matchAll(/\]\((https:\/\/github\.com\/[^)]+\/releases\/latest\/download\/[^)]+)\)/g)].map((match) => match[1]);
+    assert.deepEqual(new Set(links), expected);
+    assert.doesNotMatch(notes, /\/releases\/download\//);
+    assert.ok(notes.startsWith(`# ${config.repository.split("/")[1]} ${tag}\n`));
+  }
 });

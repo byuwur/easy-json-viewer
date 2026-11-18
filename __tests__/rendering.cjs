@@ -45,7 +45,8 @@ test("JSON library", { timeout: 30000 }, async (t) => {
       assert.equal(initial.background, initial.panelBackground);
       assert.equal(initial.transitions, 0);
       assert.equal(initial.opacity, "1");
-      await page.waitForFunction(() => root.classList.contains("byVIEWready"));
+      // Motion readiness and the first render chunk are scheduled independently.
+      await page.waitForFunction(() => root.classList.contains("byVIEWready") && root.querySelector("li"));
       const resized = await page.evaluate(() => {
         const row = root.querySelector("li");
         Object.assign(row.style, { width: "10em", height: "2em", margin: "1em", padding: "1em", transform: "translateX(0px)" });

@@ -3,7 +3,9 @@
 /* Monokai is the default. Classes select mode; named data-theme values select a palette.
    data-theme="light" / "dark" remain mode aliases and override mode classes. */
 
-/* --- VIEWER --- */
+/* ==========
+ * VIEWER
+ * ========== */
 /* Keep host layout transitions out; component rules below opt in to motion. */
 .byJSONdocument,
 .byJSONdocument *,
@@ -28,7 +30,9 @@
   line-height: 1.25;
 }
 
-/* --- CONTENT --- */
+/* ==========
+ * CONTENT
+ * ========== */
 .byJSONdocument *,
 .byJSONdocument *::before,
 .byJSONdocument *::after {
@@ -154,7 +158,9 @@
 .byJSONplaceholder.collapsed {
   display: inline;
 }
-/* --- CONTROLS --- */
+/* ==========
+ * CONTROLS
+ * ========== */
 .byJSONdocument > .byVIEWtoolbar {
   position: sticky;
   flex-shrink: 0;
@@ -316,7 +322,9 @@
   transition: transform var(--by-view-motion-duration, 0s) ease-out !important;
 }
 
-/* --- INTERACTION --- */
+/* ===========
+ * INTERACTION
+ * =========== */
 .byJSONdocument button {
   -webkit-tap-highlight-color: #0000;
   touch-action: manipulation;
@@ -346,7 +354,9 @@
   display: none;
 }
 
-/* --- MOTION --- */
+/* ==========
+ * MOTION
+ * ========== */
 /* Initial content is immediate unless the entrance animation is explicitly enabled. */
 .byJSONdocument {
   --by-view-motion-duration: 0s;
@@ -462,8 +472,12 @@
   transition: opacity var(--by-view-motion-duration) ease-out !important;
 }
 
-/* --- THEMES --- */
-/* --- LIGHT --- */
+/* ==========
+ * THEMES
+ * ========== */
+/* ==========
+ * LIGHT
+ * ========== */
 .byJSONdocument,
 .byJSONdocument.light:not([data-theme="dark"]),
 .byJSONdocument[data-theme="light"] {
@@ -481,7 +495,9 @@
   --by-json-placeholder: #8a8875;
 }
 
-/* --- DARK --- */
+/* ==========
+ * DARK
+ * ========== */
 .byJSONdocument.dark:not([data-theme="light"]),
 .byJSONdocument[data-theme="dark"] {
   color-scheme: dark;
@@ -498,7 +514,9 @@
   --by-json-placeholder: #75715e;
 }
 
-/* --- GITHUB --- */
+/* ==========
+ * GITHUB
+ * ========== */
 /* Light */
 .byJSONdocument[data-theme="github"]:not(.dark) {
   --by-view-muted: #59636e;
@@ -526,7 +544,9 @@
   --by-json-placeholder: #9198a1;
 }
 
-/* --- SOLARIZED --- */
+/* ==========
+ * SOLARIZED
+ * ========== */
 /* Light */
 .byJSONdocument[data-theme="solarized"]:not(.dark) {
   --by-view-muted: #657b83;
@@ -554,7 +574,9 @@
   --by-json-placeholder: #839496;
 }
 
-/* --- HIGH CONTRAST --- */
+/* =============
+ * HIGH CONTRAST
+ * ============= */
 /* Light */
 .byJSONdocument[data-theme="high-contrast"]:not(.dark) {
   --by-view-muted: #333333;

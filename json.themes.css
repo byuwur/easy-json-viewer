@@ -737,29 +737,29 @@
 /* ===== BONYUR ===== */
 
 .byJSONdocument[data-theme="bonyur"]:not(.dark) {
-  --by-view-muted: #666;
-  --by-view-bg: #fee;
-  --by-json-text: #232;
-  --by-json-border: #888;
-  --by-json-string: #572;
-  --by-json-literal: #85a;
-  --by-json-nest-border: 0.0625rem dotted #888;
-  --by-json-toggle: #666;
-  --by-json-toggle-hover: #232;
-  --by-json-placeholder: #666;
+  --by-view-muted: #555;
+  --by-view-bg: #eee;
+  --by-json-text: #111;
+  --by-json-border: #76262b;
+  --by-json-string: #404040;
+  --by-json-literal: #600;
+  --by-json-nest-border: 0.0625rem dotted #777;
+  --by-json-toggle: #444;
+  --by-json-toggle-hover: #900;
+  --by-json-placeholder: #555;
 }
 
 .byJSONdocument.dark[data-theme="bonyur"] {
-  --by-view-muted: #9ba;
-  --by-view-bg: #122;
+  --by-view-muted: #aaa;
+  --by-view-bg: #111;
   --by-json-text: #eee;
-  --by-json-border: #777;
-  --by-json-string: #dd8;
-  --by-json-literal: #dae;
+  --by-json-border: #b4585d;
+  --by-json-string: #ccc;
+  --by-json-literal: #f0b9bc;
   --by-json-nest-border: 0.0625rem dotted #777;
-  --by-json-toggle: #9ba;
-  --by-json-toggle-hover: #eee;
-  --by-json-placeholder: #9ba;
+  --by-json-toggle: #bbb;
+  --by-json-toggle-hover: #f48288;
+  --by-json-placeholder: #aaa;
 }
 
 /* ===== SAKURA ===== */

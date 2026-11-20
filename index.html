@@ -1145,7 +1145,7 @@
         // ===== PREVIEW =====
         function initializePreview() {
           // Keep the real viewer and its theme outside the landing page's CSS.
-          const base = new URL("./", location.href).href.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+          const base = new URL("./", location.href).href.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
           frame.addEventListener(
             "load",
             () => {
@@ -2088,7 +2088,7 @@
                 ? {
                     field_id: field
                       .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-                      .replace(/-/g, "_")
+                      .replaceAll("-", "_")
                       .toLowerCase()
                   }
                 : {})

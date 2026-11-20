@@ -7,25 +7,17 @@
  * https://github.com/byuwur/json.view
  */
 (function (global) {
-  // ==============
-  // INITIALIZATION
-  // ==============
+  // ===== INITIALIZATION =====
   if (global.byJSONviewer?.initialized) return;
 
-  // ==========
-  // METADATA
-  // ==========
+  // ===== METADATA =====
   byJSONviewer.VERSION = "4.1"; // 2026-11-18
 
   // Keep render state tied to each target element
-  // ==========
-  // STATE
-  // ==========
+  // ===== STATE =====
   const renderTokens = new WeakMap();
 
-  // ==========
-  // HELPERS
-  // ==========
+  // ===== HELPERS =====
 
   /**
    * Applies defaults and validates renderer options.
@@ -128,9 +120,7 @@
     return chunks;
   };
 
-  // ==========
-  // APPEARANCE
-  // ==========
+  // ===== APPEARANCE =====
   const extraPalettes = new Set([
     "dracula",
     "darcula",
@@ -209,9 +199,7 @@
     }
   };
 
-  // ==========
-  // CONTROLS
-  // ==========
+  // ===== CONTROLS =====
   /**
    * Sets the collapsed state of a toggle and its related elements.
    * @param {HTMLElement} toggle - Toggle element.
@@ -470,9 +458,7 @@
     else element.prepend(toolbar);
   };
 
-  // ==========
-  // RENDERING
-  // ==========
+  // ===== RENDERING =====
   /**
    * Creates and appends an <a> element.
    * @param {HTMLElement} parent - Parent element.
@@ -629,9 +615,7 @@
     return appendSPAN(element, "null");
   };
 
-  // ==========
-  // LIFECYCLE
-  // ==========
+  // ===== LIFECYCLE =====
   /**
    * Cancels an unfinished render on the given element.
    * @param {HTMLElement} element - Renderer element.
@@ -664,9 +648,7 @@
     token.timers.add(timer);
   };
 
-  // ==========
-  // PUBLIC API
-  // ==========
+  // ===== PUBLIC API =====
   /**
    * Replace a target with a chunked JSON tree. Returns immediately; descendants finish on timers.
    * The caller retains the value; Copy serializes that value rather than the displayed DOM.
@@ -763,9 +745,7 @@
     if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
     appendViewerControls(element, normalizedOptions, "json", json);
   }
-  // ==========
-  // EXPORT
-  // ==========
+  // ===== EXPORT =====
   global.byJSONviewer = byJSONviewer;
   byJSONviewer.initialized = true;
 })(typeof window !== "undefined" ? window : this);

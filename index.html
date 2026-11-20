@@ -1005,20 +1005,19 @@
           valid: false,
           options: { ...defaults },
           theme: "light",
-          install: "cdn",
           loading: false,
           request: null,
           sourceVersion: 0,
           benchmarkText: null,
           editTimer: null,
-          observer: null,
-          entryCount: 0,
+          pendingRender: null,
           bytes: 0
         };
         const editor = document.getElementById("json-source");
         const frame = document.getElementById("preview-frame");
         let renderer = null;
-        const configuration = document.getElementById("configuration");
+        let viewer;
+        const form = document.getElementById("configuration");
         const preset = document.getElementById("source-preset");
         const sourceStatus = document.getElementById("source-status");
         const previewStatus = document.getElementById("preview-status");
@@ -1065,9 +1064,8 @@
         }
 
         function markPending() {
-          state.observer?.disconnect();
-          state.observer = null;
-          renderer?.setAttribute("aria-busy", "false");
+          state.pendingRender = null;
+          previewStatus.setAttribute("aria-busy", "false");
           previewStatus.textContent = "Previous preview = changes pending";
           document.getElementById("metric-render").textContent = "-";
           document.getElementById("metric-dom").textContent = "-";
@@ -1075,30 +1073,24 @@
 
         function setTheme(theme) {
           state.theme = theme;
-          if (renderer) setPreviewMode(renderer, theme);
           document.getElementById("preview-scroll").dataset.theme = theme;
           document.getElementById(`theme-${theme}`).checked = true;
-          const toggle = renderer?.querySelector(".byVIEWthemeToggle");
-          if (toggle) {
-            toggle.title = `Switch to ${theme === "dark" ? "light" : "dark"} theme`;
-            toggle.setAttribute("aria-label", toggle.title);
-          }
-          updateCode();
+          syncOptions(state.options);
         }
 
         function readOptions() {
-          if (!configuration.checkValidity()) {
+          if (!form.checkValidity()) {
             document.getElementById("config-status").textContent = "Use a whole chunk size ≥ 1 and a delay ≥ 0.";
             document.getElementById("copy-options").disabled = true;
             return false;
           }
           for (const name of Object.keys(defaults)) {
-            const input = configuration.elements.namedItem(name);
-            state.options[name] = input.type === "checkbox" ? input.checked : input.type === "number" ? Number(input.value) : input.value;
+            const input = form.elements.namedItem(name);
+            state.options[name] = optionValue(input);
           }
           document.getElementById("config-status").textContent = "";
           document.getElementById("copy-options").disabled = false;
-          updateCode();
+          syncOptions(state.options);
           return true;
         }
 
@@ -1122,7 +1114,7 @@
               Object.defineProperty(state.data.balance, "toString", { value: () => decimal });
             }
 
-            // Count the actual entries the renderer will insert, including collapsed descendants.
+            // Bound the total work, including descendants of collapsed nodes.
             const pending = [{ value: state.data, depth: 0 }];
             let count = 0;
             let unsafeNumber = false;
@@ -1137,18 +1129,15 @@
               if (count > 20000) throw new Error("Playground limit: 20,000 entries. Try a smaller document; nothing was truncated.");
               for (const child of children) pending.push({ value: child, depth: depth + 1 });
             }
-            state.entryCount = count;
             state.valid = true;
             editor.setAttribute("aria-invalid", "false");
             document.getElementById("precision-note").hidden = !unsafeNumber;
             reportSource("Valid JSON", "valid");
-            updateCode();
             return true;
           } catch (error) {
             editor.setAttribute("aria-invalid", "true");
             reportSource(`Cannot render: ${error.message}`, "error");
             previewStatus.textContent = "Previous preview kept = source needs attention";
-            updateCode();
             return false;
           }
         }
@@ -1167,7 +1156,7 @@
               }).observe(renderer, { attributes: true, attributeFilter: ["data-theme", "class"] });
               setTheme(state.theme);
               // Finish the iframe's appearance setup before measuring the initial render.
-              state.editTimer = setTimeout(renderSource, 0);
+              state.editTimer = setTimeout(renderSource, 0, null, previewAppearance());
             },
             { once: true }
           );
@@ -1197,7 +1186,7 @@
           `);
         }
 
-        function renderSource(completed) {
+        function renderSource(completed, appearance) {
           clearTimeout(state.editTimer);
           if (!readOptions() || state.loading || !validateSource()) return;
           if (!renderer) return;
@@ -1206,34 +1195,28 @@
             return;
           }
           markPending();
-          renderer.setAttribute("aria-busy", "true");
-          previewStatus.textContent = `Rendering = ${state.options.chunkSize} entries / chunk = ${state.options.chunkLatency} ms delay`;
-          let inserted = 0;
-          const complete = () => {
-            const duration = performance.now() - started;
-            state.observer?.disconnect();
-            state.observer = null;
-            renderer?.setAttribute("aria-busy", "false");
-            document.getElementById("metric-render").textContent = `${duration.toFixed(2)} ms`;
-            document.getElementById("metric-dom").textContent = renderer.querySelectorAll("*").length.toLocaleString();
-            completed?.();
-            previewStatus.textContent = `Rendered = ${state.entryCount.toLocaleString()} entries`;
-          };
-          state.observer = new MutationObserver((records) => {
-            for (const record of records) {
-              for (const node of record.addedNodes) {
-                if (node.nodeType !== Node.ELEMENT_NODE) continue;
-                if (node.tagName === "LI") inserted++;
-                inserted += node.querySelectorAll("li").length;
-              }
-            }
-            if (inserted === state.entryCount) complete();
-          });
-          state.observer.observe(renderer, { childList: true, subtree: true });
-          // Rendering the same target lets json.js cancel its own obsolete chunks.
           const started = performance.now();
-          frame.contentWindow.byJSONviewer(renderer, state.data, state.options);
-          if (state.entryCount === 0) complete();
+          viewer = frame.contentWindow.byJSONviewer(renderer, state.data, { ...state.options, ...appearance });
+          measureRender(viewer.ready, started, completed);
+        }
+
+        async function measureRender(ready, started, completed) {
+          if (!ready || state.pendingRender === ready) return;
+          state.pendingRender = ready;
+          previewStatus.setAttribute("aria-busy", "true");
+          previewStatus.textContent = `Rendering = ${state.options.chunkSize} entries / chunk = ${state.options.chunkLatency} ms delay`;
+          if (!(await ready) || state.pendingRender !== ready) return;
+          state.pendingRender = null;
+          previewStatus.setAttribute("aria-busy", "false");
+          document.getElementById("metric-render").textContent = `${(performance.now() - started).toFixed(2)} ms`;
+          document.getElementById("metric-dom").textContent = renderer.querySelectorAll("*").length.toLocaleString();
+          previewStatus.textContent = `Rendered = ${renderer.querySelectorAll("li").length.toLocaleString()} entries`;
+          completed?.();
+        }
+
+        function configure(changes) {
+          const started = performance.now();
+          measureRender(viewer?.setOptions(changes), started);
         }
 
         // ===== SOURCE LOADING =====
@@ -1259,7 +1242,6 @@
             editor.disabled = true;
             editor.value = "";
             reportSource("Loading ./test.json...");
-            updateCode();
             try {
               if (state.benchmarkText === null) {
                 state.request = new AbortController();
@@ -1304,11 +1286,18 @@
         // ===== INTEGRATION =====
         function syncForm() {
           for (const [name, value] of Object.entries(state.options)) {
-            const input = configuration.elements.namedItem(name);
+            const input = form.elements.namedItem(name);
             if (input.type === "checkbox") input.checked = value;
             else input.value = value;
           }
           setTheme(state.theme);
+        }
+
+        function optionValue(control) {
+          if (control.type === "checkbox") return control.checked;
+          if (control.type === "number") return Number(control.value);
+          if ((control.type === "radio" || control.tagName === "SELECT") && control.value === "false") return false;
+          return control.value;
         }
 
         function settingsJSON(options) {
@@ -1316,10 +1305,8 @@
           const { forceMonospace, toolbar, credits, themeToggle, fontSizeControls, copyButton, controlsCompact, animations, appearAnimation, controlsSize, controlsPosition, ...rendering } = options;
           return JSON.stringify(
             {
-              theme: document.querySelector('[name="previewTheme"]:checked').value,
-              palette: field("preview-palette") || "monokai",
+              ...previewAppearance(),
               fontFamily: field("preview-font"),
-              fontSize: field("preview-size") === null ? null : Number(field("preview-size")),
               lineHeight: field("preview-leading") === null ? null : Number(field("preview-leading")),
               controlsFont: field("preview-controls-font") || "ui-monospace, monospace",
               backgroundColor: field("preview-bg"),
@@ -1344,96 +1331,108 @@
           );
         }
 
+        function syncOptions(options) {
+          document.documentElement.classList.toggle("no-motion", !options.animations);
+          for (const control of document.querySelectorAll('#credits, #themeToggle, #fontSizeControls, #copyButton, #controlsCompact, [name="controlsSize"], [name="controlsPosition"]')) control.disabled = !options.toolbar;
+          const statusBar = document.getElementById("statusBar");
+          if (statusBar) statusBar.disabled = !options.displayContainer;
+          document.getElementById("appearAnimation").disabled = !options.animations;
+          document.getElementById("options-json").value = settingsJSON(options);
+        }
+
+        const integrationCode = document.getElementById("integration-code");
         let integrationHTML = "";
-        function renderIntegration(html) {
+        function downloadText(text, filename, type) {
+          const url = URL.createObjectURL(new Blob([text], { type }));
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = filename;
+          document.body.append(link);
+          link.click();
+          window.bySiteAnalytics?.begin("resource_exported")?.();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function renderIntegration(title, assets, body) {
+          const html = [
+            "<!doctype html>",
+            '<html lang="en">',
+            "  <head>",
+            '    <meta charset="UTF-8">',
+            '    <meta name="viewport" content="width=device-width, initial-scale=1">',
+            `    <title>${title}</title>`,
+            ...assets,
+            "  </head>",
+            "  <body>",
+            ...body,
+            "  </body>",
+            "</html>"
+          ].join("\n");
           if (html === integrationHTML) return;
           integrationHTML = html;
-          const code = document.getElementById("integration-code");
           if (typeof window.byCODEviewer === "function") {
-            byCODEviewer(code, html, {
+            byCODEviewer(integrationCode, html, {
               language: "html",
               theme: document.documentElement.dataset.bsTheme,
               fontSize: 1,
               toolbar: false,
               displayContainer: false
             });
-          } else code.textContent = html;
+          } else integrationCode.textContent = html;
         }
 
-        function updateCode() {
-          document.documentElement.classList.toggle("no-motion", !state.options.animations);
-          for (const control of document.querySelectorAll('#credits, #themeToggle, #fontSizeControls, #copyButton, #controlsCompact, [name="controlsSize"], [name="controlsPosition"]')) control.disabled = !state.options.toolbar;
-          document.getElementById("appearAnimation").disabled = !state.options.animations;
-          document.getElementById("statusBar").disabled = !state.options.displayContainer;
-          document.getElementById("options-json").value = settingsJSON(state.options);
-          const cdn = state.install === "cdn";
+        const installButtons = document.querySelectorAll("[data-install]");
+        function updateIntegration(mode = "cdn") {
+          const cdn = mode === "cdn";
           const min = cdn ? ".min" : "";
           const base = cdn ? "https://cdn.jsdelivr.net/gh/byuwur/json.view@latest/" : "./";
           const endScript = "</" + "script>";
-          // Explicit lines preserve export indentation when the page is formatted.
-          const html = [
-            "<!doctype html>",
-            '<html lang="en">',
-            "  <head>",
-            '    <meta charset="UTF-8" />',
-            '    <meta name="viewport" content="width=device-width, initial-scale=1" />',
-            "    <title>JSON.view</title>",
-            `    <link rel="stylesheet" href="${base}json${min}.css" />`,
-            `    <script src="${base}json${min}.js" defer>${endScript}`,
-            "  </head>",
-            "  <body>",
-            '    <pre id="viewer" data-theme="light"></pre>',
-            '    <script id="viewer-data" type="application/json">',
-            "      {",
-            '        "project": "JSON.view",',
-            '        "description": "A little less noise. A lot more JSON.",',
-            '        "openSource": true,',
-            '        "dependencies": 0',
-            "      }",
-            `    ${endScript}`,
-            "    <script>",
-            '      document.addEventListener("DOMContentLoaded", () => {',
-            '        const data = JSON.parse(document.getElementById("viewer-data").textContent);',
-            '        byJSONviewer(document.getElementById("viewer"), data);',
-            "      });",
-            `    ${endScript}`,
-            "  </body>",
-            "</html>"
-          ].join("\n");
-          renderIntegration(html);
+          renderIntegration(
+            "JSON.view",
+            [`    <link rel="stylesheet" href="${base}json${min}.css" />`, `    <script src="${base}json${min}.js" defer>${endScript}`],
+            [
+              '    <pre id="viewer" data-theme="light"></pre>',
+              '    <script id="viewer-data" type="application/json">',
+              "      {",
+              '        "project": "JSON.view",',
+              '        "description": "A little less noise. A lot more JSON.",',
+              '        "openSource": true,',
+              '        "dependencies": 0',
+              "      }",
+              `    ${endScript}`,
+              "    <script>",
+              '      document.addEventListener("DOMContentLoaded", () => {',
+              '        const data = JSON.parse(document.getElementById("viewer-data").textContent);',
+              '        byJSONviewer(document.getElementById("viewer"), data);',
+              "      });",
+              `    ${endScript}`
+            ]
+          );
           document.getElementById("install-note").textContent = cdn ? "CDN follows the latest release; updates may take time to reach caches." : "Place the HTML beside json.js and json.css.";
-          return html;
-        }
-
-        function downloadHTML() {
-          const html = updateCode();
-          const url = URL.createObjectURL(new Blob([html], { type: "text/html;charset=UTF-8" }));
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "json.view.html";
-          document.body.append(link);
-          link.click();
-          window.bySiteAnalytics?.begin("resource_exported")?.();
-          link.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-          document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings.";
+          installButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.install === mode)));
+          document.getElementById("copy-status").textContent = "";
         }
 
         // ===== CLIPBOARD =====
         async function copyText(text, selectable, button) {
           const caption = button.querySelector("span");
+          const starter = selectable.id === "integration-code";
+          if (starter) button.disabled = true;
           try {
-            const copied = window.bySiteAnalytics?.begin("resource_copied");
-            await navigator.clipboard.writeText(text);
-            copied?.();
+            await writeClipboard(text);
+            if (starter && text !== integrationHTML) return;
             caption.textContent = "Copied!";
             button.removeAttribute("title");
           } catch {
+            if (starter && text !== integrationHTML) return;
             selectable.focus();
             if (typeof selectable.select === "function") selectable.select();
             else document.getSelection()?.selectAllChildren(selectable);
             caption.textContent = "Failed";
             button.title = "Clipboard unavailable. Press Ctrl+C or ⌘C to copy the selected text.";
+          } finally {
+            if (starter) button.disabled = false;
           }
         }
 
@@ -1451,41 +1450,50 @@
         });
 
         // ===== PLAYGROUND CONTROLS =====
-        document.querySelectorAll("[data-options-view]").forEach((button) =>
+        const optionsTabs = document.querySelectorAll("[data-options-view]");
+        optionsTabs.forEach((button) =>
           button.addEventListener("click", () => {
             if (!readOptions()) return;
-            const jsonView = button.dataset.optionsView === "json";
-            configuration.hidden = jsonView;
-            document.getElementById("options-json-panel").hidden = !jsonView;
-            document.getElementById("copy-options").hidden = !jsonView;
-            document.querySelectorAll("[data-options-view]").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
+            const json = button.dataset.optionsView === "json";
+            form.hidden = json;
+            document.getElementById("options-json-panel").hidden = !json;
+            document.getElementById("copy-options").hidden = !json;
+            optionsTabs.forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
           })
         );
         document.getElementById("copy-options").addEventListener("click", (event) => {
           const options = document.getElementById("options-json");
           copyText(options.value, options, event.currentTarget);
         });
-        configuration.addEventListener("submit", (event) => event.preventDefault());
-        configuration.addEventListener("change", (event) => {
-          if (["preview-palette", "custom-theme-css"].includes(event.target.id)) return updateCode();
-          if (event.target.name === "previewTheme") return setTheme(event.target.value);
-          markPending();
-          renderSource();
+        form.addEventListener("submit", (event) => event.preventDefault());
+        form.addEventListener("change", (event) => {
+          if (event.target.name === "previewTheme") {
+            setTheme(event.target.value);
+            return configure({ theme: state.theme });
+          }
+          if (event.target.id === "preview-palette") {
+            configure({ palette: event.target.value });
+            return syncOptions(state.options);
+          }
+          if (event.target.id === "preview-size" && event.target.checkValidity()) {
+            configure({ fontSize: previewAppearance("1em").fontSize });
+            return syncOptions(state.options);
+          }
+          const name = event.target.name || event.target.id;
+          if (name in defaults && readOptions()) configure({ [name]: state.options[name] });
+          else syncOptions(state.options);
         });
         document.getElementById("reset-settings").addEventListener("click", () => {
           state.options = { ...defaults };
-          configuration.reset();
-          if (renderer) renderer.style.fontSize = renderer.dataset.byViewDefaultFontSize ?? "";
+          form.reset();
           setTheme("light");
-          markPending();
-          renderSource();
+          configure({ ...state.options, ...previewAppearance("1em") });
         });
         document.getElementById("normal-rendering").addEventListener("click", () => {
           state.options.chunkSize = defaults.chunkSize;
           state.options.chunkLatency = defaults.chunkLatency;
           syncForm();
-          markPending();
-          renderSource();
+          configure({ chunkSize: defaults.chunkSize, chunkLatency: defaults.chunkLatency });
         });
         preset.addEventListener("change", () => selectSource(preset.value, window.bySiteAnalytics?.begin("resource_selected")));
         const localFile = document.getElementById("local-file");
@@ -1525,7 +1533,6 @@
           document.getElementById("metric-parse").textContent = "-";
           markPending();
           reportSource("Checking JSON...");
-          updateCode();
           clearTimeout(state.editTimer);
           state.editTimer = setTimeout(renderSource, 300, window.bySiteAnalytics?.begin("content_processed"));
         });
@@ -1544,6 +1551,7 @@
             const feature = button.dataset.feature;
             if (feature === "theme") {
               setTheme(state.theme === "dark" ? "light" : "dark");
+              configure({ theme: state.theme });
             } else {
               if (feature === "nested") state.options.collapsed = true;
               if (feature === "characters") state.options.withLinks = true;
@@ -1566,26 +1574,19 @@
             showPanel("preview-panel", true);
           })
         );
-        document.querySelectorAll("[data-install]").forEach((button) =>
-          button.addEventListener("click", () => {
-            state.install = button.dataset.install;
-            document.querySelectorAll("[data-install]").forEach((choice) => choice.setAttribute("aria-pressed", String(choice === button)));
-            updateCode();
-          })
-        );
-        document.getElementById("copy-code").addEventListener("click", (event) => {
-          updateCode();
-          const code = document.getElementById("integration-code");
-          copyText(integrationHTML, code, event.currentTarget);
+        installButtons.forEach((button) => button.addEventListener("click", () => updateIntegration(button.dataset.install)));
+        document.getElementById("copy-code").addEventListener("click", (event) => copyText(integrationHTML, integrationCode, event.currentTarget));
+        document.getElementById("download-html").addEventListener("click", () => {
+          downloadText(integrationHTML, "json.view.html", "text/html;charset=UTF-8");
+          document.getElementById("copy-status").textContent = "Downloaded. The starter uses default viewer settings.";
         });
-        document.getElementById("download-html").addEventListener("click", downloadHTML);
         // ===== LIFECYCLE =====
         window.addEventListener("pagehide", () => {
           monospacePopover?.hide();
           controlTooltips.forEach((tooltip) => tooltip.hide());
           state.request?.abort();
           clearTimeout(state.editTimer);
-          state.observer?.disconnect();
+          state.pendingRender = null;
         });
         window.addEventListener("pageshow", (event) => {
           if (!event.persisted) return;
@@ -1597,9 +1598,17 @@
         });
         // ===== INITIALIZATION =====
         document.getElementById("year-txt").textContent = new Date().getFullYear();
+        syncOptions(state.options);
+        updateIntegration();
         initializePreview();
         selectSource("basic");
       });
+
+      async function writeClipboard(text) {
+        const copied = window.bySiteAnalytics?.begin("resource_copied");
+        await navigator.clipboard.writeText(text);
+        copied?.();
+      }
 
       (function initColorPickers() {
         document.addEventListener("DOMContentLoaded", async () => {
@@ -1667,25 +1676,23 @@
         return ["light", "dark"].includes(target.dataset.theme) ? target.dataset.theme : target.classList.contains("dark") ? "dark" : "light";
       }
 
-      function setPreviewMode(target, mode) {
-        const palette = document.getElementById("preview-palette").value;
-        // Only write changes: the preview observer watches these same attributes.
-        for (const value of ["light", "dark"]) {
-          if (target.classList.contains(value) !== (value === mode)) target.classList.toggle(value, value === mode);
-        }
-        const theme = palette === "monokai" ? mode : palette;
-        if (target.dataset.theme !== theme) target.dataset.theme = theme;
-        target.ownerDocument.documentElement.style.colorScheme = mode;
-        target.ownerDocument.body.style.background = target.ownerDocument.defaultView.getComputedStyle(target).backgroundColor;
+      function previewAppearance(defaultSize = null) {
+        const size = document.getElementById("preview-size");
+        return {
+          theme: document.querySelector('[name="previewTheme"]:checked').value,
+          palette: document.getElementById("preview-palette").value,
+          fontSize: size.value && size.checkValidity() ? size.valueAsNumber : defaultSize
+        };
       }
 
-      (function appearance(name) {
+      (function appearance(name, targetId = "viewer", contentSelector = "> .byVIEWcontent") {
         document.addEventListener("DOMContentLoaded", async () => {
           // DOMContentLoaded does not wait for dynamically loaded SPA styles and scripts.
           await spaReady;
           const frame = document.getElementById("preview-frame");
           const fields = [...document.querySelectorAll(".preview-appearance input:not([type=radio]), .preview-appearance select, #preview-controls-font")];
           const palette = document.getElementById("preview-palette");
+          const defaultPalette = [...palette.options].find((option) => option.defaultSelected)?.value || palette.options[0].value;
           const editor = document.getElementById("custom-theme-css");
           const themeStatus = document.getElementById("theme-status");
           const selector = `.by${name.toUpperCase()}document`;
@@ -1695,16 +1702,15 @@
           const declarations = () => {
             const rules = fields.map((field, index) => {
               const value = field.id === "preview-controls-font" ? field.querySelector("input:checked").value : field.value;
-              return [properties[index], field.checkValidity() ? value + (field.id === "preview-size" && value ? "rem" : "") : ""];
+              return [properties[index], field.checkValidity() ? value : ""];
             });
             if (!["md", "json"].includes(name)) rules.push(["--by-view-content-font", rules[0][1]], ["--by-view-line-height", rules[2][1]]);
-            return rules;
+            return rules.filter(([property, value]) => property !== "font-size" && value);
           };
-          const initialStyles = new Map();
           let customDraft = null;
           let themesWarned = false;
           let themeTimer;
-          const target = () => frame.contentDocument?.getElementById("byJSONrenderer");
+          const target = () => frame.contentDocument?.getElementById(targetId);
           // Read both modes on temporary containers so exporting CSS never changes the live viewer.
           const themeCSS = (selected) => {
             const document = frame.contentDocument;
@@ -1735,19 +1741,11 @@
               style.id = "custom-theme-style";
               frame.contentDocument.head.appendChild(style);
             }
-            const css = palette.value === "custom" ? editor.value : "";
+            const rules = declarations()
+              .map(([property, value]) => `${property}: ${value};`)
+              .join("\n");
+            const css = `${palette.value === "custom" ? editor.value : ""}\n#${viewer.id} {\n${rules}\n}`;
             if (style.textContent !== css) style.textContent = css;
-            for (const [property, value] of declarations()) {
-              if (value) {
-                if (!initialStyles.has(property)) initialStyles.set(property, viewer.style.getPropertyValue(property));
-                viewer.style.setProperty(property, value);
-              } else if (initialStyles.has(property)) {
-                viewer.style.setProperty(property, initialStyles.get(property));
-                initialStyles.delete(property);
-              }
-            }
-            viewer.dataset.byViewDefaultFontSize = viewer.style.fontSize;
-            setPreviewMode(viewer, getPreviewMode(viewer));
             const invalid = fields.some((field) => !field.checkValidity());
             document.getElementById("appearance-status").textContent = invalid ? "Use valid number ranges and CSS background colors; text color uses six-digit hex." : "";
           };
@@ -1757,12 +1755,12 @@
             if (
               !["monokai", "github", "solarized", "high-contrast", "custom"].includes(palette.value) &&
               !themesWarned &&
-              frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue("--by-json-themes-loaded").trim() !== "1"
+              frame.contentWindow.getComputedStyle(frame.contentDocument.documentElement).getPropertyValue(`--by-${name}-themes-loaded`).trim() !== "1"
             ) {
               themesWarned = true;
-              console.warn(`JSON.view: Import json.themes.css after json.css to use "${palette.value}".`);
+              console.warn(`${name.toUpperCase()}.view: Import ${name}.themes.css after ${name}.css to use "${palette.value}".`);
             }
-            const css = palette.value === "custom" ? (customDraft ?? themeCSS("monokai")) : themeCSS(palette.value);
+            const css = palette.value === "custom" ? (customDraft ?? themeCSS(defaultPalette)) : themeCSS(palette.value);
             if (editor.value !== css) editor.value = css;
             apply();
             themeStatus.textContent = "";
@@ -1782,10 +1780,7 @@
             themeTimer = setTimeout(editTheme, 180);
           });
           editor.addEventListener("change", editTheme);
-          frame.addEventListener("load", () => {
-            initialStyles.clear();
-            loadPalette();
-          });
+          frame.addEventListener("load", loadPalette);
           document.querySelectorAll("#reset-settings, #reset-options, #reset").forEach((button) =>
             button.addEventListener("click", () => {
               clearTimeout(themeTimer);
@@ -1797,15 +1792,13 @@
                   field.setCustomValidity("");
                 }
               });
-              palette.value = "monokai";
-              palette.dispatchEvent(new Event("change", { bubbles: true }));
+              palette.value = defaultPalette;
+              loadPalette();
             })
           );
           document.getElementById("copy-theme").addEventListener("click", async () => {
             try {
-              const copied = window.bySiteAnalytics?.begin("resource_copied");
-              await navigator.clipboard.writeText(editor.value);
-              copied?.();
+              await writeClipboard(editor.value);
               themeStatus.textContent = 'Theme CSS copied. Use data-theme="custom" with a light/dark class.';
             } catch {
               themeStatus.textContent = "Copy failed. Check clipboard access.";
@@ -1814,13 +1807,12 @@
           document.getElementById("copy-appearance").addEventListener("click", async () => {
             if (fields.some((field) => !field.checkValidity())) return apply();
             const rules = declarations()
-              .filter(([, value]) => value)
               .map(([property, value]) => `  ${property}: ${value};`)
               .join("\n");
             try {
-              const copied = window.bySiteAnalytics?.begin("resource_copied");
-              await navigator.clipboard.writeText(`${selector} {\n${rules}\n}`);
-              copied?.();
+              const size = document.getElementById("preview-size");
+              const contentRule = size.value ? `\n${selector} ${contentSelector} { font-size: ${size.valueAsNumber}rem; }` : "";
+              await writeClipboard(`${selector} {\n${rules}\n}${contentRule}`);
               document.getElementById("appearance-status").textContent = "CSS copied. Place it after the viewer stylesheet.";
             } catch {
               document.getElementById("appearance-status").textContent = "Copy failed. Check clipboard access.";
@@ -1829,7 +1821,7 @@
           window.addEventListener("pagehide", () => clearTimeout(themeTimer));
           loadPalette();
         });
-      })("json");
+      })("json", "byJSONrenderer", ".byJSONcontent");
 
       // Animate deliberate panel changes; initial content and render batches stay visible.
       document.addEventListener("shown.bs.tab", (event) => {

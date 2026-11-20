@@ -76,7 +76,115 @@ test("JSON playground loads, updates, and copies a starter", { timeout: 30000 },
   assert.equal(await page.locator("#download-release").getAttribute("href"), "https://github.com/byuwur/json.view/releases/latest/download/json.view.zip");
   assert.equal(await page.locator("#download-minified").getAttribute("href"), "https://github.com/byuwur/json.view/releases/latest/download/json.view.minified.zip");
   const preview = page.frameLocator("#preview-frame").locator(".byJSONdocument");
-  await preview.waitFor();
+  await preview.locator(".byJSONstring").first().waitFor();
+  const sizes = await preview.evaluate((viewer) => {
+    const [decrease, reset, increase] = viewer.querySelectorAll(".byVIEWfontSize");
+    const text = viewer.querySelector(".byJSONstring");
+    const layout = viewer.querySelector(".byJSONnest");
+    const inset = viewer.querySelector(".byJSONcontent");
+    const rem = parseFloat(getComputedStyle(viewer.ownerDocument.documentElement).fontSize);
+    const size = () => parseFloat(getComputedStyle(text).fontSize) / rem;
+    const padding = (node) => {
+      const style = getComputedStyle(node);
+      return [parseFloat(style.paddingTop) / rem, parseFloat(style.paddingLeft) / rem];
+    };
+    const frameMetrics = () =>
+      [viewer, viewer.querySelector(".byVIEWtoolbar"), viewer.querySelector(".byVIEWstatus")]
+        .filter(Boolean)
+        .map((node) => {
+          const style = getComputedStyle(node);
+          return [style.fontSize, style.paddingLeft, style.paddingTop].join("/");
+        })
+        .join(" ");
+    const initialFrame = frameMetrics();
+    const initial = size();
+    for (let i = 0; i < 20; i++) decrease.click();
+    const minimumFrame = frameMetrics();
+    const minimumDisabled = decrease.disabled && getComputedStyle(decrease).outlineStyle === "dashed";
+    const steps = [];
+    for (let i = 0; i <= 20; i++) {
+      steps.push([size(), ...padding(inset), ...padding(layout)]);
+      increase.click();
+    }
+    const maximumDisabled = increase.disabled && getComputedStyle(increase).outlineStyle === "dashed";
+    const maximumFrame = frameMetrics();
+    reset.click();
+    return { steps, minimumDisabled, maximumDisabled, restored: size() === initial, stableFrame: initialFrame === minimumFrame && minimumFrame === maximumFrame };
+  });
+  assert.deepEqual(
+    sizes.steps,
+    Array.from({ length: 21 }, (_, i) => {
+      const size = 0.5 + i * 0.125;
+      return [size, 0.375, 1.875, 0.375, 2];
+    })
+  );
+  assert.ok(sizes.minimumDisabled && sizes.maximumDisabled && sizes.restored && sizes.stableFrame);
+
+  await page.evaluate(() => spaReady);
+  const originalText = await preview.locator(".byJSONstring").first().elementHandle();
+  const toolbar = await preview.locator(".byVIEWtoolbar").elementHandle();
+  const content = await preview.locator(":scope > .byVIEWcontent").elementHandle();
+  const palette = page.locator("#preview-palette");
+  const originalPalette = await palette.inputValue();
+  const branch = preview.locator(".byJSONtoggle[data-label]").nth(1);
+  await branch.click();
+  await palette.selectOption("bonyur");
+  assert.equal(await preview.getAttribute("data-theme"), "bonyur");
+  assert.equal(await originalText.evaluate((node) => node.isConnected), true);
+  assert.equal(await branch.getAttribute("aria-expanded"), "false");
+  await branch.click();
+  await palette.selectOption(originalPalette);
+  const option = page.locator("#withQuotes");
+  await option.evaluate((input) => input.click());
+  await preview
+    .getByText(/^project: /)
+    .first()
+    .waitFor();
+  assert.equal(await toolbar.evaluate((node) => node.isConnected), true);
+  assert.equal(await content.evaluate((node) => node.isConnected), true);
+  await option.evaluate((input) => input.click());
+  await page.locator(".preview-appearance > summary").click();
+  const sizeField = page.locator("#preview-size");
+  await sizeField.click();
+  await sizeField.press("3");
+  await sizeField.press("Tab");
+  const increase = preview.getByRole("button", { name: "Increase text size" });
+  await preview.locator(".byVIEWfontSize:disabled").filter({ hasText: "A+" }).waitFor();
+  await preview.getByRole("button", { name: "Decrease text size" }).click();
+  await page.locator("#preview-leading").click();
+  await page.locator("#preview-leading").pressSequentially("1.7");
+  await page.locator("#preview-leading").press("Tab");
+  assert.equal(await increase.isEnabled(), true);
+  await preview.getByRole("button", { name: "Reset text size" }).click();
+  await preview.locator(".byVIEWfontSize:disabled").filter({ hasText: "A+" }).waitFor();
+  await sizeField.click();
+  await sizeField.press("ControlOrMeta+a");
+  await sizeField.press("Backspace");
+  await sizeField.press("Tab");
+  assert.equal(await increase.isEnabled(), true);
+
+  const colors = await preview.evaluate((viewer) => {
+    const surface = viewer;
+    const background = () => getComputedStyle(surface).backgroundColor;
+    const toggle = viewer.querySelector(".byVIEWthemeToggle");
+    const light = background();
+    toggle.click();
+    const fades = viewer.getAnimations();
+    for (const fade of fades) {
+      fade.pause();
+      fade.currentTime = fade.effect.getTiming().duration / 2;
+    }
+    const middle = background();
+    for (const fade of fades) fade.finish();
+    const dark = background();
+    toggle.click();
+    for (const fade of viewer.getAnimations()) fade.finish();
+    return { light, middle, dark, restored: background() };
+  });
+  assert.notEqual(colors.light, colors.dark);
+  assert.notEqual(colors.middle, colors.light);
+  assert.notEqual(colors.middle, colors.dark);
+  assert.equal(colors.restored, colors.light);
   await page.locator("#json-source").fill('{"message":"PLAYGROUND_CORE"}');
   await page.locator("#apply-source").click();
   await preview.filter({ hasText: "PLAYGROUND_CORE" }).waitFor();

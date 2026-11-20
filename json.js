@@ -12,6 +12,11 @@
 
   // ===== METADATA =====
   byJSONviewer.VERSION = "4.2"; // 2026-11-20
+  // Mirrored helpers are checked by code.view/.github/scripts/check-family.mjs.
+  const componentName = "JSON.view";
+  const themeFile = "json";
+  const documentClass = "byJSONdocument";
+  const contentSelector = ":scope > .byVIEWcontent > .byVIEWpanel > .byJSONcontent";
 
   // Keep render state tied to each target element
   // ===== STATE =====
@@ -120,6 +125,13 @@
     return chunks;
   };
 
+  const node = (tag, className = "", text) => {
+    const element = document.createElement(tag);
+    element.className = className;
+    if (text !== undefined) element.textContent = String(text);
+    return element;
+  };
+
   // ===== APPEARANCE =====
   const extraPalettes = new Set([
     "dracula",
@@ -171,10 +183,23 @@
   const warnMissingThemes = (element, palette = element.dataset.theme) => {
     if (!extraPalettes.has(palette) || warnedPalettes.has(palette)) return;
     const document = element.ownerDocument;
-    if (document.defaultView.getComputedStyle(document.documentElement).getPropertyValue("--by-json-themes-loaded").trim() === "1") return;
+    if (document.defaultView.getComputedStyle(document.documentElement).getPropertyValue(`--by-${themeFile}-themes-loaded`).trim() === "1") return;
     warnedPalettes.add(palette);
-    // console.warn(`JSON.view: Palette "${palette}" requires json.themes.css. Import it after json.css. https://byuwur.github.io/json.view/`);
-    console.warn(`JSON.view: Palette "${palette}" requires json.themes.css. Import it after json.css. https://json.byuwur.co/`);
+    console.warn(`${componentName}: Palette "${palette}" requires ${themeFile}.themes.css. Import it after ${themeFile}.css. https://${themeFile}.byuwur.co/`);
+  };
+
+  const getLocalTheme = (target) => {
+    if (["light", "dark"].includes(target.dataset.theme)) return target.dataset.theme;
+    if (target.classList.contains("dark")) return "dark";
+    if (target.classList.contains("light")) return "light";
+    return target.dataset.theme ? "light" : null;
+  };
+
+  const setLocalTheme = (element, mode, palette) => {
+    element.classList.toggle("light", mode === "light");
+    element.classList.toggle("dark", mode === "dark");
+    if (palette != null) element.dataset.theme = palette;
+    else if (["light", "dark"].includes(element.dataset.theme)) element.dataset.theme = mode;
   };
 
   // Explicit appearance options override markup; omitted values preserve the container's state.
@@ -186,20 +211,229 @@
     const size = typeof fontSize === "number" ? `${Math.max(0.5, Math.min(3, fontSize))}rem` : typeof fontSize === "string" ? `clamp(0.5rem, ${fontSize}, 3rem)` : "";
     if (fontSize != null && (typeof fontSize === "number" ? !Number.isFinite(fontSize) : typeof fontSize !== "string" || !CSS.supports("font-size", size))) throw new RangeError("Font size must be a finite multiplier or a CSS size.");
     // Keep palette identity in data-theme while light/dark classes select its mode.
-    if (theme != null || palette != null) {
-      const mode = theme ?? (["light", "dark"].includes(element.dataset.theme) ? element.dataset.theme : element.classList.contains("dark") ? "dark" : "light");
-      element.classList.toggle("light", mode === "light");
-      element.classList.toggle("dark", mode === "dark");
-      if (palette != null) element.dataset.theme = palette;
-      else if (["light", "dark"].includes(element.dataset.theme)) element.dataset.theme = mode;
-    }
-    if (fontSize != null) {
-      element.style.fontSize = size;
-      element.dataset.byViewDefaultFontSize = element.style.fontSize;
-    }
+    if (theme != null || palette != null) setLocalTheme(element, theme ?? getLocalTheme(element) ?? "light", palette);
+    return size;
+  };
+
+  const applyContentAppearance = (element, options, content) => {
+    const size = applyAppearance(element, options);
+    const previous = element.querySelector(contentSelector);
+    content.style.fontSize = size || previous?.style.fontSize || "";
+    content.dataset.byViewDefaultFontSize = size || previous?.dataset.byViewDefaultFontSize || "";
+  };
+
+  const syncMotion = (element, options) => {
+    const enabled = options.animations !== false;
+    const appear = enabled && Boolean(options.appearAnimation);
+    element.classList.toggle("byVIEWmotion", enabled);
+    element.classList.toggle("byVIEWappear", appear);
+    return appear;
   };
 
   // ===== CONTROLS =====
+  // Mirrored across the family so each viewer can run without a shared runtime.
+  const createThemeButton = () => {
+    const button = node("button", "byVIEWthemeToggle");
+    button.type = "button";
+    button.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
+    return button;
+  };
+
+  /**
+   * Adds container light/dark controls, retaining legacy stylesheet links as a fallback.
+   * @param {HTMLElement} element Viewer container and theme owner.
+   * @param {HTMLElement} controls Toolbar control group.
+   * @returns {{button: HTMLButtonElement, sync: Function}} Mounted theme control.
+   */
+  const appendThemeToggle = (element, controls) => {
+    const themePattern = new RegExp(`^([^?#]*/)?${themeFile}\\.(light|dark)\\.css([?#].*)?$`, "i");
+    const stylesheet = [document.getElementById("byVIEWtheme"), ...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => link && themePattern.test(link.getAttribute("href") || ""));
+    const legacyTheme = () => (stylesheet?.isConnected ? (stylesheet.getAttribute("href") || "").match(themePattern) : null);
+    const getTheme = () => getLocalTheme(element) || legacyTheme()?.[2].toLowerCase() || "light";
+    const button = createThemeButton();
+    const sync = () => {
+      const next = getTheme() === "dark" ? "light" : "dark";
+      const toggles = !getLocalTheme(element) && legacyTheme() ? [button, ...document.querySelectorAll(`.${documentClass} > .byVIEWtoolbar > .byVIEWcontrols > .byVIEWthemeToggle`)] : [button];
+      for (const toggle of toggles) {
+        // A legacy link must not change the controls of independently themed viewers.
+        if (toggle !== button && getLocalTheme(toggle.closest(`.${documentClass}`))) continue;
+        toggle.title = `Switch to ${next} theme`;
+        toggle.setAttribute("aria-label", toggle.title);
+      }
+    };
+    button.addEventListener("click", () => {
+      const next = getTheme() === "dark" ? "light" : "dark";
+      if (!getLocalTheme(element) && legacyTheme()) {
+        const href = stylesheet.getAttribute("href");
+        stylesheet.setAttribute(
+          "href",
+          href.replace(themePattern, (_, path = "", theme, suffix = "") => `${path}${themeFile}.${next}.css${suffix}`)
+        );
+      } else {
+        // Preserve attribute-only themes and keep existing mode classes in sync.
+        const palette = element.dataset.theme;
+        if (!element.matches(".light, .dark") && (!palette || ["light", "dark"].includes(palette))) element.dataset.theme = next;
+        else setLocalTheme(element, next, palette === "" ? next : undefined);
+      }
+      sync();
+    });
+    button.addEventListener("focus", sync);
+    button.addEventListener("pointerenter", sync);
+    sync();
+    controls.appendChild(button);
+    return { button, sync };
+  };
+
+  /**
+   * Adds text size controls for a renderer.
+   * @param {HTMLElement} element - Renderer whose font size is changed.
+   * @param {HTMLElement} controls - Toolbar that receives the controls.
+   * @return {{group: HTMLElement, sync: Function}} Mounted text size controls.
+   */
+  const appendFontSizeControls = (element, controls) => {
+    const sizes = document.createElement("div");
+    sizes.className = "byVIEWfontSizes";
+    controls.appendChild(sizes);
+    const getSize = () => (parseFloat(getComputedStyle(element).fontSize) || 16) / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+    const decrease = document.createElement("button");
+    const increase = document.createElement("button");
+    const reset = document.createElement("button");
+    reset.textContent = "A";
+    decrease.textContent = "A-";
+    increase.textContent = "A+";
+    for (const [button, title] of [
+      [decrease, "Decrease text size"],
+      [reset, "Reset text size"],
+      [increase, "Increase text size"]
+    ]) {
+      button.type = "button";
+      button.className = "byVIEWfontSize";
+      button.title = title;
+      button.setAttribute("aria-label", title);
+      sizes.appendChild(button);
+    }
+    const sync = () => {
+      const size = getSize();
+      decrease.disabled = size <= 0.5;
+      increase.disabled = size >= 3;
+    };
+    for (const [button, step] of [
+      [decrease, -0.125],
+      [increase, 0.125]
+    ]) {
+      button.addEventListener("click", () => {
+        const size = Math.max(0.5, Math.min(3, getSize() + step));
+        element.style.fontSize = `${size}rem`;
+        sync();
+      });
+    }
+    reset.addEventListener("click", () => {
+      element.style.fontSize = element.dataset.byViewDefaultFontSize;
+      sync();
+    });
+    sync();
+    return { group: sizes, sync };
+  };
+
+  /**
+   * Add a copy action for the complete source, including content outside the visible rendered chunk.
+   * @param {HTMLElement} controls Toolbar control group.
+   * @param {Function} getText Callback that returns the text to copy.
+   * @param {string} label Human-readable label.
+   * @returns {void}
+   */
+  const appendCopyButton = (controls, getText, label) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "byVIEWcopy";
+    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true" focusable="false"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448L480 448C515.3 448 544 419.3 544 384L544 183.4C544 166 536.9 149.3 524.3 137.2L466.6 81.8C454.7 70.4 438.8 64 422.3 64L288 64zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L352 496L352 512L160 512L160 256L176 256L176 192L160 192z"/></svg>`;
+    const caption = document.createElement("span");
+    caption.setAttribute("aria-live", "polite");
+    button.appendChild(caption);
+    const reset = () => {
+      if (button.dataset.state === "error") return;
+      delete button.dataset.state;
+      caption.textContent = "Copy";
+      button.title = label;
+      button.setAttribute("aria-label", label);
+    };
+    reset();
+    button.addEventListener("mouseleave", reset);
+    button.addEventListener("focusout", reset);
+    controls.appendChild(button);
+    button.addEventListener("click", async (event) => {
+      button.disabled = true;
+      let message = "Copied!";
+      try {
+        await navigator.clipboard.writeText(getText(event));
+        caption.textContent = message;
+        button.dataset.state = "success";
+      } catch {
+        caption.textContent = "Failed";
+        button.dataset.state = "error";
+        message = "Copy failed. Check clipboard access.";
+      } finally {
+        button.disabled = false;
+        button.title = `${message} ${label}`;
+        button.setAttribute("aria-label", button.title);
+      }
+    });
+    return button;
+  };
+
+  // Keep the toolbar mounted while the current renderer applies option changes.
+  const mountControls = (element, content, initialOptions, getText, version, copyLabel = "Copy source") => {
+    const toolbar = node("div", "byVIEWtoolbar");
+    const controls = node("div", "byVIEWcontrols");
+    controls.setAttribute("role", "group");
+    controls.setAttribute("aria-label", "Viewer controls");
+    const info = node("small", "byVIEWinfo");
+    for (const [text, href] of [
+      [componentName, `https://github.com/byuwur/${themeFile}.view`],
+      ["@byUwUr", "https://byuwur.co"]
+    ]) {
+      const link = node("a", "", text);
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      if (info.childNodes.length) info.append(` · v${version} · `);
+      info.appendChild(link);
+    }
+    const theme = appendThemeToggle(element, controls);
+    const sizes = appendFontSizeControls(content, controls);
+    const copy = appendCopyButton(controls, getText, copyLabel);
+    const update = (options, changes = {}) => {
+      if ("fontSize" in changes || "theme" in changes || "palette" in changes) {
+        applyContentAppearance(element, changes, content);
+        theme.sync();
+        sizes.sync();
+      }
+      Object.assign(options, changes);
+      if ("animations" in changes || "appearAnimation" in changes) syncMotion(element, options);
+      element.classList.toggle("byVIEWcompact", options.controlsCompact !== false);
+      const bottom = options.controlsPosition === "bottom";
+      toolbar.dataset.size = ["xs", "small", "regular", "large", "xl"].includes(options.controlsSize) ? options.controlsSize : "regular";
+      if (!toolbar.childElementCount || ["credits", "themeToggle", "fontSizeControls", "copyButton"].some((key) => key in changes)) {
+        controls.replaceChildren();
+        if (options.themeToggle !== false) controls.appendChild(theme.button);
+        if (options.fontSizeControls !== false) controls.appendChild(sizes.group);
+        if (options.copyButton !== false) controls.appendChild(copy);
+        toolbar.replaceChildren();
+        if (options.credits !== false) toolbar.appendChild(info);
+        if (controls.childElementCount) toolbar.appendChild(controls);
+      }
+      const visible = options.toolbar !== false && toolbar.childElementCount > 0;
+      element.classList.toggle("byVIEWbottom", visible && bottom);
+      if (!visible) toolbar.remove();
+      else if (bottom && toolbar !== element.lastElementChild) element.appendChild(toolbar);
+      else if (!bottom && toolbar !== element.firstElementChild) element.prepend(toolbar);
+    };
+    update(initialOptions);
+    return update;
+  };
+
+  // ===== RENDERING =====
   /**
    * Sets the collapsed state of a toggle and its related elements.
    * @param {HTMLElement} toggle - Toggle element.
@@ -262,203 +496,6 @@
     });
   };
 
-  // Mirrored across the family so each viewer can run without a shared runtime.
-  /**
-   * Adds container light/dark controls, retaining legacy stylesheet links as a fallback.
-   * @param {HTMLElement} element Viewer container and theme owner.
-   * @param {HTMLElement} controls Toolbar control group.
-   * @param {string} filename Legacy theme stylesheet basename.
-   * @returns {HTMLButtonElement} Theme toggle button.
-   */
-  const appendThemeToggle = (element, controls, filename) => {
-    const escapedFilename = filename.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const themePattern = new RegExp(`^([^?#]*/)?${escapedFilename}\\.(light|dark)\\.css([?#].*)?$`, "i");
-    const stylesheet = [document.getElementById("byVIEWtheme"), ...document.querySelectorAll('link[rel~="stylesheet"]')].find((link) => link && themePattern.test(link.getAttribute("href") || ""));
-    // Explicit container state takes precedence over a shared legacy stylesheet.
-    const localTheme = (target) => {
-      if (["light", "dark"].includes(target.dataset.theme)) return target.dataset.theme;
-      if (target.classList.contains("dark")) return "dark";
-      if (target.classList.contains("light")) return "light";
-      return target.dataset.theme ? "light" : null;
-    };
-    const legacyTheme = () => (stylesheet?.isConnected ? (stylesheet.getAttribute("href") || "").match(themePattern) : null);
-    const getTheme = () => localTheme(element) || legacyTheme()?.[2].toLowerCase() || "light";
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "byVIEWthemeToggle";
-    button.innerHTML =
-      '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 0 1 11.2 3 9 9 0 1 0 21 12.8Z"/></svg><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>';
-    const sync = () => {
-      const next = getTheme() === "dark" ? "light" : "dark";
-      const toggles = !localTheme(element) && legacyTheme() ? [button, ...document.querySelectorAll(".byJSONdocument > .byVIEWtoolbar > .byVIEWcontrols > .byVIEWthemeToggle")] : [button];
-      for (const toggle of toggles) {
-        // A legacy link must not change the controls of independently themed viewers.
-        if (toggle !== button && localTheme(toggle.closest(".byJSONdocument"))) continue;
-        toggle.title = `Switch to ${next} theme`;
-        toggle.setAttribute("aria-label", toggle.title);
-      }
-    };
-    button.addEventListener("click", () => {
-      const next = getTheme() === "dark" ? "light" : "dark";
-      if (!localTheme(element) && legacyTheme()) {
-        const href = stylesheet.getAttribute("href");
-        stylesheet.setAttribute(
-          "href",
-          href.replace(themePattern, (_, path = "", theme, suffix = "") => `${path}${filename}.${next}.css${suffix}`)
-        );
-      } else if (element.dataset.theme && !["light", "dark"].includes(element.dataset.theme)) {
-        // Named palettes stay selected while only the mode changes.
-        element.classList.toggle("light", next === "light");
-        element.classList.toggle("dark", next === "dark");
-      } else if (element.hasAttribute("data-theme") || (!element.classList.contains("light") && !element.classList.contains("dark"))) {
-        element.dataset.theme = next;
-      } else {
-        element.classList.toggle("light", next === "light");
-        element.classList.toggle("dark", next === "dark");
-      }
-      sync();
-    });
-    button.addEventListener("focus", sync);
-    button.addEventListener("pointerenter", sync);
-    sync();
-    return controls.appendChild(button);
-  };
-
-  /**
-   * Adds text size controls for a renderer.
-   * @param {HTMLElement} element - Renderer whose font size is changed.
-   * @param {HTMLElement} controls - Toolbar that receives the controls.
-   * @return {HTMLElement} The text size button group.
-   */
-  const appendFontSizeControls = (element, controls) => {
-    // Remember the caller's initial size so Reset also works after this toolbar is recreated.
-    element.dataset.byViewDefaultFontSize ??= element.style.fontSize;
-    const sizes = document.createElement("div");
-    sizes.className = "byVIEWfontSizes";
-    controls.appendChild(sizes);
-    const getSize = () => (parseFloat(getComputedStyle(element).fontSize) || 16) / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
-    const decrease = document.createElement("button");
-    const increase = document.createElement("button");
-    const reset = document.createElement("button");
-    reset.textContent = "A";
-    decrease.textContent = "A-";
-    increase.textContent = "A+";
-    for (const [button, title] of [
-      [decrease, "Decrease text size"],
-      [reset, "Reset text size"],
-      [increase, "Increase text size"]
-    ]) {
-      button.type = "button";
-      button.className = "byVIEWfontSize";
-      button.title = title;
-      button.setAttribute("aria-label", title);
-      sizes.appendChild(button);
-    }
-    const sync = () => {
-      const size = getSize();
-      decrease.disabled = size <= 0.5;
-      increase.disabled = size >= 3;
-    };
-    for (const [button, step] of [
-      [decrease, -0.125],
-      [increase, 0.125]
-    ]) {
-      button.addEventListener("click", () => {
-        const size = Math.max(0.5, Math.min(3, getSize() + step));
-        element.style.fontSize = `${size}rem`;
-        sync();
-      });
-    }
-    reset.addEventListener("click", () => {
-      element.style.fontSize = element.dataset.byViewDefaultFontSize;
-      sync();
-    });
-    sync();
-    return sizes;
-  };
-
-  /**
-   * Add a copy action for the complete source, including content outside the visible rendered chunk.
-   * @param {HTMLElement} controls Toolbar control group.
-   * @param {Function} getText Callback that returns the text to copy.
-   * @param {string} label Human-readable label.
-   * @returns {void}
-   */
-  const appendCopyButton = (controls, getText, label) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "byVIEWcopy";
-    button.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" aria-hidden="true" focusable="false"><!--!Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448L480 448C515.3 448 544 419.3 544 384L544 183.4C544 166 536.9 149.3 524.3 137.2L466.6 81.8C454.7 70.4 438.8 64 422.3 64L288 64zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L352 496L352 512L160 512L160 256L176 256L176 192L160 192z"/></svg>`;
-    const caption = document.createElement("span");
-    caption.setAttribute("aria-live", "polite");
-    button.appendChild(caption);
-    const reset = () => {
-      if (button.dataset.state === "error") return;
-      delete button.dataset.state;
-      caption.textContent = "Copy";
-      button.title = label;
-      button.setAttribute("aria-label", label);
-    };
-    reset();
-    button.addEventListener("mouseleave", reset);
-    button.addEventListener("focusout", reset);
-    controls.appendChild(button);
-    button.addEventListener("click", async (event) => {
-      button.disabled = true;
-      let message = "Copied!";
-      try {
-        await navigator.clipboard.writeText(getText(event));
-        caption.textContent = message;
-        button.dataset.state = "success";
-      } catch {
-        caption.textContent = "Failed";
-        button.dataset.state = "error";
-        message = "Copy failed. Check clipboard access.";
-      } finally {
-        button.disabled = false;
-        button.title = `${message} ${label}`;
-        button.setAttribute("aria-label", button.title);
-      }
-    });
-  };
-
-  /**
-   * Attach the enabled theme, size, and copy controls to this renderer instance.
-   * @param {HTMLElement} element DOM element owned by this operation.
-   * @param {Object} options Options that configure this operation.
-   * @param {string} filename File name or relative asset path.
-   * @param {unknown} source Source data consumed without taking ownership of its storage.
-   * @returns {void}
-   */
-  const appendViewerControls = (element, options, filename, source) => {
-    const toolbar = document.createElement("div");
-    toolbar.className = "byVIEWtoolbar";
-    toolbar.dataset.size = ["xs", "small", "regular", "large", "xl"].includes(options.controlsSize) ? options.controlsSize : "regular";
-    element.classList.toggle("byVIEWcompact", options.controlsCompact);
-    element.classList.toggle("byVIEWbottom", options.controlsPosition === "bottom");
-    const controls = document.createElement("div");
-    controls.className = "byVIEWcontrols";
-    controls.setAttribute("role", "group");
-    controls.setAttribute("aria-label", "Viewer controls");
-    const info = document.createElement("small");
-    info.className = "byVIEWinfo";
-    info.innerHTML = /* HTML */ `<a href="https://github.com/byuwur/json.view" target="_blank" rel="noopener noreferrer">JSON.view</a> · v${byJSONviewer.VERSION} ·
-      <a href="https://byuwur.co" target="_blank" rel="noopener noreferrer">@byUwUr</a>`;
-    if (options.credits) toolbar.appendChild(info);
-    if (options.themeToggle) appendThemeToggle(element, controls, filename);
-    if (options.fontSizeControls) appendFontSizeControls(element, controls);
-    // Serialize the supplied value, never the partially rendered or collapsed DOM.
-    if (options.copyButton) appendCopyButton(controls, () => JSON.stringify(source, (_, value) => (typeof value === "bigint" || isBigNumber(value, options) ? value.toString() : value), 2) ?? "null", "Copy JSON");
-    if (controls.childNodes.length) toolbar.appendChild(controls);
-    if (!options.toolbar || !toolbar.childNodes.length) {
-      element.classList.remove("byVIEWbottom");
-      return;
-    }
-    if (options.controlsPosition === "bottom") element.appendChild(toolbar);
-    else element.prepend(toolbar);
-  };
-
-  // ===== RENDERING =====
   /**
    * Creates and appends an <a> element.
    * @param {HTMLElement} parent - Parent element.
@@ -625,6 +662,7 @@
     const token = renderTokens.get(element);
     if (!token) return;
     token.cancel = true;
+    token.finish?.(false);
     cancelAnimationFrame(token.motionFrame);
     token.timers.forEach((timer) => clearTimeout(timer));
     token.timers.clear();
@@ -643,6 +681,7 @@
       // Remove fired timers so cancellation tracks only work that is still pending.
       token.timers.delete(timer);
       if (!token.cancel) callback();
+      if (!token.timers.size) token.finish?.(true);
     }, delay);
     // Track timers so stale renders can be cleared
     token.timers.add(timer);
@@ -678,24 +717,26 @@
    * @param {boolean} [options.animations=true] - Enable brief interaction motion, overriding the system preference.
    * @param {boolean} [options.controlsCompact=true] - Places attribution beside the controls, wrapping as needed.
    * @param {"top"|"bottom"} [options.controlsPosition="top"] - Keeps the toolbar at the scroll area's top or bottom while the viewer is visible; invalid values use top.
-   * @returns {void}
+   * @returns {{ready: Promise<boolean>, setOptions: Function}} Mounted viewer.
    * @throws {TypeError|RangeError}
    */
   function byJSONviewer(element, json, options = {}) {
     if (!element || typeof element.appendChild !== "function") throw new TypeError("byJSONviewer(): element must be a DOM element.");
     // Validate options before canceling the current tree so rejected input cannot interrupt its pending chunks.
     const normalizedOptions = normalizeOptions(options);
-    applyAppearance(element, normalizedOptions);
+    const body = document.createElement("div");
+    body.className = "byVIEWcontent";
+    const content = document.createElement("div");
+    content.className = "byJSONcontent";
+    applyContentAppearance(element, normalizedOptions, content);
     // Cancel unfinished work before rendering again on the same element
     cancelExistingRender(element);
     // Every nested chunk shares this token, so replacement cancels the entire pending tree.
     const token = { cancel: false, timers: new Set() };
     renderTokens.set(element, token);
     element.textContent = "";
-    element.classList.add("byJSONdocument");
-    element.classList.toggle("byVIEWmotion", normalizedOptions.animations);
-    const appear = normalizedOptions.animations && normalizedOptions.appearAnimation;
-    element.classList.toggle("byVIEWappear", appear);
+    element.classList.add(documentClass);
+    const appear = syncMotion(element, normalizedOptions);
     // Paint opacity 0 before starting each requested fade.
     if (appear) element.classList.remove("byVIEWready");
     if (!element.classList.contains("byVIEWready")) {
@@ -707,43 +748,79 @@
     }
     element.classList.toggle("byVIEWplain", !normalizedOptions.displayContainer);
     element.classList.toggle("byJSONmonospace", Boolean(normalizedOptions.forceMonospace));
-    const content = document.createElement("div");
-    content.className = "byJSONcontent";
-    const body = document.createElement("div");
-    body.className = "byVIEWcontent";
     const panel = document.createElement("div");
     panel.className = "byVIEWpanel";
     const status = document.createElement("p");
     status.className = "byVIEWstatus";
     status.setAttribute("role", "status");
-    const array = Array.isArray(json);
-    const collection = json !== null && typeof json === "object" && !isBigNumber(json, normalizedOptions);
-    const count = array ? json.length : collection ? Object.keys(json).length : 0;
-    // Summarize the root without walking descendants ahead of their scheduled chunks.
-    let type = "Null";
-    if (collection) type = array ? "Array" : "Object";
-    else if (typeof json === "string") type = "String";
-    else if (typeof json === "boolean") type = "Boolean";
-    else if ((typeof json === "number" && Number.isFinite(json)) || typeof json === "bigint" || isBigNumber(json, normalizedOptions)) type = "Number";
-    status.textContent = collection ? `${type} · ${count} ${array ? (count === 1 ? "item" : "items") : count === 1 ? "property" : "properties"}` : type;
-    status.hidden = !normalizedOptions.statusBar;
     panel.append(status, content);
     body.appendChild(panel);
     element.appendChild(body);
-    // Add the root toggle when applicable
-    let rootToggle = null;
-    if (normalizedOptions.collapsible && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
-      rootToggle = document.createElement("button");
-      rootToggle.type = "button";
-      rootToggle.className = "byJSONtoggle";
-      rootToggle.dataset.label = "root";
-      content.appendChild(rootToggle);
-      addToggleListener(rootToggle);
-    }
-    // Render JSON and apply the initial root state
-    json2html(content, json, normalizedOptions, token);
-    if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
-    appendViewerControls(element, normalizedOptions, "json", json);
+    let ready;
+    const renderTree = () => {
+      if (!token.finish) {
+        ready = new Promise((resolve) => {
+          token.finish = (rendered) => {
+            token.finish = null;
+            resolve(rendered);
+          };
+        });
+      }
+      content.replaceChildren();
+      const array = Array.isArray(json);
+      const collection = json !== null && typeof json === "object" && !isBigNumber(json, normalizedOptions);
+      const count = array ? json.length : collection ? Object.keys(json).length : 0;
+      // Summarize the root without walking descendants ahead of their scheduled chunks.
+      let type = "Null";
+      if (collection) type = array ? "Array" : "Object";
+      else if (typeof json === "string") type = "String";
+      else if (typeof json === "boolean") type = "Boolean";
+      else if ((typeof json === "number" && Number.isFinite(json)) || typeof json === "bigint" || isBigNumber(json, normalizedOptions)) type = "Number";
+      status.textContent = collection ? `${type} · ${count} ${array ? (count === 1 ? "item" : "items") : count === 1 ? "property" : "properties"}` : type;
+      status.hidden = !normalizedOptions.statusBar;
+      // Add the root toggle when applicable
+      let rootToggle = null;
+      if (normalizedOptions.collapsible && normalizedOptions.rootCollapsible && isCollapsible(json) && !isBigNumber(json, normalizedOptions)) {
+        rootToggle = document.createElement("button");
+        rootToggle.type = "button";
+        rootToggle.className = "byJSONtoggle";
+        rootToggle.dataset.label = "root";
+        content.appendChild(rootToggle);
+        addToggleListener(rootToggle);
+      }
+      // Render JSON and apply the initial root state
+      json2html(content, json, normalizedOptions, token);
+      if (rootToggle && normalizedOptions.collapsed) setToggleState(rootToggle, true);
+      if (!token.timers.size) token.finish(true);
+    };
+    renderTree();
+    const getText = () => JSON.stringify(json, (_, value) => (typeof value === "bigint" || isBigNumber(value, normalizedOptions) ? value.toString() : value), 2) ?? "null";
+    const updateControls = mountControls(element, content, normalizedOptions, getText, byJSONviewer.VERSION, "Copy JSON");
+    return {
+      get ready() {
+        return ready;
+      },
+      setOptions(changes) {
+        if (token.cancel) return;
+        const next = normalizeOptions({ ...normalizedOptions, ...changes });
+        const redraw =
+          ["withLinks", "collapsible", "rootCollapsible", "withQuotes", "bigNumbers"].some((key) => next[key] !== normalizedOptions[key]) ||
+          (token.timers.size > 0 && (next.chunkSize !== normalizedOptions.chunkSize || next.chunkLatency !== normalizedOptions.chunkLatency));
+        updateControls(normalizedOptions, changes);
+        Object.assign(normalizedOptions, next);
+        element.classList.toggle("byVIEWplain", !next.displayContainer);
+        element.classList.toggle("byJSONmonospace", Boolean(next.forceMonospace));
+        status.hidden = !next.statusBar;
+        if (redraw) {
+          token.timers.forEach(clearTimeout);
+          token.timers.clear();
+          renderTree();
+          return ready;
+        } else if ("collapsed" in changes) {
+          for (const toggle of content.querySelectorAll(".byJSONtoggle")) setToggleState(toggle, next.collapsed);
+        }
+      }
+    };
   }
   // ===== EXPORT =====
   global.byJSONviewer = byJSONviewer;

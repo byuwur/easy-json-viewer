@@ -69,11 +69,43 @@ test("JSON library", { timeout: 30000 }, async (t) => {
     assert.equal(await page.evaluate(() => window.injected), undefined);
   });
 
-  await t.test("replacement cancels pending chunks", async () => {
-    await page.evaluate(() => {
-      byJSONviewer(root, Array(20).fill("stale"), { chunkSize: 1, chunkLatency: 1 });
-      byJSONviewer(root, ["current"], { chunkSize: 1, chunkLatency: 1 });
+  await t.test("live configuration preserves pending JSON chunks and applies new formatting", async () => {
+    const result = await page.evaluate(async () => {
+      const viewer = byJSONviewer(root, { first: [1, 2], second: [3, 4] }, { chunkSize: 1, chunkLatency: 8 });
+      const panel = root.querySelector(".byVIEWpanel");
+      const rootToggle = root.querySelector(".byJSONtoggle");
+      rootToggle.click();
+      viewer.setOptions({ theme: "dark" });
+      const retained = rootToggle === root.querySelector(".byJSONtoggle") && rootToggle.getAttribute("aria-expanded") === "false";
+      const ready = viewer.ready;
+      viewer.setOptions({ withQuotes: false, collapsed: true, chunkLatency: 0 });
+      return {
+        rendered: await ready,
+        retained,
+        panel: panel === root.querySelector(".byVIEWpanel"),
+        labels: [...root.querySelectorAll("li > .byJSONtoggle")].map((node) => [node.dataset.label, node.getAttribute("aria-expanded")]),
+        entries: root.querySelectorAll("li").length
+      };
     });
+    assert.deepEqual(result, {
+      rendered: true,
+      retained: true,
+      panel: true,
+      labels: [
+        ["first", "false"],
+        ["second", "false"]
+      ],
+      entries: 6
+    });
+  });
+
+  await t.test("replacement cancels pending chunks", async () => {
+    const replaced = await page.evaluate(() => {
+      const old = byJSONviewer(root, Array(20).fill("stale"), { chunkSize: 1, chunkLatency: 1 });
+      byJSONviewer(root, ["current"], { chunkSize: 1, chunkLatency: 1 });
+      return old.ready;
+    });
+    assert.equal(replaced, false);
     await page.waitForFunction(() => document.querySelectorAll("#viewer li").length === 1);
     // Let the replaced renderer's scheduled chunks run before checking ownership.
     await page.waitForTimeout(50);

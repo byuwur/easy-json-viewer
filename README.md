@@ -54,7 +54,7 @@ Open [index.html](index.html) locally. Its host assets use the network. Exported
 
 Pass a JavaScript value: object, array, string, number, boolean, `null`, `bigint`, or a compatible big-number object. Parse JSON text with `JSON.parse()` first.
 
-`byJSONviewer(element, value, options?)` replaces the target's contents and returns `undefined`. An invalid target throws `TypeError`. It has no `ready` promise or `destroy()` controller; rendering another value on the same target cancels its pending chunks.
+`byJSONviewer(element, value, options?)` returns a controller with `ready` and `setOptions(changes)`. Await `ready` for the current render. It resolves to `true` on completion or `false` if the render is replaced. An invalid target throws `TypeError`.
 
 Use acyclic, JSON-shaped data. Only own enumerable object properties are shown; functions, symbols, and `undefined` display as `null`. Non-finite numbers also display as `null`. Dates, Maps, Sets, and custom class instances have no special rendering support. Keep the supplied value stable while its chunks render; the viewer does not clone it.
 
@@ -75,7 +75,7 @@ Pass options as the third argument:
 | `forceMonospace`   | `false`     | Force a system monospace font when the target is not a `<pre>`.                                                                     |
 | `chunkSize`        | `1000`      | Elements per chunk; invalid/nonpositive values use the default.                                                                     |
 | `chunkLatency`     | `25`        | Milliseconds between chunks; invalid/negative values use the default.                                                               |
-| `animations`       | `true`      | Brief control/disclosure motion and background fades; overrides the system motion preference.                                       |
+| `animations`       | `true`      | Animate controls, disclosures and theme backgrounds. Overrides the system motion preference.                                        |
 | `appearAnimation`  | `false`     | Fade the viewer in on each render when `animations` is enabled. Initial rendering remains immediate by default.                     |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                  |
 | `displayContainer` | `true`      | Show the content panel frame and inner horizontal padding. `false` also hides status information.                                   |
@@ -111,7 +111,7 @@ Controls use monospace by default; override `--by-view-controls-font` to change 
 
 Use `theme` for light or dark mode and `palette` for the color scheme. Monokai, GitHub, Solarized and High Contrast are built in. Load [json.themes.css](json.themes.css) after the base stylesheet for the other palettes.
 
-Options override container settings. Omit an option or pass `null` to keep its current value. Numeric `fontSize` uses rem. CSS sizes such as `20px` also work within the `0.5rem` to `3rem` range. Invalid appearance values throw `RangeError` before replacing the document.
+Options override container settings. Omit an option or pass `null` to keep its current value. Call `setOptions(changes)` on the returned viewer to apply settings immediately. Its `ready` promise resolves when all JSON chunks have rendered. Presentation changes preserve the displayed document. The text controls resize content in `0.125rem` steps. Content padding stays fixed. The document frame, toolbar, and status line keep their size. Reset restores the configured or inherited size. Numeric `fontSize` uses rem. CSS sizes such as `20px` also work within the `0.5rem` to `3rem` range. Invalid appearance values throw `RangeError` before replacing the document.
 
 ```html
 <div id="viewer" class="dark" data-theme="github"></div>

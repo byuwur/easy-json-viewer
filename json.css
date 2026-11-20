@@ -46,14 +46,14 @@
 }
 .byJSONcontent {
   min-width: 0;
-  padding: 0.375em 0.625em;
+  padding: 0.375rem 0.625rem;
 }
 .byJSONdocument .byVIEWpanel {
   min-width: 0;
   margin: 0;
   overflow: hidden;
   border: 0.0625rem solid var(--by-json-border);
-  border-radius: var(--by-view-radius, 0.65em);
+  border-radius: var(--by-view-radius, 0.625rem);
   background: var(--by-view-container-bg, var(--by-view-bg));
 }
 .byJSONdocument.byVIEWplain .byVIEWpanel {
@@ -67,16 +67,16 @@
   padding-inline: 0;
 }
 .byJSONdocument.byVIEWplain .byJSONcontent:has(> .byJSONtoggle) {
-  padding-left: 1.25em;
+  padding-left: 1.25rem;
 }
 .byJSONdocument .byVIEWstatus {
   margin: 0;
-  padding: 0.375em 0.625em;
+  padding: 0.375rem 0.625rem;
   border-bottom: 0.0625rem solid var(--by-json-border);
   background: var(--by-view-container-bg, color-mix(in srgb, var(--by-json-border) 25%, var(--by-view-bg)));
   color: var(--by-json-toggle);
   font:
-    0.85em/1.4 system-ui,
+    0.875rem/1.4 system-ui,
     sans-serif;
   white-space: normal;
 }
@@ -93,24 +93,24 @@
 .byJSONnest {
   list-style: none;
   margin: 0;
-  padding-top: 0.35em;
-  padding-left: 2em;
+  padding-top: 0.375rem;
+  padding-left: 2rem;
   border-left: var(--by-json-nest-border);
 }
 .byJSONnest.collapsed {
   display: none;
 }
 .byJSONnest > li + li {
-  margin-top: 0.35em;
+  margin-top: 0.375rem;
 }
 .byJSONtoggle {
   position: relative;
   display: inline-block;
-  width: 1.25em;
-  height: 1.25em;
+  width: 1.25rem;
+  height: 1.25rem;
   /* Align the empty button with the line box instead of platform font descent. */
   vertical-align: top;
-  margin: 0 0 0 -1.25em;
+  margin: 0 0 0 -1.25rem;
   padding: 0;
   border: 0;
   background: none;
@@ -121,7 +121,7 @@
 }
 /* Reserve the root disclosure gutter without shifting only the opening brace. */
 .byJSONcontent:has(> .byJSONtoggle) {
-  padding-left: 1.875em;
+  padding-left: 1.875rem;
 }
 .byJSONtoggle:before {
   content: "\25BC";
@@ -130,8 +130,8 @@
   /* Native buttons otherwise center the icon's static position inside the row. */
   top: 0;
   left: 0;
-  width: 1em;
-  line-height: 1.25em;
+  width: 1rem;
+  line-height: 1.25rem;
   text-align: center;
   transition: transform var(--by-view-motion-duration, 0s) ease-out !important;
 }
@@ -144,7 +144,7 @@
 .byJSONplaceholder {
   display: none;
   margin: 0;
-  padding: 0 1em;
+  padding: 0 1rem;
   border: 0;
   background: none;
   font: inherit;
@@ -163,9 +163,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.125rem;
+  gap: 0.125em;
   margin: 0;
-  padding: 0.5rem 0;
+  padding: 0.5em 0;
   background: #0000;
   font: 0.875rem/1.25 var(--by-view-controls-font, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace);
   white-space: normal;
@@ -174,7 +174,7 @@
   font-size: 0.5rem;
 }
 .byJSONdocument > .byVIEWtoolbar[data-size="small"] {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 .byJSONdocument > .byVIEWtoolbar[data-size="large"] {
   font-size: 1rem;
@@ -240,8 +240,8 @@
   height: 2em;
   margin: 0;
   padding: 0.25em 0.5em;
-  border: 0.0625rem solid var(--by-json-border);
-  border-radius: var(--by-view-radius, 0.65em);
+  border: 0.0625em solid var(--by-json-border);
+  border-radius: var(--by-view-radius, 0.625em);
   background: var(--by-view-container-bg, var(--by-view-bg));
   color: inherit;
   font: inherit;
@@ -253,22 +253,22 @@
   cursor: not-allowed;
 }
 .byJSONdocument > .byVIEWtoolbar button:focus-visible {
-  outline: 0.125rem solid currentColor;
-  outline-offset: 0.125rem;
+  outline: 0.125em solid currentColor;
+  outline-offset: 0.125em;
 }
 .byJSONdocument > .byVIEWtoolbar .byVIEWfontSizes {
   display: flex;
   padding: 0.0625em;
   gap: 0.0625em;
-  border: 0.0625rem solid var(--by-json-border);
-  border-radius: var(--by-view-radius, 0.65em);
+  border: 0.0625em solid var(--by-json-border);
+  border-radius: var(--by-view-radius, 0.625em);
   background: var(--by-view-container-bg, var(--by-view-bg));
 }
 .byJSONdocument > .byVIEWtoolbar .byVIEWfontSize {
   width: 1.875em;
   padding: 0.125em;
   border: 0;
-  border-radius: 0.4em;
+  border-radius: 0.375em;
 }
 .byJSONdocument > .byVIEWtoolbar .byVIEWcopy {
   display: inline-flex;
@@ -380,7 +380,7 @@
     translate var(--by-view-motion-duration) ease-out !important;
 }
 .byJSONdocument.byVIEWmotion :is(button, summary):not(:disabled):active {
-  translate: 0 0.0625em;
+  translate: 0 0.0625rem;
 }
 .byJSONdocument.byVIEWmotion details::details-content {
   interpolate-size: allow-keywords;
@@ -469,16 +469,16 @@
 .byJSONdocument[data-theme="light"] {
   color-scheme: light;
   --by-view-toggle-position: -100%;
-  --by-view-muted: #8a8875;
-  --by-view-bg: #fafaf5;
-  --by-json-text: #272822;
-  --by-json-border: #d8d8c8;
-  --by-json-string: #647d00;
-  --by-json-literal: #7c42b5;
-  --by-json-nest-border: 0.0625rem dotted #d8d8c8;
-  --by-json-toggle: #686856;
-  --by-json-toggle-hover: #272822;
-  --by-json-placeholder: #8a8875;
+  --by-view-muted: #887;
+  --by-view-bg: #ffe;
+  --by-json-text: #222;
+  --by-json-border: #ddc;
+  --by-json-string: #670;
+  --by-json-literal: #74b;
+  --by-json-nest-border: 0.0625rem dotted #ddc;
+  --by-json-toggle: #665;
+  --by-json-toggle-hover: #222;
+  --by-json-placeholder: #887;
 }
 
 /* ===== DARK ===== */
@@ -486,98 +486,98 @@
 .byJSONdocument[data-theme="dark"] {
   color-scheme: dark;
   --by-view-toggle-position: 0%;
-  --by-view-muted: #75715e;
-  --by-view-bg: #272822;
-  --by-json-text: #f8f8f2;
-  --by-json-border: #49483e;
-  --by-json-string: #e6db74;
-  --by-json-literal: #ae81ff;
-  --by-json-nest-border: 0.0625rem dotted #49483e;
-  --by-json-toggle: #a6a28c;
-  --by-json-toggle-hover: #f8f8f2;
-  --by-json-placeholder: #75715e;
+  --by-view-muted: #776;
+  --by-view-bg: #222;
+  --by-json-text: #ffe;
+  --by-json-border: #444;
+  --by-json-string: #ed7;
+  --by-json-literal: #a8f;
+  --by-json-nest-border: 0.0625rem dotted #444;
+  --by-json-toggle: #aa8;
+  --by-json-toggle-hover: #ffe;
+  --by-json-placeholder: #776;
 }
 
 /* ===== GITHUB ===== */
 /* Light */
 .byJSONdocument[data-theme="github"]:not(.dark) {
-  --by-view-muted: #59636e;
-  --by-view-bg: #ffffff;
-  --by-json-text: #1f2328;
-  --by-json-border: #8c959f;
-  --by-json-string: #0a3069;
-  --by-json-literal: #8250df;
-  --by-json-nest-border: 0.0625rem dotted #8c959f;
-  --by-json-toggle: #59636e;
-  --by-json-toggle-hover: #1f2328;
-  --by-json-placeholder: #59636e;
+  --by-view-muted: #566;
+  --by-view-bg: #fff;
+  --by-json-text: #222;
+  --by-json-border: #899;
+  --by-json-string: #136;
+  --by-json-literal: #85d;
+  --by-json-nest-border: 0.0625rem dotted #899;
+  --by-json-toggle: #566;
+  --by-json-toggle-hover: #222;
+  --by-json-placeholder: #566;
 }
 /* Dark */
 .byJSONdocument.dark[data-theme="github"] {
-  --by-view-muted: #9198a1;
-  --by-view-bg: #0d1117;
-  --by-json-text: #f0f6fc;
-  --by-json-border: #6e7681;
-  --by-json-string: #a5d6ff;
-  --by-json-literal: #d2a8ff;
-  --by-json-nest-border: 0.0625rem dotted #6e7681;
-  --by-json-toggle: #9198a1;
-  --by-json-toggle-hover: #f0f6fc;
-  --by-json-placeholder: #9198a1;
+  --by-view-muted: #999;
+  --by-view-bg: #111;
+  --by-json-text: #eef;
+  --by-json-border: #678;
+  --by-json-string: #adf;
+  --by-json-literal: #caf;
+  --by-json-nest-border: 0.0625rem dotted #678;
+  --by-json-toggle: #999;
+  --by-json-toggle-hover: #eef;
+  --by-json-placeholder: #999;
 }
 
 /* ===== SOLARIZED ===== */
 /* Light */
 .byJSONdocument[data-theme="solarized"]:not(.dark) {
-  --by-view-muted: #657b83;
-  --by-view-bg: #fdf6e3;
-  --by-json-text: #586e75;
-  --by-json-border: #93a1a1;
-  --by-json-string: #859900;
-  --by-json-literal: #6c71c4;
-  --by-json-nest-border: 0.0625rem dotted #93a1a1;
-  --by-json-toggle: #657b83;
-  --by-json-toggle-hover: #586e75;
-  --by-json-placeholder: #657b83;
+  --by-view-muted: #678;
+  --by-view-bg: #fed;
+  --by-json-text: #567;
+  --by-json-border: #999;
+  --by-json-string: #890;
+  --by-json-literal: #67c;
+  --by-json-nest-border: 0.0625rem dotted #999;
+  --by-json-toggle: #678;
+  --by-json-toggle-hover: #567;
+  --by-json-placeholder: #678;
 }
 /* Dark */
 .byJSONdocument.dark[data-theme="solarized"] {
-  --by-view-muted: #839496;
-  --by-view-bg: #002b36;
-  --by-json-text: #93a1a1;
-  --by-json-border: #586e75;
-  --by-json-string: #859900;
-  --by-json-literal: #b58900;
-  --by-json-nest-border: 0.0625rem dotted #586e75;
-  --by-json-toggle: #839496;
-  --by-json-toggle-hover: #93a1a1;
-  --by-json-placeholder: #839496;
+  --by-view-muted: #899;
+  --by-view-bg: #033;
+  --by-json-text: #999;
+  --by-json-border: #567;
+  --by-json-string: #990;
+  --by-json-literal: #b80;
+  --by-json-nest-border: 0.0625rem dotted #567;
+  --by-json-toggle: #899;
+  --by-json-toggle-hover: #999;
+  --by-json-placeholder: #899;
 }
 
 /* ===== HIGH CONTRAST ===== */
 /* Light */
 .byJSONdocument[data-theme="high-contrast"]:not(.dark) {
-  --by-view-muted: #333333;
-  --by-view-bg: #ffffff;
-  --by-json-text: #000000;
-  --by-json-border: #333333;
-  --by-json-string: #005a30;
-  --by-json-literal: #5c0066;
-  --by-json-nest-border: 0.0625rem dotted #333333;
-  --by-json-toggle: #333333;
-  --by-json-toggle-hover: #000000;
-  --by-json-placeholder: #333333;
+  --by-view-muted: #333;
+  --by-view-bg: #fff;
+  --by-json-text: #000;
+  --by-json-border: #333;
+  --by-json-string: #053;
+  --by-json-literal: #506;
+  --by-json-nest-border: 0.0625rem dotted #333;
+  --by-json-toggle: #333;
+  --by-json-toggle-hover: #000;
+  --by-json-placeholder: #333;
 }
 /* Dark */
 .byJSONdocument.dark[data-theme="high-contrast"] {
-  --by-view-muted: #dddddd;
-  --by-view-bg: #000000;
-  --by-json-text: #ffffff;
-  --by-json-border: #ffffff;
-  --by-json-string: #ffff00;
-  --by-json-literal: #ffb5ff;
-  --by-json-nest-border: 0.0625rem dotted #ffffff;
-  --by-json-toggle: #dddddd;
-  --by-json-toggle-hover: #ffffff;
-  --by-json-placeholder: #dddddd;
+  --by-view-muted: #ddd;
+  --by-view-bg: #000;
+  --by-json-text: #fff;
+  --by-json-border: #fff;
+  --by-json-string: #ff0;
+  --by-json-literal: #fbf;
+  --by-json-nest-border: 0.0625rem dotted #fff;
+  --by-json-toggle: #ddd;
+  --by-json-toggle-hover: #fff;
+  --by-json-placeholder: #ddd;
 }
